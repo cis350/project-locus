@@ -1,0 +1,48 @@
+.club-header {
+    position: absolute;
+    font-family: Arial;
+    top: 15%;
+    left: 10%;
+}
+
+.club-table {
+    background-color: #B5E48C;
+    border-radius: 10px;
+    position: absolute;
+    left: 8%;
+    top: 25%;
+    width: 84%;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+}
+
+.club-button {
+    display: flex;
+    font-family: Arial;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    background-color: #6A9B72;
+    width: fit-content;
+    height: fit-content;
+    font-Size: 24px;
+    border-Color: #B1DFAD;
+    padding: 10px;
+    padding-left: 20%;
+    padding-right: 20%;
+}
+
+.club-button-info {
+    width: 100%;
+    display: inline-flex;
+    text-align: center;
+    list-style-type: none;
+    margin: 0;
+    padding: 0px 10px;
+}
+
+.club-button-info-item {
+    display:inline;
+    padding: 10px 20px;
+}
