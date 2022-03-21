@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Form, Alert } from 'react-bootstrap';
+import {
+  Button,
+  Card, Form,
+  Alert,
+} from 'react-bootstrap';
 
 const Register = function RegisterComponent() {
   const [firstName, setFirstName] = useState('');
