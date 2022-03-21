@@ -8,8 +8,7 @@ import Clubs from './components/Clubs';
 
 function App() {
   return (
-    <>path="/login" element={<Login />} />
-        <Route exact path="/registe
+    <div>
       <Navigation />
       <Routes>
         <Route exact path="/" element={<Main />} />
@@ -17,7 +16,7 @@ function App() {
         <Route exact path="/register" element={<Register />} />
         <Route exact path="/clubs" element={<Clubs />} />
       </Routes>
-    </>
+    </div>
   );
 }
 
