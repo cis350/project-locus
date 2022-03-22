@@ -6,11 +6,12 @@ import {
   Alert,
 } from 'react-bootstrap';
 
-const Login = function LoginComponent() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const Login = function LoginComponent({setIsLoggedIn, setUsername}) {
   const [usernameEmpty, setUsernameEmpty] = useState(false);
   const [passwordEmpty, setPasswordEmpty] = useState(false);
+
+  const updateIsLoggedInState = setIsLoggedIn;
+  const updateUsernameState = setUsername;
 
   const updateUsername = (e) => {
     setUsername(e.target.value);
@@ -52,7 +53,7 @@ const Login = function LoginComponent() {
           </Form>
         </Card.Body>
       </Card>
-      <Link to="/loading" className="navbar-brand" style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+      <Link to="/home" className="navbar-brand" style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
         <Button
           style={{
             backgroundColor: '#6A9B72',
@@ -63,6 +64,7 @@ const Login = function LoginComponent() {
             color: 'black',
             borderColor: '#6A9B72',
           }}
+          onClick={() => updateIsLoggedInState(true)}
         >
           Log-in
         </Button>
