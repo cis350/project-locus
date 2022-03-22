@@ -11,7 +11,7 @@ function App() {
   const [username, setUsername] = useState('');
 
   return (
-    <>
+    <div>
       <Navigation isLoggedIn={isLoggedIn} username={username} />
       <Routes>
         <Route exact path="/" element={<Main />} />
@@ -19,7 +19,7 @@ function App() {
         <Route exact path="/register" element={<Register />} />
         <Route exact path="/clubs" element={<Clubs />} />
       </Routes>
-    </>
+    </div>
   );
 }
 
