@@ -1,8 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 
-const Main = function MainComponent() {
+const Main = function MainComponent({ justRegistered, setJustRegistered }) {
+  const msgJustRegistered = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="success" style={{ width: '23rem', margin: 'auto', marginTop: '30px' }} className="text-center">
+      Account created successfully!
+    </Alert>
+  ));
+
+  const resetJustRegistered = () => {
+    setJustRegistered(false);
+  };
+
   return (
     <div className="container" style={{ position: 'relative', padding: '200px' }}>
       <h1 className="text-center">Welcome to Locus!</h1>
@@ -20,6 +31,7 @@ const Main = function MainComponent() {
               borderColor: '#6A9B72',
               marginRight: '25px',
             }}
+            onClick={() => resetJustRegistered()}
           >
             Log-in
           </Button>
@@ -35,11 +47,13 @@ const Main = function MainComponent() {
               color: 'black',
               borderColor: '#6A9B72',
             }}
+            onClick={() => resetJustRegistered()}
           >
             Register
           </Button>
         </Link>
       </span>
+      {justRegistered && msgJustRegistered()}
     </div>
   );
 };

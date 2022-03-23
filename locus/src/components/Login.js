@@ -1,24 +1,49 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card, Form,
   Alert,
 } from 'react-bootstrap';
+import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
 
-const Login = function LoginComponent({setIsLoggedIn, setUsername}) {
-  const [usernameEmpty, setUsernameEmpty] = useState(false);
-  const [passwordEmpty, setPasswordEmpty] = useState(false);
+const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
+  const [logInEmail, setLogInEmail] = useState('');
+  const [logInPassword, setLogInPassword] = useState('');
 
-  const updateIsLoggedInState = setIsLoggedIn;
-  const updateUsernameState = setUsername;
+  const [logInFieldEmpty, setLogInFieldEmpty] = useState(false);
+  const [logInInfoInvalid, setLogInInfoInvalid] = useState(false);
 
-  const updateUsername = (e) => {
-    setUsername(e.target.value);
+  const navigate = useNavigate();
+
+  // handles redirecting to "/home"
+  function onLogIn(path) {
+    navigate(path);
+    setIsLoggedIn(true);
+    setUserEmail(logInEmail);
+  }
+
+  const updateEmail = (e) => {
+    setLogInEmail(e.target.value);
   };
 
   const updatePassword = (e) => {
-    setPassword(e.target.value);
+    setLogInPassword(e.target.value);
+  };
+
+  const processUserInputs = () => {
+    if (logInEmail === '' || logInPassword === '') {
+      setLogInFieldEmpty(true);
+      setLogInInfoInvalid(false);
+    } else if (!verifyLogInInfo(logInEmail, logInPassword)) {
+      setLogInFieldEmpty(false);
+      setLogInInfoInvalid(true);
+    } else {
+      const uniqueId = getUserUniqueId(logInEmail);
+      setLogInFieldEmpty(false);
+      setLogInInfoInvalid(false);
+      onLogIn(`/home/${uniqueId}`);
+    }
   };
 
   const errorMsgEmptyFields = (() => (
@@ -28,10 +53,18 @@ const Login = function LoginComponent({setIsLoggedIn, setUsername}) {
     </Alert>
   ));
 
+  const errorMsgLogInInfoInvalid = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Email or/and password invalid.
+    </Alert>
+  ));
+
   return (
     <div className="container" style={{ position: 'relative', padding: '120px' }}>
       <h1 className="text-center">Log-in</h1>
-      {( usernameEmpty || passwordEmpty) && errorMsgEmptyFields()}
+      {logInFieldEmpty && errorMsgEmptyFields()}
+      {logInInfoInvalid && errorMsgLogInInfoInvalid()}
       <Card style={{
         width: '23rem',
         margin: 'auto',
@@ -45,15 +78,15 @@ const Login = function LoginComponent({setIsLoggedIn, setUsername}) {
           {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Username</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updateUsername(e)} />
+              <Form.Label>Email</Form.Label>
+              <Form.Control style={{ height: '25px' }} type="email" onChange={(e) => updateEmail(e)} />
               <Form.Label>Password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updatePassword(e)} />
+              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updatePassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
       </Card>
-      <Link to="/home" className="navbar-brand" style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+      <div className="navbar-brand" style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
         <Button
           style={{
             backgroundColor: '#6A9B72',
@@ -64,11 +97,11 @@ const Login = function LoginComponent({setIsLoggedIn, setUsername}) {
             color: 'black',
             borderColor: '#6A9B72',
           }}
-          onClick={() => updateIsLoggedInState(true)}
+          onClick={() => processUserInputs()}
         >
           Log-in
         </Button>
-      </Link>
+      </div>
     </div>
   );
 };
