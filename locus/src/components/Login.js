@@ -49,7 +49,7 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
   const errorMsgEmptyFields = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Please fill out all 6 fields below.
+      Please enter both your email and password.
     </Alert>
   ));
 
