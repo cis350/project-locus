@@ -10,7 +10,8 @@ import renderer from 'react-test-renderer';
 import Profile from '../src/components/Profile';
 
 const user = {
-  id: 1, name: 'Dustin Fang', year: 2024, major: 'Computer Science', email: 'fdustin@seas.upenn.edu' };
+  id: 1, name: 'Dustin Fang', year: 2024, major: 'Computer Science', email: 'fdustin@seas.upenn.edu' 
+};
 
 test('member profile test', () => {
   render(< Profile id={user.id} />);
