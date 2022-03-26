@@ -1,32 +1,78 @@
-import React from 'react';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import React, { useState, useRef } from 'react';
+import {
+  Button, Form, Container, Row, Col, Stack,
+} from 'react-bootstrap';
 import '../assets/Clubs.css';
+import { getUserFullName } from '../modules/storage';
 
-function Clubs(props) {
-  // need to render buttons with club mapping (use json)
-  // map JSON array to button map
+function Clubs({ userEmail }) {
+  const [clubsArray, addClub] = useState([]);
+
+  const clubName = useRef('');
+  const masterName = useRef('');
+
+  const handleClubs = () => {
+    const newClub = {
+      clubItemName: clubName.current,
+      masterItemName: masterName.current,
+    };
+    addClub([...clubsArray, newClub]);
+  };
+
+  const makeClubName = (e) => {
+    clubName.current = e.target.value;
+  };
+
+  const makeMasterName = (e) => {
+    masterName.current = e.target.value;
+  };
+
   return (
     <div>
-      <h1 className="club-header">
-        Which Club Needs Work?
-      </h1>
-      <div className="club-table">
-        <Button className="club-button">
-          <ul className="club-button-info">
-            <li className="club-button-info-item">Club 1</li>
-            <li className="club-button-info-item">Master: James</li>
-            <li className="club-button-info-item">Settings</li>
-          </ul>
-        </Button>
-        <br />
-        <Button className="club-button">
-          <ul className="club-button-info">
-            <li className="club-button-info-item">Club 2</li>
-            <li className="club-button-info-item">Master: Dustin</li>
-            <li className="club-button-info-item">Settings</li>
-          </ul>
-        </Button>
-      </div>
+      <Container fluid>
+        <Stack gap={20}>
+          <Row>
+            <h1 className="club-header">
+              Which Club Needs Work, &nbsp;
+              {getUserFullName(userEmail)}
+              ?
+            </h1>
+          </Row>
+          <div className="club-table">
+            {clubsArray.map((clubItem) => (
+              <div className="club-item">
+                <Button className="club-button">
+                  <Row>
+                    <Col className="d-flex justify-content-center">
+                      {clubItem.clubItemName}
+                    </Col>
+                    <Col className="d-flex justify-content-center">
+                      Master: &nbsp;
+                      {clubItem.masterItemName}
+                    </Col>
+                    <Col className="d-flex justify-content-center">
+                      Settings
+                    </Col>
+                  </Row>
+                </Button>
+              </div>
+            ))}
+          </div>
+          <div className="add-club-form">
+            <Row>
+              <Form className="club-form">
+                <input type="text" onChange={makeClubName} placeholder="Club name" />
+              </Form>
+              <Form className="club-form">
+                <input type="text" onChange={makeMasterName} placeholder="Clubmaster name" />
+              </Form>
+              <Button className="add-club-button" onClick={handleClubs}>
+                Add Club
+              </Button>
+            </Row>
+          </div>
+        </Stack>
+      </Container>
     </div>
   );
 }
