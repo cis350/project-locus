@@ -1,11 +1,11 @@
 import React from 'react';
 import { getUserFullName } from '../modules/storage';
+import Profile from './Profile';
 
 const Home = function HomeComponent({ userEmail }) {
   return (
     <div>
-      Hello,
-      {getUserFullName(userEmail)}
+      <Profile userEmail={userEmail} />
     </div>
   );
 };
