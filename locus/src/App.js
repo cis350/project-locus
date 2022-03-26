@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Clubs from './components/Clubs';
 import Home from './components/Home';
+import Chat from './components/Chat';
 import { getUserUniqueId } from './modules/storage';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route exact path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserEmail={setUserEmail} />} />
         <Route exact path="/register" element={<Register setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/clubs/${uniqueId}`} element={<Clubs userEmail={userEmail} />} />
+        <Route exact path={`/chat/${uniqueId}`} element={<Chat />} />
       </Routes>
     </div>
   );
