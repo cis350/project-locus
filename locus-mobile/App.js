@@ -10,8 +10,11 @@ import Main from './components/Main';
 const Stack = createNativeStackNavigator();
 export default function App() {
   return (
-    <View style={styles.container}>
     <NavigationContainer>
+      <Stack.Navigator initialRouteName="Main" >
+        <Stack.Screen name="Main" component={Main} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
