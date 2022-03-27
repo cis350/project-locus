@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 // import navigation stack constructor
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Main from './components/Main';
+import Login from './components/Login';
 
 // create a navigation stack
 const Stack = createNativeStackNavigator();
@@ -13,6 +14,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Main" >
         <Stack.Screen name="Main" component={Main} options={{ title: 'LOCUS' }} />
+        <Stack.Screen name="Login" component={Login} options={{ title: 'Login' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

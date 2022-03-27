@@ -2,10 +2,10 @@ import React from 'react';
 import { View, TouchableHighlight, Text, StyleSheet } from 'react-native';
 
 // passed in justRegistered and setJustRegistered previously
-const Main = function MainComponent({ navigation, routes }) {
+export default function Main({ navigation, routes }) {
 
   function handleLogin() {
-    console.log("Login");
+    navigation.navigate('Login');
   }
 
   function handleRegister() {
@@ -26,8 +26,6 @@ const Main = function MainComponent({ navigation, routes }) {
     </View>
   );
 };
-
-export default Main;
 
 const styles = StyleSheet.create({
   container: {
