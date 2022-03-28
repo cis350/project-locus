@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 function checkIfEmailAlreadyExists(email) {
   return !localStorage.getItem(email);
 }

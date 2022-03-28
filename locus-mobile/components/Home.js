@@ -1,7 +1,7 @@
 import React from 'react';
-// import { getUserFullName } from '../modules/storage';
 import Profile from './Profile';
 import { View, Text, StyleSheet, TouchableHighlight } from 'react-native';
+// import { getUserFullName } from '../modules/storage';
 
 export default function ({ navigation }) {
   function handleLogout() {
