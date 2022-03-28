@@ -8,18 +8,6 @@ export default function Profile({navigation, routes}) {
     id: 1, name: 'Dustin Fang', year: 2024, major: 'Computer Science', email: 'fdustin@seas.upenn.edu',
   };
 
-  // determine what the user can do on this profile
-  // let option = 'Message';
-  // const currUserId = 2;
-  // if (user.id === currUserId) {
-  //   option = 'Log-out';
-  // }
-
-  // log what the button does after the user clicks on it
-  function handleOption() {
-    // if (option === 'Message') console.log(`Message ${user.name}`);
-    // else console.log('Logged out');
-  }
   return (
     <View style={styles.container}>
       <Text style={{fontSize: 40}}>My Profile</Text>
