@@ -9,6 +9,8 @@ export default function Login({ navigation, routes }) {
   function handleLogin() {
     if (email === '' || password === '') {
       Alert.alert('Invalid Username/Password')
+    } else {
+      navigation.navigate('AppNavigation');
     }
     // else if (!verifyLogInInfo(logInEmail, logInPassword)) {
     //   setLogInFieldEmpty(false);

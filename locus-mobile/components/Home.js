@@ -1,13 +1,13 @@
 import React from 'react';
-import { getUserFullName } from '../modules/storage';
-import Profile from './Profile';
+// import { getUserFullName } from '../modules/storage';
+// import Profile from './Profile';
+import { View, Text } from 'react-native';
 
-const Home = function HomeComponent({ userEmail }) {
+export default function ({ navigation, routes }) {
   return (
-    <div>
-      <Profile userEmail={userEmail} />
-    </div>
+    <View>
+      <Text>Hello</Text>
+    </View>
   );
 };
 
-export default Home;
