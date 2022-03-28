@@ -6,6 +6,7 @@ export default function Login({ navigation, routes }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
+  // vertify user information once we have a backend
   function handleLogin() {
     if (email === '' || password === '') {
       Alert.alert('Invalid Username/Password')

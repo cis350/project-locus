@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import Home from './Home';
-import { Text, StyleSheet } from 'react-native';
+import { Text } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 export default function Navigation() {
@@ -59,10 +59,4 @@ export default function Navigation() {
     </Tab.Navigator>
   )
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: 'black',
-  }
-});
 

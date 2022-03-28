@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, TouchableHighlight, Text, StyleSheet } from 'react-native';
 
-// passed in justRegistered and setJustRegistered previously
 export default function Main({ navigation, routes }) {
 
   function handleLogin() {

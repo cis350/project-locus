@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, TouchableHighlight, Text, StyleSheet, Image } from 'react-native';
 
-export default function Profile({navigation, routes}) {
+export default function Profile() {
   // fetch user with the given id and display user with following info
   const user = {
     id: 1, name: 'Dustin Fang', year: 2024, major: 'Computer Science', email: 'fdustin@seas.upenn.edu',
