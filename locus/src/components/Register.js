@@ -192,15 +192,15 @@ const Register = function RegisterComponent({ setJustRegistered }) {
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>First name</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updateFirstName(e)} />
+              <Form.Control style={{ height: '25px' }} type="first_name" onChange={(e) => updateFirstName(e)} />
               <Form.Label>Last name</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updateLastName(e)} />
+              <Form.Control style={{ height: '25px' }} type="last_name" onChange={(e) => updateLastName(e)} />
               <Form.Label>Email</Form.Label>
               <Form.Control style={{ height: '25px' }} type="email" onChange={(e) => updateEmail(e)} />
               <Form.Label>Password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updatePassword(e)} />
+              <Form.Control style={{ height: '25px' }} type="pwd" onChange={(e) => updatePassword(e)} />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '25px' }} type="pwd_cfm" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
