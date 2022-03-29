@@ -5,22 +5,6 @@ import {
 import Profile from './Profile';
 // import { getUserFullName } from '../modules/storage';
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: '#6A9B72',
-    borderRadius: 10,
-    paddingVertical: 10,
-    width: 150,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 10,
-  },
-});
-
 export default function Home({ navigation }) {
   function handleLogout() {
     navigation.navigate('Main');
@@ -29,9 +13,25 @@ export default function Home({ navigation }) {
   return (
     <View style={styles.container}>
       <Profile />
-      <TouchableHighlight style={styles.button} onPress={() => handleLogout()} underlayColor="#33E86F">
-        <Text>Logout</Text>
+      <TouchableHighlight style={styles.button} onPress={() => handleLogout()} underlayColor="#b00017">
+        <Text style={{ textAlign: 'center', fontSize: 30 }}>Logout</Text>
       </TouchableHighlight>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#ff0022',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+});
