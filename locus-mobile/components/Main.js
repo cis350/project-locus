@@ -1,30 +1,24 @@
 import React from 'react';
-import { View, TouchableHighlight, Text, StyleSheet } from 'react-native';
+import {
+  View, TouchableHighlight, Text, StyleSheet,
+} from 'react-native';
 
-export default function Main({ navigation, routes }) {
-
+export default function Main({ navigation }) {
   function handleLogin() {
     navigation.navigate('Login');
   }
 
-  function handleRegister() {
-    console.log("Register");
-  }
-
   return (
     <View style={styles.container}>
-      <Text style={{textAlign: 'center', fontSize: 40}}>Welcome To Locus!</Text>
+      <Text style={{ textAlign: 'center', fontSize: 40 }}>Welcome To Locus!</Text>
       <View style={styles.buttonContainer}>
         <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleLogin()}>
           <Text style={{ fontSize: 30 }}>Login</Text>
         </TouchableHighlight>
-        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleRegister()}>
-          <Text style={{ fontSize: 30 }}>Register</Text>
-        </TouchableHighlight>
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -46,5 +40,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: 10,
     marginRight: 10,
-  }
-})
+  },
+});

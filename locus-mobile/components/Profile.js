@@ -1,6 +1,8 @@
-/* eslint-disable react/jsx-one-expression-per-line */
+/* eslint-disable global-require */
 import React from 'react';
-import { View, TouchableHighlight, Text, StyleSheet, Image } from 'react-native';
+import {
+  View, Text, StyleSheet, Image,
+} from 'react-native';
 
 export default function Profile() {
   // fetch user with the given id and display user with following info
@@ -10,7 +12,7 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <Text style={{fontSize: 40}}>My Profile</Text>
+      <Text style={{ fontSize: 40 }}>My Profile</Text>
       <View style={styles.profileContainer}>
         <Image source={require('../assets/default-profile.jpg')} style={styles.img} />
         <Text>{user.name}</Text>
@@ -35,10 +37,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 25,
     borderRadius: 10,
-    marginVertical: 10
+    marginVertical: 10,
   },
   img: {
     width: 300,
     height: 300,
-  }
-})
+  },
+});

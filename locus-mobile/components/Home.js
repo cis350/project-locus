@@ -1,22 +1,9 @@
 import React from 'react';
+import {
+  View, Text, StyleSheet, TouchableHighlight,
+} from 'react-native';
 import Profile from './Profile';
-import { View, Text, StyleSheet, TouchableHighlight } from 'react-native';
 // import { getUserFullName } from '../modules/storage';
-
-export default function ({ navigation }) {
-  function handleLogout() {
-    navigation.navigate('Main');
-  }
-
-  return (
-    <View style={styles.container}>
-      <Profile />
-      <TouchableHighlight style={styles.button} onPress={handleLogout} underlayColor="#33E86F">
-        <Text>Logout</Text>
-      </TouchableHighlight>
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -32,4 +19,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 10,
   },
-})
+});
+
+export default function Home({ navigation }) {
+  function handleLogout() {
+    navigation.navigate('Main');
+  }
+
+  return (
+    <View style={styles.container}>
+      <Profile />
+      <TouchableHighlight style={styles.button} onPress={() => handleLogout()} underlayColor="#33E86F">
+        <Text>Logout</Text>
+      </TouchableHighlight>
+    </View>
+  );
+}
