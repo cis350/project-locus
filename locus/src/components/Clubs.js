@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import {
   Button, Form, Container, Row, Col, Stack,
 } from 'react-bootstrap';
@@ -6,13 +7,12 @@ import '../assets/Clubs.css';
 import {
   getUserFullName, getUserClubs, joinClub, getClub,
 } from '../modules/storage';
-import { v4 as uuidv4 } from 'uuid';
 
 function Clubs({ userEmail }) {
   // initial clubs user is in
   const initState = [];
   const userClubs = getUserClubs(userEmail);
-  for (let i = 0; i < userClubs.length; i++) {
+  for (let i = 0; i < userClubs.length; i += 1) {
     const club = getClub(userClubs[i]);
     const newClub = {
       clubItemName: userClubs[i],
@@ -26,8 +26,8 @@ function Clubs({ userEmail }) {
   const masterName = useRef('');
 
   const handleClubs = () => {
-    const clubValues = joinClub(userEmail, clubName.current, masterName.current, uuidv4())
-    if (clubValues){
+    const clubValues = joinClub(userEmail, clubName.current, masterName.current, uuidv4());
+    if (clubValues) {
       const newClub = {
         clubItemName: clubName.current,
         masterItemName: masterName.current,

@@ -1,14 +1,6 @@
-// helper function
-function searchList(arr, target) {
-  for (let i = 0; i < arr.length; i += 1) {
-    if (arr[i] === target) {
-      return arr[i];
-    }
-  }
-  return null;
-}
-
-// Login/Registration Methods
+/**
+ * Login/Registration Methods
+ */
 
 function checkIfEmailAlreadyExists(email) {
   return !localStorage.getItem(email);
@@ -43,33 +35,51 @@ function getUserFullName(userEmail) {
   return `${first} ${last}`;
 }
 
-// Chats Methods
+/**
+ * Chat Methods
+ */
 
 function initChats() {
-  localStorage.setItem('Chats', JSON.stringify([]));
+  localStorage.setItem('Chats', JSON.stringify({}));
 }
 
+// creates a new chat for a club
 function addClubToChats(clubName) {
   const allClubChats = JSON.parse(localStorage.getItem('Chats'));
-  const obj = {};
-  obj[clubName] = [];
-  allClubChats.push(obj);
+  allClubChats[clubName] = [];
   localStorage.setItem('Chats', JSON.stringify(allClubChats));
 }
 
+// returns the chat of a club
 function getClubChats(clubName) {
-  return searchList(JSON.parse(localStorage.getItem('Chats')), clubName);
+  const allChats = JSON.parse(localStorage.getItem('Chat'));
+  if (allChats && allChats[clubName]) {
+    return JSON.parse(localStorage.getItem('Chats'))[clubName];
+  }
+  return null;
 }
 
-function sendChat(clubName, userEmail, message, timeStamp) {
+// sends a message to the chat of a club
+function sendMessage(clubName, userEmail, message, timeStamp) {
   const allClubChats = JSON.parse(localStorage.getItem('Chats'));
-  const clubChats = searchList(JSON.parse(localStorage.getItem('Chats')), clubName);
-  clubChats.push({ user: userEmail, mess: message, time: timeStamp });
-  allClubChats.push(clubChats);
+  const clubChats = getClubChats(clubName);
+  clubChats.push([ userEmail, message, timeStamp ]);
+  allClubChats[clubName] = clubChats;
   localStorage.setItem('Chats', JSON.stringify(allClubChats));
 }
 
-// Club Methods
+// function searchList(arr, target) {
+//   for (let i = 0; i < arr.length; i += 1) {
+//     if (arr[i] === target) {
+//       return arr[i];
+//     }
+//   }
+//   return null;
+// }
+
+/**
+ * Club Methods
+ */
 
 function createClub(clubName, master, uniqueId) {
   if (!localStorage.getItem('Clubs')) {
@@ -120,7 +130,8 @@ function joinClub(userEmail, clubName, master, uniqueId) {
     localStorage.setItem(userEmail, JSON.stringify(userValues));
     return getClub(clubName);
   }
-  if (clubValues.master === master && !clubValues.members.contains(userEmail)) { // master ~~ password -> add user to club
+  // master ~~ password -> add user to club
+  if (clubValues.master === master && !clubValues.members.contains(userEmail)) {
     console.log('master reached');
     // update club side
     clubValues.members.push(userEmail);
@@ -148,4 +159,6 @@ module.exports = {
   getUserClubs,
   joinClub,
   getClub,
+  getClubChats,
+  sendMessage,
 };
