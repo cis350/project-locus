@@ -82,6 +82,7 @@ function createClub(clubName, master, uniqueId) {
     members: [master],
     projects: {},
   };
+  // update club side
   const clubs = JSON.parse(localStorage.getItem('Clubs'));
   clubs[clubName] = clubValues;
   localStorage.setItem('Clubs', JSON.stringify(clubs));
@@ -96,8 +97,8 @@ function createClub(clubName, master, uniqueId) {
 // Return club values
 function getClub(clubName) {
   const clubs = JSON.parse(localStorage.getItem('Clubs'));
-  if (clubs && clubs.clubName) {
-    return clubs.clubName;
+  if (clubs && clubs[clubName]) {
+    return clubs[clubName];
   }
   return null;
 }
@@ -112,18 +113,26 @@ function joinClub(userEmail, clubName, master, uniqueId) {
   const clubValues = getClub(clubName);
   if (!clubValues) {
     createClub(clubName, userEmail, uniqueId);
+    // update user side
+    const userValues = JSON.parse(localStorage.getItem(userEmail));
+    userValues.clubs.push(clubName);
+    console.log(userValues);
+    localStorage.setItem(userEmail, JSON.stringify(userValues));
     return getClub(clubName);
   }
   if (clubValues.master === master) { // master ~~ password -> add user to club
+    console.log('master reached');
     // update club side
     clubValues.members.push(userEmail);
     const clubs = JSON.parse(localStorage.getItem('Clubs'));
     clubs[clubName] = clubValues;
     localStorage.setItem('Clubs', JSON.stringify(clubs));
 
+    console.log('user side reached');
     // update user side
     const userValues = JSON.parse(localStorage.getItem(userEmail));
     userValues.clubs.push(clubName);
+    console.log(userValues);
     localStorage.setItem(userEmail, JSON.stringify(userValues));
     return getClub(clubName);
   }

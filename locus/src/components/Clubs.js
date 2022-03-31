@@ -9,12 +9,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 function Clubs({ userEmail }) {
-  const [clubsArray, addClub] = useState([]);
-
-  const clubName = useRef('');
-  const masterName = useRef('');
-
   // initial clubs user is in
+  const initState = [];
   const userClubs = getUserClubs(userEmail);
   for (let i = 0; i < userClubs.length; i++) {
     const club = getClub(userClubs[i]);
@@ -22,20 +18,23 @@ function Clubs({ userEmail }) {
       clubItemName: userClubs[i],
       masterItemName: club.master,
     };
-    addClub([...clubsArray, newClub]);
+    initState.push(newClub);
   }
+  const [clubsArray, addClub] = useState(initState);
+
+  const clubName = useRef('');
+  const masterName = useRef('');
 
   const handleClubs = () => {
     const clubValues = joinClub(userEmail, clubName.current, masterName.current, uuidv4())
-    console.log("handle reached");
-    console.log(clubValues);
     if (clubValues){
-      console.log("clubvalues reached");
       const newClub = {
         clubItemName: clubName.current,
         masterItemName: masterName.current,
       };
       addClub([...clubsArray, newClub]);
+    } else {
+      alert('Club exists, wrong master');
     }
   };
 
@@ -60,7 +59,7 @@ function Clubs({ userEmail }) {
           </Row>
           <div className="club-table">
             {clubsArray.map((clubItem) => (
-              <div className="club-item">
+              <div className="club-item" key={clubItem.clubItemName}>
                 <Button className="club-button">
                   <Row>
                     <Col className="d-flex justify-content-center">
