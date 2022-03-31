@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-
 // helper function
 function searchList(arr, target) {
   for (let i = 0; i < arr.length; i += 1) {
@@ -48,47 +46,47 @@ function getUserFullName(userEmail) {
 // Chats Methods
 
 function initChats() {
-  localStorage.put('Chats', JSON.stringify([]));
+  localStorage.setItem('Chats', JSON.stringify([]));
 }
 
 function addClubToChats(clubName) {
-  const allClubChats = JSON.parse(localStorage.get('Chats'));
+  const allClubChats = JSON.parse(localStorage.getItem('Chats'));
   const obj = {};
   obj[clubName] = [];
   allClubChats.push(obj);
-  localStorage.put('Chats', JSON.stringify(allClubChats));
+  localStorage.setItem('Chats', JSON.stringify(allClubChats));
 }
 
 function getClubChats(clubName) {
-  return searchList(JSON.parse(localStorage.get('Chats')), clubName);
+  return searchList(JSON.parse(localStorage.getItem('Chats')), clubName);
 }
 
 function sendChat(clubName, userEmail, message, timeStamp) {
-  const allClubChats = JSON.parse(localStorage.get('Chats'));
-  const clubChats = searchList(JSON.parse(localStorage.get('Chats')), clubName);
+  const allClubChats = JSON.parse(localStorage.getItem('Chats'));
+  const clubChats = searchList(JSON.parse(localStorage.getItem('Chats')), clubName);
   clubChats.push({ user: userEmail, mess: message, time: timeStamp });
   allClubChats.push(clubChats);
-  localStorage.put('Chats', JSON.stringify(allClubChats));
+  localStorage.setItem('Chats', JSON.stringify(allClubChats));
 }
 
 // Club Methods
 
-function createClub(clubName, master) {
-  if (!localStorage.get('Clubs')) {
+function createClub(clubName, master, uniqueId) {
+  if (!localStorage.getItem('Clubs')) {
     localStorage.setItem('Clubs', JSON.stringify({}));
   }
   const clubValues = {
     clubName: clubName,
     master: master,
-    uniqueId: uuidv4(),
+    uniqueId: uniqueId,
     members: [master],
     projects: {},
   };
-  const clubs = JSON.parse(localStorage.get('Clubs'));
+  const clubs = JSON.parse(localStorage.getItem('Clubs'));
   clubs[clubName] = clubValues;
   localStorage.setItem('Clubs', JSON.stringify(clubs));
 
-  if (!localStorage.get('Chats')) {
+  if (!localStorage.getItem('Chats')) {
     initChats();
   }
 
@@ -97,29 +95,39 @@ function createClub(clubName, master) {
 
 // Return club values
 function getClub(clubName) {
-  const clubs = JSON.parse(localStorage.get('Clubs'));
+  const clubs = JSON.parse(localStorage.getItem('Clubs'));
   if (clubs && clubs.clubName) {
     return clubs.clubName;
   }
   return null;
 }
 
-function joinClub(userEmail, clubName, master) {
+// return array of clubs user is in
+function getUserClubs(userEmail) {
+  const userValues = JSON.parse(localStorage.getItem(userEmail));
+  return userValues.clubs;
+}
+
+function joinClub(userEmail, clubName, master, uniqueId) {
   const clubValues = getClub(clubName);
   if (!clubValues) {
-    createClub(clubName, userEmail);
-  } else if (clubValues.master === master) { // master ~~ password -> add user to club
+    createClub(clubName, userEmail, uniqueId);
+    return getClub(clubName);
+  }
+  if (clubValues.master === master) { // master ~~ password -> add user to club
     // update club side
     clubValues.members.push(userEmail);
-    const clubs = JSON.parse(localStorage.get('Clubs'));
+    const clubs = JSON.parse(localStorage.getItem('Clubs'));
     clubs[clubName] = clubValues;
     localStorage.setItem('Clubs', JSON.stringify(clubs));
 
     // update user side
-    const userValues = JSON.parse(localStorage.get(userEmail));
+    const userValues = JSON.parse(localStorage.getItem(userEmail));
     userValues.clubs.push(clubName);
-    localStorage.set(userEmail, JSON.stringify(userValues));
+    localStorage.setItem(userEmail, JSON.stringify(userValues));
+    return getClub(clubName);
   }
+  return null;
 }
 
 module.exports = {
@@ -128,4 +136,7 @@ module.exports = {
   verifyLogInInfo,
   getUserUniqueId,
   getUserFullName,
+  getUserClubs,
+  joinClub,
+  getClub,
 };

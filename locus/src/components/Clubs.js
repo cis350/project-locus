@@ -3,7 +3,10 @@ import {
   Button, Form, Container, Row, Col, Stack,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
-import { getUserFullName } from '../modules/storage';
+import {
+  getUserFullName, getUserClubs, joinClub, getClub,
+} from '../modules/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 function Clubs({ userEmail }) {
   const [clubsArray, addClub] = useState([]);
@@ -11,12 +14,29 @@ function Clubs({ userEmail }) {
   const clubName = useRef('');
   const masterName = useRef('');
 
-  const handleClubs = () => {
+  // initial clubs user is in
+  const userClubs = getUserClubs(userEmail);
+  for (let i = 0; i < userClubs.length; i++) {
+    const club = getClub(userClubs[i]);
     const newClub = {
-      clubItemName: clubName.current,
-      masterItemName: masterName.current,
+      clubItemName: userClubs[i],
+      masterItemName: club.master,
     };
     addClub([...clubsArray, newClub]);
+  }
+
+  const handleClubs = () => {
+    const clubValues = joinClub(userEmail, clubName.current, masterName.current, uuidv4())
+    console.log("handle reached");
+    console.log(clubValues);
+    if (clubValues){
+      console.log("clubvalues reached");
+      const newClub = {
+        clubItemName: clubName.current,
+        masterItemName: masterName.current,
+      };
+      addClub([...clubsArray, newClub]);
+    }
   };
 
   const makeClubName = (e) => {
