@@ -95,6 +95,15 @@ function createClub(clubName, master) {
   addClubToChats(clubName);
 }
 
+// Return club values
+function getClub(clubName) {
+  const clubs = JSON.parse(localStorage.get('Clubs'));
+  if (clubs && clubs.clubName) {
+    return clubs.clubName;
+  }
+  return null;
+}
+
 function joinClub(userEmail, clubName, master) {
   const clubValues = getClub(clubName);
   if (!clubValues) {
@@ -111,15 +120,6 @@ function joinClub(userEmail, clubName, master) {
     userValues.clubs.push(clubName);
     localStorage.set(userEmail, JSON.stringify(userValues));
   }
-}
-
-// Return club values
-function getClub(clubName) {
-  const clubs = JSON.parse(localStorage.get('Clubs'));
-  if (clubs && clubs.clubName) {
-    return clubs.clubName;
-  }
-  return null;
 }
 
 module.exports = {
