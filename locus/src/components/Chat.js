@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-function Chat(props) {
+function Chat({ userEmail }) {
   return (
     <div>
       Hello world!
