@@ -1,5 +1,17 @@
 import { v4 as uuidv4 } from 'uuid';
 
+// helper function
+function searchList(arr, target) {
+  for (let i = 0; i < arr.length; i += 1) {
+    if (arr[i] === target) {
+      return arr[i];
+    }
+  }
+  return null;
+}
+
+// Login/Registration Methods
+
 function checkIfEmailAlreadyExists(email) {
   return !localStorage.getItem(email);
 }
@@ -33,8 +45,36 @@ function getUserFullName(userEmail) {
   return `${first} ${last}`;
 }
 
+// Chats Methods
+
+function initChats() {
+  localStorage.put('Chats', JSON.stringify([]));
+}
+
+function addClubToChats(clubName) {
+  const allClubChats = JSON.parse(localStorage.get('Chats'));
+  const obj = {};
+  obj[clubName] = [];
+  allClubChats.push(obj);
+  localStorage.put('Chats', JSON.stringify(allClubChats));
+}
+
+function getClubChats(clubName) {
+  return searchList(JSON.parse(localStorage.get('Chats')), clubName);
+}
+
+function sendChat(clubName, userEmail, message, timeStamp) {
+  const allClubChats = JSON.parse(localStorage.get('Chats'));
+  const clubChats = searchList(JSON.parse(localStorage.get('Chats')), clubName);
+  clubChats.push({ user: userEmail, mess: message, time: timeStamp });
+  allClubChats.push(clubChats);
+  localStorage.put('Chats', JSON.stringify(allClubChats));
+}
+
+// Club Methods
+
 function createClub(clubName, master) {
-  if (!localStorage.get('Clubs')){
+  if (!localStorage.get('Clubs')) {
     localStorage.setItem('Clubs', JSON.stringify({}));
   }
   const clubValues = {
@@ -47,13 +87,19 @@ function createClub(clubName, master) {
   const clubs = JSON.parse(localStorage.get('Clubs'));
   clubs[clubName] = clubValues;
   localStorage.setItem('Clubs', JSON.stringify(clubs));
+
+  if (!localStorage.get('Chats')) {
+    initChats();
+  }
+
+  addClubToChats(clubName);
 }
 
 function joinClub(userEmail, clubName, master) {
   const clubValues = getClub(clubName);
-  if (!clubValues){
+  if (!clubValues) {
     createClub(clubName, userEmail);
-  } else if (clubValues.master === master) {        // master ~~ password -> add user to club
+  } else if (clubValues.master === master) { // master ~~ password -> add user to club
     // update club side
     clubValues.members.push(userEmail);
     const clubs = JSON.parse(localStorage.get('Clubs'));
