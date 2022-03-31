@@ -120,7 +120,7 @@ function joinClub(userEmail, clubName, master, uniqueId) {
     localStorage.setItem(userEmail, JSON.stringify(userValues));
     return getClub(clubName);
   }
-  if (clubValues.master === master) { // master ~~ password -> add user to club
+  if (clubValues.master === master && !clubValues.members.contains(userEmail)) { // master ~~ password -> add user to club
     console.log('master reached');
     // update club side
     clubValues.members.push(userEmail);
