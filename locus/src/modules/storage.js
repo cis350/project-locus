@@ -63,7 +63,7 @@ function getClubChat(clubName) {
 function sendMessage(clubName, userEmail, message, timeStamp, uniqueId) {
   const allClubChats = JSON.parse(localStorage.getItem('Chats'));
   const clubChats = getClubChat(clubName);
-  clubChats.push([ userEmail, message, timeStamp, uniqueId ]);
+  clubChats.push([userEmail, message, timeStamp, uniqueId]);
   allClubChats[clubName] = clubChats;
   localStorage.setItem('Chats', JSON.stringify(allClubChats));
 }

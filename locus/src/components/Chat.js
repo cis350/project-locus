@@ -5,7 +5,7 @@ import {
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
 import {
-  getUserFullName, getUserClubs, getClubChat, sendMessage, getClub,
+  getUserFullName, getUserClubs, getClubChat, sendMessage,
 } from '../modules/storage';
 
 function Chat({ userEmail }) {
@@ -62,13 +62,18 @@ function Chat({ userEmail }) {
     </div>
   ));
 
-  const showAChat = (() => {
-    return (
+  const showAChat = (() => (
     <Container>
       <Button onClick={switchToClubs}>Go back</Button>
       <div className="messages-table">
         {currentChat.map((mess) => (
           <div className="chat-item" key={mess[3]}>
+            <p>
+              {mess[2]}
+              :
+              {getUserFullName(mess[0])}
+              :
+            </p>
             {mess[1]}
           </div>
         ))}
@@ -81,8 +86,8 @@ function Chat({ userEmail }) {
         <Button variant="primary" type="submit" onClick={submitMessage}> Send </Button>
       </Form>
     </Container>
-    )
-  });
+  )
+  );
 
   return (
     <div>
