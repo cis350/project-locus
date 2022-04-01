@@ -7,6 +7,7 @@ import '../assets/Clubs.css';
 import {
   getUserFullName, getUserClubs, getClubChat, sendMessage,
 } from '../modules/storage';
+import '../assets/Chat.css';
 
 function Chat({ userEmail }) {
   const [currentChat, changeChat] = useState([]);
@@ -14,6 +15,8 @@ function Chat({ userEmail }) {
   const message = useRef('');
   // clubs user is in
   const userClubs = getUserClubs(userEmail);
+  // const stackElement = document.getElementsByClassName('chat-stack-scrollable')[0];
+  // stackElement.scrollTop = stackElement.scrollHeight;
 
   const switchToChat = (clubName) => {
     currentClub.current = clubName;
@@ -31,9 +34,12 @@ function Chat({ userEmail }) {
 
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
-      sendMessage(currentClub.current, userEmail, message.current, Date.now(), uuidv4());
+      sendMessage(currentClub.current, userEmail, message.current, new Date(), uuidv4());
     }
     const updatedChat = getClubChat(currentClub.current);
+    message.current = '';
+    document.getElementById('input-text').value = '';
+    // stackElement.scrollTop = stackElement.scrollHeight;
     changeChat(updatedChat);
   };
 
@@ -65,29 +71,32 @@ function Chat({ userEmail }) {
   const showAChat = (() => (
     <Container>
       <Button onClick={switchToClubs}>Go back</Button>
-      <div className="messages-table">
-        {currentChat.map((mess) => (
-          <div className="chat-item" key={mess[3]}>
-            <p>
-              {mess[2]}
-              :
-              {getUserFullName(mess[0])}
-              :
-            </p>
-            {mess[1]}
-          </div>
-        ))}
-      </div>
+      <Stack>
+        <div className="chat-stack-scrollable">
+          {currentChat.map((mess) => (
+            <Row>
+              <Col className="chat-item" key={mess[3]}>
+                <p>
+                  {mess[2].toString()}
+                  :
+                  {getUserFullName(mess[0])}
+                  :
+                </p>
+                {mess[1]}
+              </Col>
+            </Row>
+          ))}
+        </div>
+      </Stack>
       <Form>
         <Form.Group className="mb-3" controlId="formMessage">
           <Form.Label>Input Message</Form.Label>
-          <Form.Control type="message" placeholder="Send a message!" onChange={parseInput} />
+          <Form.Control id="input-text" type="message" placeholder="Send a message!" onChange={parseInput} />
         </Form.Group>
-        <Button variant="primary" type="submit" onClick={submitMessage}> Send </Button>
+        <Button variant="primary" onClick={submitMessage}> Send </Button>
       </Form>
     </Container>
-  )
-  );
+  ));
 
   return (
     <div>
