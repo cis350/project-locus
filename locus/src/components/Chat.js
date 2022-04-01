@@ -1,49 +1,54 @@
 import React, { useState, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import {
   Button, Form, Container, Row, Col, Stack,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
 import {
-  getUserFullName, getUserClubs, getClubChats, sendMessage, getClub,
+  getUserFullName, getUserClubs, getClubChat, sendMessage, getClub,
 } from '../modules/storage';
 
 function Chat({ userEmail }) {
-  // initial clubs user is in
-  const allClubs = [];
-  const userClubs = getUserClubs(userEmail);
-  for (let i = 0; i < userClubs.length; i++) {
-    const club = getClub(userClubs[i]);
-    allClubs.push(club.clubName);
-  }
-  const [clubsArray, addClub] = useState(allClubs);
   const [currentChat, changeChat] = useState([]);
-  const [showChat, changeShowChat] = useState(false);
+  const currentClub = useRef('');
   const message = useRef('');
-  
-  const handleClubs = (e) => {
-    changeChat(e.target.value);
-  }
+  // clubs user is in
+  const userClubs = getUserClubs(userEmail);
 
-  const switchToChat = () => {
-    changeShowChat(!showChat);
-  }
+  const switchToChat = (clubName) => {
+    currentClub.current = clubName;
+    changeChat(getClubChat(clubName));
+  };
+
+  const switchToClubs = () => {
+    currentClub.current = '';
+    changeChat([]);
+  };
 
   const parseInput = (e) => {
     message.current = e.target.value;
-  }
+  };
+
+  const submitMessage = () => {
+    if (/\S/.test(message.current)) {
+      sendMessage(currentClub.current, userEmail, message.current, Date.now(), uuidv4());
+    }
+    const updatedChat = getClubChat(currentClub.current);
+    changeChat(updatedChat);
+  };
 
   const showAllClubs = (() => (
     <div>
       <Stack gap={20}>
         <Row>
-        <h1 className="chat-header">
-          Your Chats &nbsp;
-        </h1>
+          <h1 className="chat-header">
+            Your Chats &nbsp;
+          </h1>
         </Row>
         <div className="chat-table">
-          {clubsArray.map((clubName) => (
-            <div className="chat-item" key={clubName}>
-              <Button className="chat-button" onClick={switchToChat}>
+          {userClubs.map((clubName) => (
+            <div className="club-item" key={clubName}>
+              <Button className="club-button" onClick={() => switchToChat(clubName)}>
                 <Row>
                   <Col className="d-flex justify-content-center">
                     {clubName}
@@ -57,38 +62,32 @@ function Chat({ userEmail }) {
     </div>
   ));
 
-  const showAChat = (() => (
+  const showAChat = (() => {
+    return (
     <Container>
-      <Button onClick={switchToChat}>Go back</Button>
+      <Button onClick={switchToClubs}>Go back</Button>
       <div className="messages-table">
-          {currentChat.map((message) => (
-            <div className="chat-item" key={clubName}>
-              <Button className="chat-button" onClick={switchToChat}>
-                <Row>
-                  <Col className="d-flex justify-content-center">
-                    {clubName}
-                  </Col>
-                </Row>
-              </Button>
-            </div>
-          ))}
-        </div>
+        {currentChat.map((mess) => (
+          <div className="chat-item" key={mess[3]}>
+            {mess[1]}
+          </div>
+        ))}
+      </div>
       <Form>
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control type="email" placeholder="Send a messenger!" /> b 
+        <Form.Group className="mb-3" controlId="formMessage">
+          <Form.Label>Input Message</Form.Label>
+          <Form.Control type="message" placeholder="Send a message!" onChange={parseInput} />
         </Form.Group>
-        <Button variant="primary" type="submit" onClick={parseInput}>
-          Send
-        </Button>
+        <Button variant="primary" type="submit" onClick={submitMessage}> Send </Button>
       </Form>
     </Container>
-  ));
+    )
+  });
 
   return (
     <div>
       <Container>
-        {showChat ? showAChat() : showAllClubs()}
+        {(currentClub.current === '') ? showAllClubs() : showAChat() }
       </Container>
     </div>
   );

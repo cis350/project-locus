@@ -30,8 +30,9 @@ function Clubs({ userEmail }) {
     if (clubValues) {
       const newClub = {
         clubItemName: clubName.current,
-        masterItemName: masterName.current,
+        masterItemName: clubValues.master,
       };
+      console.log('adding club now!');
       addClub([...clubsArray, newClub]);
     } else {
       alert('Club exists, wrong master');

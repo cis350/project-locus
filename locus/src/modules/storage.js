@@ -50,32 +50,23 @@ function addClubToChats(clubName) {
   localStorage.setItem('Chats', JSON.stringify(allClubChats));
 }
 
-// returns the chat of a club
-function getClubChats(clubName) {
-  const allChats = JSON.parse(localStorage.getItem('Chat'));
+// returns the chat of a club, assume clubName exists (only called when clicked on existing club)
+function getClubChat(clubName) {
+  const allChats = JSON.parse(localStorage.getItem('Chats'));
   if (allChats && allChats[clubName]) {
-    return JSON.parse(localStorage.getItem('Chats'))[clubName];
+    return allChats[clubName];
   }
   return null;
 }
 
 // sends a message to the chat of a club
-function sendMessage(clubName, userEmail, message, timeStamp) {
+function sendMessage(clubName, userEmail, message, timeStamp, uniqueId) {
   const allClubChats = JSON.parse(localStorage.getItem('Chats'));
-  const clubChats = getClubChats(clubName);
-  clubChats.push([ userEmail, message, timeStamp ]);
+  const clubChats = getClubChat(clubName);
+  clubChats.push([ userEmail, message, timeStamp, uniqueId ]);
   allClubChats[clubName] = clubChats;
   localStorage.setItem('Chats', JSON.stringify(allClubChats));
 }
-
-// function searchList(arr, target) {
-//   for (let i = 0; i < arr.length; i += 1) {
-//     if (arr[i] === target) {
-//       return arr[i];
-//     }
-//   }
-//   return null;
-// }
 
 /**
  * Club Methods
@@ -126,24 +117,20 @@ function joinClub(userEmail, clubName, master, uniqueId) {
     // update user side
     const userValues = JSON.parse(localStorage.getItem(userEmail));
     userValues.clubs.push(clubName);
-    console.log(userValues);
     localStorage.setItem(userEmail, JSON.stringify(userValues));
     return getClub(clubName);
   }
   // master ~~ password -> add user to club
-  if (clubValues.master === master && !clubValues.members.contains(userEmail)) {
-    console.log('master reached');
+  if (clubValues.master === master && !clubValues.members.includes(userEmail)) {
     // update club side
     clubValues.members.push(userEmail);
     const clubs = JSON.parse(localStorage.getItem('Clubs'));
     clubs[clubName] = clubValues;
     localStorage.setItem('Clubs', JSON.stringify(clubs));
 
-    console.log('user side reached');
     // update user side
     const userValues = JSON.parse(localStorage.getItem(userEmail));
     userValues.clubs.push(clubName);
-    console.log(userValues);
     localStorage.setItem(userEmail, JSON.stringify(userValues));
     return getClub(clubName);
   }
@@ -159,6 +146,6 @@ module.exports = {
   getUserClubs,
   joinClub,
   getClub,
-  getClubChats,
+  getClubChat,
   sendMessage,
 };
