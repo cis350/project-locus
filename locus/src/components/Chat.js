@@ -76,13 +76,14 @@ function Chat({ userEmail }) {
           {currentChat.map((mess) => (
             <Row>
               <Col className="chat-item" key={mess[3]}>
+                <div className="imessage">
+                  <p className="from-them">{mess[1]}</p>
+                </div>
                 <p>
-                  {mess[2].toString()}
-                  :
                   {getUserFullName(mess[0])}
                   :
+                  {mess[2].toString()}
                 </p>
-                {mess[1]}
               </Col>
             </Row>
           ))}
