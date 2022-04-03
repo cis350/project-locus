@@ -13,13 +13,13 @@ const user = {
 };
 
 test('getUser success', async () => {
-  mock.onGet("/profile").reply(200, { player: user });
+  mock.onGet('/profile').reply(200, { player: user });
   const response = await api.getUser({ id: '1' });
   expect(response.player).toMatchObject(user);
 });
 
 test('getUser failure', async () => {
-  mock.onGet("/profile").reply(404, { player: user });
+  mock.onGet('/profile').reply(404, { player: user });
   const response = await api.getUser({ id: 'xxxxx' });
   expect(response.player).toMatchObject('Not Found');
 });
