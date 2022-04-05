@@ -7,7 +7,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 
-import Register from '../src/components/Register';
+import Register from '../components/Register';
 
 test('Displays Locus', () => {
   render(<Register setJustRegistered={() => null} />);
