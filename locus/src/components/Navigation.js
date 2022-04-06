@@ -28,7 +28,7 @@ const Navigation = function NavigationComponent({ isLoggedIn, userEmail }) {
           Club
         </Button>
       </Link>
-      <Link to={`/projects/${getUserUniqueId(userEmail)}`} className="navbar-brand">
+      <Link to={`/projects/manage-projects/${getUserUniqueId(userEmail)}`} className="navbar-brand">
         <Button className="navbar-button">
           Projects
         </Button>

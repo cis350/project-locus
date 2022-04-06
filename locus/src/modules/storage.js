@@ -8,6 +8,8 @@ const registerUser = (userFirstName, userLastName, userEmail, userPassword, user
     lastName: userLastName,
     password: userPassword,
     uniqueId: userUniqueId,
+    // clubs: [{clubID: x, isPM, boolean}, {clubID: y, isPM: boolean}, ...]
+    clubs: [],
   };
   localStorage.setItem(userEmail, JSON.stringify(userValues));
 };
@@ -30,10 +32,15 @@ function getUserFullName(userEmail) {
   return `${first} ${last}`;
 }
 
+function getUserClub(userEmail) {
+  return JSON.parse(localStorage.getItem(userEmail)).clubs;
+}
+
 module.exports = {
   checkIfEmailAlreadyExists,
   registerUser,
   verifyLogInInfo,
   getUserUniqueId,
   getUserFullName,
+  getUserClub,
 };
