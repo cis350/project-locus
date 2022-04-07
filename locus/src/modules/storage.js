@@ -137,6 +137,11 @@ function joinClub(userEmail, clubName, master, uniqueId) {
   return null;
 }
 
+function getClubUniqueId(clubName) {
+  const club = getClub(clubName);
+  return club.uniqueId;
+}
+
 module.exports = {
   checkIfEmailAlreadyExists,
   registerUser,
@@ -148,4 +153,5 @@ module.exports = {
   getClub,
   getClubChat,
   sendMessage,
+  getClubUniqueId,
 };

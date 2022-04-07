@@ -7,12 +7,13 @@ import Register from './components/Register';
 import Clubs from './components/Clubs';
 import Home from './components/Home';
 import Chat from './components/Chat';
-import { getUserUniqueId } from './modules/storage';
+import { getUserUniqueId, getClubUniqueId } from './modules/storage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [justRegistered, setJustRegistered] = useState(false);
+  const [currClub, setCurrClub] = useState('');
   let uniqueId = '';
   if (isLoggedIn) {
     uniqueId = getUserUniqueId(userEmail);
@@ -27,7 +28,8 @@ function App() {
         <Route exact path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserEmail={setUserEmail} />} />
         <Route exact path="/register" element={<Register setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/clubs/${uniqueId}`} element={<Clubs userEmail={userEmail} />} />
-        <Route exact path={`/chats/${uniqueId}`} element={<Chat userEmail={userEmail} />} />
+        <Route exact path={`/chats/${uniqueId}`} element={<Chat userEmail={userEmail} clubStateUpdater={setCurrClub} />} />
+        <Route exact path={`/clubs/${uniqueId}/${getClubUniqueId(currClub)}`} />
       </Routes>
     </div>
   );

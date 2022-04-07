@@ -1,14 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  Button, Form, Container, Row, Col, Stack,
+  Button, Form, Container, Row, Col, Stack, Link,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
 import {
-  getUserFullName, getUserClubs, joinClub, getClub,
+  getUserFullName, getUserClubs, joinClub, getClub, getClubUniqueId, getUserUniqueId,
 } from '../modules/storage';
 
-function Clubs({ userEmail }) {
+function Clubs({ userEmail, clubStateUpdater }) {
   // initial clubs user is in
   const initState = [];
   const userClubs = getUserClubs(userEmail);
@@ -20,13 +20,16 @@ function Clubs({ userEmail }) {
     };
     initState.push(newClub);
   }
+  // array of club names
   const [clubsArray, addClub] = useState(initState);
 
   const clubName = useRef('');
   const masterName = useRef('');
 
+  // makes new clubs
   const handleClubs = () => {
-    const clubValues = joinClub(userEmail, clubName.current, masterName.current, uuidv4());
+    const newClubUid = uuidv4();
+    const clubValues = joinClub(userEmail, clubName.current, masterName.current, newClubUid);
     if (clubValues) {
       const newClub = {
         clubItemName: clubName.current,
@@ -39,12 +42,18 @@ function Clubs({ userEmail }) {
     }
   };
 
+  // helpers
   const makeClubName = (e) => {
     clubName.current = e.target.value;
   };
 
   const makeMasterName = (e) => {
     masterName.current = e.target.value;
+  };
+
+  // passes clubName back to app via react state
+  const reportClubClicked = (clubNameClicked) => {
+    clubStateUpdater(clubNameClicked);
   };
 
   return (
@@ -61,20 +70,23 @@ function Clubs({ userEmail }) {
           <div className="club-table">
             {clubsArray.map((clubItem) => (
               <div className="club-item" key={clubItem.clubItemName}>
-                <Button className="club-button">
-                  <Row>
-                    <Col className="d-flex justify-content-center">
-                      {clubItem.clubItemName}
-                    </Col>
-                    <Col className="d-flex justify-content-center">
-                      Master: &nbsp;
-                      {clubItem.masterItemName}
-                    </Col>
-                    <Col className="d-flex justify-content-center">
-                      Settings
-                    </Col>
-                  </Row>
-                </Button>
+                <Link to={`/clubs/${getUserUniqueId(userEmail)}/${getClubUniqueId(clubItem.clubItemName)}`}>
+                  {/* Modifies currClub in app to route properly */}
+                  <Button className="club-button" onClick={reportClubClicked(clubItem.clubItemName)}>
+                    <Row>
+                      <Col className="d-flex justify-content-center">
+                        {clubItem.clubItemName}
+                      </Col>
+                      <Col className="d-flex justify-content-center">
+                        Master: &nbsp;
+                        {clubItem.masterItemName}
+                      </Col>
+                      <Col className="d-flex justify-content-center">
+                        Settings
+                      </Col>
+                    </Row>
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>
