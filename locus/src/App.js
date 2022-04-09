@@ -27,7 +27,7 @@ function App() {
         <Route exact path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserEmail={setUserEmail} />} />
         <Route exact path="/register" element={<Register setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/clubs/${uniqueId}`} element={<Clubs userEmail={userEmail} />} />
-        <Route exact path={`/chat/${uniqueId}`} element={<Chat />} />
+        <Route exact path={`/chats/${uniqueId}`} element={<Chat userEmail={userEmail} />} />
       </Routes>
     </div>
   );
