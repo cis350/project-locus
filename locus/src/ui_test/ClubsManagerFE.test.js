@@ -18,26 +18,22 @@ const dummyClubs = {
 };
 
 test('Clubs Displays Which Club Needs Work?', () => {
-  render(<Clubs props={ null } />);
+  render(<Clubs props={null} />);
   const textElement = screen.getByText(/Which Club Needs Work?/i);
   expect(textElement).toBeInTheDocument();
 });
 
 test('Clubs button using Master', () => {
-  render(<Clubs props={ null } />);
+  render(<Clubs props={null} />);
   const buttonElements = screen.getByText(/Master: /i);
   expect(buttonElements).toBeInTheDocument();
 });
 
 test('Clubs names showing', () => {
-  render(<Club props={ null }/>);
-  for (let i = 0; i < dummyClubs.length; i++) {
+  render(<Clubs props={null} />);
+  for (let i = 0; i < dummyClubs.length; i += 1) {
     const clubName = dummyClubs[i];
     const textElement = screen.getByText(clubName);
     expect(textElement).toBeInTheDocument();
   }
-})
-
-
-
-
+});

@@ -5,7 +5,6 @@
 // check out the link below and learn how to write your first test:
 // https://on.cypress.io/writing-first-test
 
-
 // Tests end-to-end of login.js and register.js
 
 describe('test failed login', () => {
@@ -25,7 +24,7 @@ describe('test failed login', () => {
     cy.get('label').contains('Password').should('be.visible');
     cy.get('button').contains('Locus').click();
     cy.get('h1').contains('Welcome to Locus!').should('be.visible');
-  })
+  });
 
   it('login empty field', () => {
     cy.visit('http://localhost:3000');
@@ -75,22 +74,22 @@ describe('test register', () => {
     cy.visit('http://localhost:3000');
     cy.get('button').contains('Register').click();
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Please fill out all 5 fields below.");
+    cy.get('div').contains('Please fill out all 5 fields below.');
     cy.get('input[type="first_name"]').type('James');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Please fill out all 5 fields below.");
+    cy.get('div').contains('Please fill out all 5 fields below.');
     cy.get('input[type="last_name"]').type('Doh');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Please fill out all 5 fields below.");
+    cy.get('div').contains('Please fill out all 5 fields below.');
     cy.get('input[type="email"]').type('test@gmail');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Please fill out all 5 fields below.");
+    cy.get('div').contains('Please fill out all 5 fields below.');
     cy.get('input[type="pwd"]').type('abc123');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Please fill out all 5 fields below.");
+    cy.get('div').contains('Please fill out all 5 fields below.');
     cy.get('input[type="pwd_cfm"]').type('abc123');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Please fill out all 5 fields below.").should('not.exist');
+    cy.get('div').contains('Please fill out all 5 fields below.').should('not.exist');
   });
 
   it('invalid email error', () => {
@@ -102,7 +101,7 @@ describe('test register', () => {
     cy.get('input[type="pwd"]').type('abc123');
     cy.get('input[type="pwd_cfm"]').type('abc123');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Invalid email.");
+    cy.get('div').contains('Invalid email.');
   });
 
   it('passwords do not match error', () => {
@@ -114,7 +113,7 @@ describe('test register', () => {
     cy.get('input[type="pwd"]').type('abc123');
     cy.get('input[type="pwd_cfm"]').type('abc321');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Please re-verify your password.");
+    cy.get('div').contains('Please re-verify your password.');
   });
 
   it('passwords too short error', () => {
@@ -126,7 +125,7 @@ describe('test register', () => {
     cy.get('input[type="pwd"]').type('abc');
     cy.get('input[type="pwd_cfm"]').type('abc');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Password must be at least 5 characters.");
+    cy.get('div').contains('Password must be at least 5 characters.');
   });
 
   it('register user successful', () => {
@@ -138,9 +137,9 @@ describe('test register', () => {
     cy.get('input[type="pwd"]').type('abc123');
     cy.get('input[type="pwd_cfm"]').type('abc123');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Account created successfully!");
+    cy.get('div').contains('Account created successfully!');
   });
-})
+});
 
 describe('test register and login', () => {
   it('register user then login', () => {
@@ -152,7 +151,7 @@ describe('test register and login', () => {
     cy.get('input[type="pwd"]').type('abc123');
     cy.get('input[type="pwd_cfm"]').type('abc123');
     cy.get('button').contains('Register').click();
-    cy.get('div').contains("Account created successfully!");
+    cy.get('div').contains('Account created successfully!');
     cy.get('button').contains('Log-in').click();
     cy.get('input[type="email"]').type('test@gmail.com');
     cy.get('input[type="password"]').type('abc123');
@@ -162,5 +161,5 @@ describe('test register and login', () => {
     cy.get('button').contains('Chats').should('be.visible');
     cy.get('button').contains('Club').should('be.visible');
     cy.get('button').contains('Projects').should('be.visible');
-  })
-})
+  });
+});
