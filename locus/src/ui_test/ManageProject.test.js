@@ -46,7 +46,7 @@ test('Manage Project Displays Add Member Button', () => {
 });
 
 test('Snapshot Test', () => {
-  const component = renderer.create(<ManageProject logout={() => null} username="test player" />);
+  const component = renderer.create(<ManageProject />);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
 });

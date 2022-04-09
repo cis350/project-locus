@@ -7,7 +7,7 @@ import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/extend-expect';
 import renderer from 'react-test-renderer';
 
-import Attendance from '../components/Attendance';
+import Milestones from '../components/Milestones';
 
 test('Attendance Displays Title', () => {
   render(<Attendance />);
