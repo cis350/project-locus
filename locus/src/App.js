@@ -29,6 +29,7 @@ function App() {
         <Route exact path="/register" element={<Register setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/clubs/${uniqueId}`} element={<Clubs userEmail={userEmail} />} />
         <Route exact path={`/chats/${uniqueId}`} element={<Chat userEmail={userEmail} clubStateUpdater={setCurrClub} />} />
+        {/* If needed add true/false state for creating this route */}
         <Route exact path={`/clubs/${uniqueId}/${getClubUniqueId(currClub)}`} />
       </Routes>
     </div>
