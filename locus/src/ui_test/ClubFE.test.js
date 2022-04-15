@@ -21,27 +21,27 @@ const dummyClub = {
 };
 
 test('Clubs display members', () => {
-  render(<Clubs props={ null } />);
-  for (let i = 0; i < dummyClub.members.length; i++) {
+  render(<Clubs props={null} />);
+  for (let i = 0; i < dummyClub.members.length; i += 1) {
     const member = screen.getByText(dummyClub.members[i]);
-  expect(member).toBeInTheDocument();
+    expect(member).toBeInTheDocument();
   }
 });
 
 test('Clubs display recents', () => {
   render(<Clubs props={ null } />);
-  for (let i = 0; i < dummyClub.recent.length; i++) {
+  for (let i = 0; i < dummyClub.recent.length; i += 1) {
     const event = screen.getByText(dummyClub.recent[i]);
-  expect(event).toBeInTheDocument();
+    expect(event).toBeInTheDocument();
   }
 });
 
 test('Clubs display projects', () => {
-  render(<Clubs props={ null } />);
-  for (let i = 0; i < dummyClub.projects.length; i++) {
-  const projectname = screen.getByText(dummyClub.projects[i])
-  const lead = screen.getByText(dummyClub.projects[i].lead);
-  expect(projectname).toBeInTheDocument();
-  expect(lead).toBeInTheDocument();
+  render(<Clubs props={null} />);
+  for (let i = 0; i < dummyClub.projects.length; i += 1) {
+    const projectname = screen.getByText(dummyClub.projects[i]);
+    const lead = screen.getByText(dummyClub.projects[i].lead);
+    expect(projectname).toBeInTheDocument();
+    expect(lead).toBeInTheDocument();
   }
 });
