@@ -73,3 +73,16 @@ describe('create task tests', () => {
     expect(response.status).toBe(403);
   });
 });
+
+describe('update task tests', () => {
+  test('update task success', async () => {
+    mock.onPut(`${root}/projectmember`).reply(200, testProject);
+    const response = await api.addProjMember(1, testUser);
+    expect(response.data).toMatchObject(testProject);
+  });
+  test('add member error', async () => {
+    mock.onPut(`${root}/project`).networkError();
+    const response = await api.addProjMember(1, testUser);
+    expect(response.status).toBe(403);
+  });
+});
