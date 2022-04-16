@@ -1,0 +1,20 @@
+{
+  "name": "locus-server",
+  "version": "1.0.0",
+  "description": "Server for locus application",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest --coverage --detectOpenHandles",
+    "start": "node server"
+  },
+  "author": "dustin, heng, james, soham, jefrrey",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "jest": "^27.5.1",
+    "mongodb": "^4.5.0"
+  },
+  "devDependencies": {
+    "supertest": "^6.2.2"
+  }
+}
