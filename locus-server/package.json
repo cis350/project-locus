@@ -4,7 +4,7 @@
   "description": "Server for locus application",
   "main": "server.js",
   "scripts": {
-    "test": "jest --coverage --detectOpenHandles",
+    "test": "jest --coverage",
     "start": "node server"
   },
   "author": "dustin, heng, james, soham, jefrrey",
