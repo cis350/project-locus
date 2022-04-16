@@ -153,4 +153,5 @@ module.exports = {
   getClub,
   getClubChat,
   sendMessage,
-};
+ }
+}
