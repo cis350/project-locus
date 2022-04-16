@@ -12,6 +12,7 @@ const registerUser = (userFirstName, userLastName, userEmail, userPassword, user
     lastName: userLastName,
     password: userPassword,
     uniqueId: userUniqueId,
+    // clubs: [{clubID: x, isPM, boolean}, {clubID: y, isPM: boolean}, ...]
     clubs: [],
   };
   localStorage.setItem(userEmail, JSON.stringify(userValues));
@@ -34,6 +35,9 @@ function getUserFullName(userEmail) {
   const last = JSON.parse(localStorage.getItem(userEmail)).lastName;
   return `${first} ${last}`;
 }
+
+function getUserClub(userEmail) {
+  return JSON.parse(localStorage.getItem(userEmail)).clubs;
 
 /**
  * Chat Methods
@@ -143,6 +147,7 @@ module.exports = {
   verifyLogInInfo,
   getUserUniqueId,
   getUserFullName,
+  getUserClub,
   getUserClubs,
   joinClub,
   getClub,
