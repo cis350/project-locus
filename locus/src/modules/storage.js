@@ -38,7 +38,7 @@ function getUserFullName(userEmail) {
 
 function getUserClub(userEmail) {
   return JSON.parse(localStorage.getItem(userEmail)).clubs;
-
+}
 /**
  * Chat Methods
  */
@@ -153,5 +153,4 @@ module.exports = {
   getClub,
   getClubChat,
   sendMessage,
- }
-}
+};
