@@ -12,7 +12,9 @@ const connect = async (url) => {
       console.error(err);
       throw new Error('Failed to establish DB connection');
     }
-  };
+};
+
+// TODO: add more ops
 
 module.exports = {
     connect,
