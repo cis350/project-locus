@@ -1,80 +1,67 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Button, Form, Container, Row, Col, Stack,
-} from 'react-bootstrap';
-import '../assets/Clubs.css';
-import { getUserFullName } from '../modules/storage';
+  View, Text, StyleSheet, ScrollView,
+} from 'react-native';
 
-function Clubs({ userEmail }) {
-  const [clubsArray, addClub] = useState([]);
+const club1 = {
+  name: 'Club 1',
+  master: 'James',
+  progress: 30,
+};
 
-  const clubName = useRef('');
-  const masterName = useRef('');
+const club2 = {
+  name: 'Club 2',
+  master: 'Jeffrey',
+  progress: 20,
+};
 
-  const handleClubs = () => {
-    const newClub = {
-      clubItemName: clubName.current,
-      masterItemName: masterName.current,
-    };
-    addClub([...clubsArray, newClub]);
-  };
+export default function Clubs() {
+  const userClubs = [club1, club2, club2, club2];
 
-  const makeClubName = (e) => {
-    clubName.current = e.target.value;
-  };
-
-  const makeMasterName = (e) => {
-    masterName.current = e.target.value;
-  };
+  const displayClubs = [];
+  for (let i = 0; i < userClubs.length; i += 1) {
+    displayClubs.push(
+      <View style={styles.club}>
+        <Text style={{ textAlign: 'center', fontSize: 24, color: 'white' }}>{userClubs[i].name}</Text>
+        <Text style={{ textAlign: 'center', fontSize: 24, color: 'white' }}>{userClubs[i].master}</Text>
+        <Text style={{ textAlign: 'center', fontSize: 24, color: 'white' }}>{userClubs[i].progress}/100</Text>
+      </View>,
+    );
+  }
 
   return (
-    <div>
-      <Container fluid>
-        <Stack gap={20}>
-          <Row>
-            <h1 className="club-header">
-              Which Club Needs Work, &nbsp;
-              {getUserFullName(userEmail)}
-              ?
-            </h1>
-          </Row>
-          <div className="club-table">
-            {clubsArray.map((clubItem) => (
-              <div className="club-item">
-                <Button className="club-button">
-                  <Row>
-                    <Col className="d-flex justify-content-center">
-                      {clubItem.clubItemName}
-                    </Col>
-                    <Col className="d-flex justify-content-center">
-                      Master: &nbsp;
-                      {clubItem.masterItemName}
-                    </Col>
-                    <Col className="d-flex justify-content-center">
-                      Settings
-                    </Col>
-                  </Row>
-                </Button>
-              </div>
-            ))}
-          </div>
-          <div className="add-club-form">
-            <Row>
-              <Form className="club-form">
-                <input type="text" onChange={makeClubName} placeholder="Club name" />
-              </Form>
-              <Form className="club-form">
-                <input type="text" onChange={makeMasterName} placeholder="Clubmaster name" />
-              </Form>
-              <Button className="add-club-button" onClick={handleClubs}>
-                Add Club
-              </Button>
-            </Row>
-          </div>
-        </Stack>
-      </Container>
-    </div>
+    <ScrollView>
+      <View style={styles.container}>
+        <Text>Which Club Needs Work?</Text>
+        <View style={styles.clubContainer}>
+          {displayClubs}
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
-export default Clubs;
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingTop: 50,
+  },
+  clubContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    backgroundColor: '#B5E48C',
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginVertical: 30,
+  },
+  club: {
+    flexDirection: 'column',
+    backgroundColor: '#6A9B72',
+    width: 300,
+    height: 200,
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+});
