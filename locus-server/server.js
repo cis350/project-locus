@@ -2,6 +2,8 @@ const express = require('express');
 // const req = require('express/lib/request');
 
 const lib = require('./dbOperations');
+let db;
+const url = 'mongodb+srv://cis350:rv1wLHpUDR94Bmmk@locus.cyx90.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
 // intialize web app with json
 const webapp = express();
@@ -20,8 +22,7 @@ webapp.get('/', (req, res) => {
 // Start server; edit the port here if needed
 const port = process.env.PORT || 3306;
 webapp.listen(port, async () => {
-  // TODO: db connection here:
-  // db = await lib.connect(url);
+  db = await lib.connect(url);
   console.log(`Server running on port:${port}`);
 });
 
