@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import ProgressBar from 'react-native-progress/Bar';
 
 const club1 = {
   name: 'Club 1',
   master: 'James',
-  progress: 30,
+  progress: 0.3,
 };
 
 const club2 = {
   name: 'Club 2',
   master: 'Jeffrey',
-  progress: 20,
+  progress: 0.2,
 };
 
 export default function Clubs() {
@@ -21,10 +23,15 @@ export default function Clubs() {
   const displayClubs = [];
   for (let i = 0; i < userClubs.length; i += 1) {
     displayClubs.push(
-      <View style={styles.club}>
-        <Text style={{ textAlign: 'center', fontSize: 24, color: 'white' }}>{userClubs[i].name}</Text>
-        <Text style={{ textAlign: 'center', fontSize: 24, color: 'white' }}>{userClubs[i].master}</Text>
-        <Text style={{ textAlign: 'center', fontSize: 24, color: 'white' }}>{userClubs[i].progress}/100</Text>
+      <View style={styles.club} key={`userClub${i}`}>
+        <Text style={styles.clubText}>{userClubs[i].name}</Text>
+        <Text style={styles.clubText}>Master: {userClubs[i].master}</Text>
+        <ProgressBar progress={userClubs[i].progress} width={200} height={30} color="#8FC7FC" borderRadius={40} />
+        <Ionicons
+          style={{ color: 'white', textAlign: 'center', paddingVertical: 20 }}
+          name="settings"
+          size={24}
+        />
       </View>,
     );
   }
@@ -32,7 +39,7 @@ export default function Clubs() {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text>Which Club Needs Work?</Text>
+        <Text style={{ fontSize: 24 }}>Which Club Needs Work?</Text>
         <View style={styles.clubContainer}>
           {displayClubs}
         </View>
@@ -45,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 50,
+    paddingTop: 25,
   },
   clubContainer: {
     flexDirection: 'column',
@@ -58,10 +65,18 @@ const styles = StyleSheet.create({
   },
   club: {
     flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#6A9B72',
     width: 300,
     height: 200,
     marginVertical: 10,
     borderRadius: 10,
+  },
+  clubText: {
+    textAlign: 'center',
+    fontSize: 24,
+    color: 'white',
+    marginVertical: 5,
   },
 });
