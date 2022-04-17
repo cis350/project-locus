@@ -18,6 +18,7 @@ const club2 = {
 };
 
 export default function Clubs() {
+  // **change this to fetch all clubs that the user is a part of from DB
   const userClubs = [club1, club2, club2, club2];
 
   const displayClubs = [];

@@ -8,22 +8,13 @@ export default function Login({ navigation }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  // vertify user information once we have a backend
+  // verify user information once we have a backend
   function handleLogin() {
     if (email === '' || password === '') {
       Alert.alert('Invalid Username/Password');
     } else {
       navigation.navigate('AppNavigation');
     }
-    // else if (!verifyLogInInfo(logInEmail, logInPassword)) {
-    //   setLogInFieldEmpty(false);
-    //   setLogInInfoInvalid(true);
-    // } else {
-    //   const uniqueId = getUserUniqueId(logInEmail);
-    //   setLogInFieldEmpty(false);
-    //   setLogInInfoInvalid(false);
-    //   onLogIn(`/home/${uniqueId}`);
-    // }
   }
 
   return (
