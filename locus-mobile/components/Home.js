@@ -9,7 +9,6 @@ export default function Home({ navigation }) {
   function handleLogout() {
     navigation.navigate('Main');
   }
-
   return (
     <View style={styles.container}>
       <Profile />

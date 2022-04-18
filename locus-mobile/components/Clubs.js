@@ -1,10 +1,9 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableHighlight, TouchableOpacity, Image
+  View, Text, StyleSheet, ScrollView, TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ProgressBar from 'react-native-progress/Bar';
-import Club from './Club';
 
 const club1 = {
   name: 'Club 1',
@@ -18,15 +17,15 @@ const club2 = {
   progress: 0.2,
 };
 
-export default function Clubs() {
-  const [currentClub, setClub] = useState(null);
+export default function Clubs({ navigation }) {
   // **change this to fetch all clubs that the user is a part of from DB
   const userClubs = [club1, club2, club2, club2];
 
+  // set up the view for all the clubs that the user is in
   const displayClubs = [];
   for (let i = 0; i < userClubs.length; i += 1) {
     displayClubs.push(
-      <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => setClub(userClubs[i])}>
+      <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => showClub(userClubs[i])}>
         <Text style={styles.clubText}>{userClubs[i].name}</Text>
         <Text style={styles.clubText}>Master: {userClubs[i].master}</Text>
         <ProgressBar progress={userClubs[i].progress} width={200} height={30} color="#8FC7FC" borderRadius={40} />
@@ -38,8 +37,11 @@ export default function Clubs() {
       </TouchableOpacity>,
     );
   }
-  
-  return currentClub ? (<Club club={currentClub} setClub={setClub}/>):
+
+  function showClub(club) {
+    navigation.navigate('Club', { club });
+  }
+  return (
     <ScrollView>
       <View style={styles.container}>
         <Text style={{ fontSize: 24 }}>Which Club Needs Work?</Text>
@@ -48,6 +50,7 @@ export default function Clubs() {
         </View>
       </View>
     </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({

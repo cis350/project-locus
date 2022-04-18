@@ -2,8 +2,8 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from 'react-native';
-import Clubs from './Clubs';
 import Home from './Home';
+import ClubsNavigation from './ClubsNavigation';
 
 const Tab = createBottomTabNavigator();
 export default function Navigation() {
@@ -37,7 +37,7 @@ export default function Navigation() {
       />
       <Tab.Screen
         name="Clubs"
-        component={Clubs}
+        component={ClubsNavigation}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
@@ -46,6 +46,7 @@ export default function Navigation() {
               color={tabInfo.focused ? '#006600' : '#8e8e93'}
             />
           ),
+          headerShown: false,
         }}
       />
       <Tab.Screen

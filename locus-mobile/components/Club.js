@@ -1,32 +1,57 @@
-import React, {useState} from 'react';
+/* eslint-disable global-require */
+import React from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableHighlight, TouchableOpacity, Image
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import ProgressBar from 'react-native-progress/Bar';
 
-export default function Club({club, setClub}) {
-  const users = ['Bob', 'Tim'];
-  const displayUsers = [];
+// mock the users and projects in the club
+const project = {
+  name: 'Project 1',
+  lead: 'Jeffrey',
+  progress: 0.3,
+};
+const members = ['Bob', 'Tim'];
+
+export default function Club({ route, navigation }) {
+  const { club } = route.params;
+  // setup view for all the users in the club
+  const displayMembers = [];
   for (let i = 0; i < 50; i += 1) {
-    displayUsers.push(
-      <View style={styles.member}>
-        <Image source={require('../assets/default-profile.jpg')} style={{width: 50, height: 50}} />
-        <Text style={{fontSize: 28, marginLeft: 100}}>{users[0]}</Text>
-      </View>
-    )
+    displayMembers.push(
+      <TouchableOpacity style={styles.member} key={`clubMember${i}`} onPress={() => showProfile(members[0])}>
+        <Image source={require('../assets/default-profile.jpg')} style={{ width: 50, height: 50 }} />
+        <Text style={{ fontSize: 28, marginLeft: 30, color: 'white' }}>{members[0]}</Text>
+      </TouchableOpacity>,
+    );
+  }
+
+  // setup view for active projects in the club
+  const displayProjects = [];
+  for (let i = 0; i < 5; i += 1) {
+    displayProjects.push(
+      <TouchableOpacity style={styles.project} key={`userProject${i}`}>
+        <Text style={styles.projectText}>{project.name}</Text>
+        <Text style={styles.projectText}>Lead: {project.lead}</Text>
+        <ProgressBar progress={project.progress} width={200} height={30} color="#8FC7FC" borderRadius={40} marginBottom={20} />
+      </TouchableOpacity>,
+    );
+  }
+
+  function showProfile(member) {
+    navigation.navigate('Profile', { member });
   }
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setClub(null)}>
-          <Text style={{ fontSize: 30 }}>Back</Text>
-        </TouchableHighlight>
         <Text style={{ fontSize: 24 }}>{club.name}</Text>
         <ScrollView style={styles.memberContainer}>
-          {displayUsers}
+          {displayMembers}
         </ScrollView>
+        <View style={styles.projectContainer}>
+          {displayProjects}
+        </View>
       </View>
     </ScrollView>
   );
@@ -38,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 25,
   },
-  clubContainer: {
+  projectContainer: {
     flexDirection: 'column',
     justifyContent: 'space-between',
     backgroundColor: '#B5E48C',
@@ -57,7 +82,7 @@ const styles = StyleSheet.create({
     height: 200,
     width: 350,
   },
-  club: {
+  project: {
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -66,25 +91,17 @@ const styles = StyleSheet.create({
     height: 200,
     marginVertical: 10,
     borderRadius: 10,
+    paddingVertical: 10,
   },
-  clubText: {
+  projectText: {
     textAlign: 'center',
     fontSize: 24,
     color: 'white',
     marginVertical: 5,
   },
-  button: {
-    backgroundColor: '#6A9B72',
-    borderRadius: 10,
-    paddingVertical: 10,
-    width: 150,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 10,
-  },
   member: {
     flexDirection: 'row',
     marginVertical: 5,
     paddingVertical: 10,
-  }
+  },
 });
