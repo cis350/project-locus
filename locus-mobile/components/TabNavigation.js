@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from 'react-native';
 import Home from './Home';
+import AllChats from './AllChats';
 import ClubsNavigation from './ClubsNavigation';
 
 const Tab = createBottomTabNavigator();
@@ -24,7 +25,7 @@ export default function Navigation() {
       />
       <Tab.Screen
         name="Chat"
-        component={() => <Text>Hello</Text>}
+        component={AllChats}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons

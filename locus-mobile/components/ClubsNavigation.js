@@ -5,6 +5,7 @@ import Clubs from './Clubs';
 import Club from './Club';
 import Profile from './Profile';
 
+// navigation for all the pages reachable from the club tab
 const ClubStack = createNativeStackNavigator();
 export default function ClubsNavigation() {
   return (
