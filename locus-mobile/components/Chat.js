@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput,
 } from 'react-native';
@@ -9,6 +9,7 @@ const testMessages = [{ sender: 'Bobby', message: 'hello' }, { sender: 'Mom', me
 export default function Chat({ currentChat, backToAllChat }) {
   const [chatMessages, setChatMessages] = useState(testMessages);
   const [message, setMessage] = useState('');
+  const scrollViewRef = useRef();
 
   // setup messages view for specific chat
   const displayMessages = [];
@@ -34,6 +35,7 @@ export default function Chat({ currentChat, backToAllChat }) {
       );
     }
   }
+  displayMessages.push(<View style={{ marginBottom: 25 }} />);
 
   // function that will send the message the user types, update for backend later
   function handleSendMessage() {
@@ -45,7 +47,12 @@ export default function Chat({ currentChat, backToAllChat }) {
   return (
     <View style={styles.container}>
       <Text style={{ fontSize: 28 }}>Current Chat</Text>
-      <ScrollView style={styles.messagesContainer}>
+      <ScrollView
+        style={styles.messagesContainer}
+        // https://stackoverflow.com/questions/29310553/is-it-possible-to-keep-a-scrollview-scrolled-to-the-bottom
+        ref={scrollViewRef}
+        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+      >
         {displayMessages}
       </ScrollView>
       <View style={styles.inputContainer}>
@@ -85,6 +92,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 5,
     maxWidth: 250,
+    marginBottom: 5,
   },
   sendButton: {
     backgroundColor: '#6A9B72',
