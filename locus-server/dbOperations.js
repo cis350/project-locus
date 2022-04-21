@@ -100,6 +100,91 @@ const getUserClub = async (userEmail) => {
  * Chat Methods
  */
 
+// addClubToChats equivalent create a chat for club
+const createClubChat = async (clubName) => {
+  try {
+    const club = await db.collection('Clubs').findOne({'clubName': clubName});
+    if (club) {
+      // TODO: Create chat
+      return; 
+    } 
+    console.log("could't find club to create chat")
+  } catch(err) {
+    console.error(err);
+    throw new Error('unable to add a new club chat');
+  }
+}
+
+const getClubChat = async (clubName) => {
+
+};
+
+const sendMessage = async (clubName, userEmail, message, timeStamp) => {
+
+};
+
+
+/**
+ * Club Methods
+ */
+
+const createClub = async (clubName, master) => {
+  try {
+    const club = db.collection('Clubs').findOne({'clubName': clubName});
+    const user = db.collection('Users').findOne({'email': master});
+    if (!club) {
+      clubValues = {
+        clubName: clubName,
+        master: master,
+        masters: [user._id],
+        projects: [],
+      }
+      const result = db.collection('Clubs').insertOne(clubValues);
+      if (!result.acknowledged){
+        console.log('datebase: club creation unsuccessful');
+      }
+      return;
+    }
+    console.log('club creation failed: clubname already exists');
+  } catch(err) {
+    console.error(err);
+    throw new Error('unable to create new club');
+  }
+};
+
+const getClub = async (clubName) => {
+  try {
+    const club = db.collection('Clubs').getOne({'clubName': clubName})
+    if (club) return club;
+    console.log('club not found');
+  } catch(err) {
+    console.error(err);
+    throw new Error('unable to get club');
+  }
+}
+
+const getUserClubs = async (userEmail) => {
+  try {
+    const user = db.collection('Users').getOne({'email': userEmail});
+    if (user) {
+      return user.clubs;
+    }
+    console.log('user not found');
+  } catch(err) {
+    console.error(err);
+    throw new Error('unable to get user\'t clubs');
+  }
+}
+
+const joinClub = async (userEmail, clubName, master) => {
+  try {
+    
+  } catch(err) {
+    console.error(err);
+    throw new Error('unable to join club');
+  }
+}
+
 
 module.exports = {
     connect,
