@@ -35,7 +35,7 @@ export default function Chat({ currentChat, backToAllChat }) {
       );
     }
   }
-  displayMessages.push(<View style={{ marginBottom: 25 }} />);
+  displayMessages.push(<View style={{ marginBottom: 25 }} key="spacefiller" />);
 
   // function that will send the message the user types, update for backend later
   function handleSendMessage() {
@@ -60,6 +60,7 @@ export default function Chat({ currentChat, backToAllChat }) {
           style={styles.input}
           placeholder="Message"
           onChangeText={setMessage}
+          onSubmitEditing={() => handleSendMessage()}
           value={message}
         />
         <TouchableHighlight style={styles.sendButton} underlayColor="#33E86F" onPress={() => handleSendMessage()}>
@@ -75,7 +76,6 @@ export default function Chat({ currentChat, backToAllChat }) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column',
     alignItems: 'center',
     paddingTop: 25,
   },
