@@ -225,5 +225,5 @@ module.exports = {
   getUserClub,
   createClub,
   getClub,
-  getUserClubs,
+  // getUserClubs,
 };
