@@ -1,17 +1,18 @@
+/* eslint-disable no-underscore-dangle */
 const { MongoClient } = require('mongodb');
 
 // url is the MongoDB url provided
 const connect = async (url) => {
-    try {
-      const con = (
-        await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-      ).db();
-      console.log('Connected to DB');
-      return con;
-    } catch (err) {
-      console.error(err);
-      throw new Error('Failed to establish DB connection');
-    }
+  try {
+    const con = (
+      await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+    ).db();
+    console.log('Connected to DB');
+    return con;
+  } catch (err) {
+    console.error(err);
+    throw new Error('Failed to establish DB connection');
+  }
 };
 
 /**
@@ -19,78 +20,95 @@ const connect = async (url) => {
  */
 
 // true if email already exists
-const checkIfEmailAlreadyExists = async (email) => {
+const checkIfEmailAlreadyExists = async (db, email) => {
   try {
-    const user = await db.collection('Users').findOne({'email': email});
-    if (!user) return true;
+    const user = await db.collection('Users').findOne({ email: `${email}` });
+    if (user) return true;
     return false;
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     throw new Error('email retrieval failed');
   }
 };
 
 // registers a user into backend
-const registerUser = async (userFirstName, userLastName, userEmail, userPassword, userUniqueId) => {
+const registerUser = async (
+  db,
+  userFirstName,
+  userLastName,
+  userEmail,
+  userPassword,
+  userUniqueId,
+) => {
   try {
     const userValues = {
+      _id: userUniqueId,
       email: userEmail,
+      password: userPassword,
       firstName: userFirstName,
       lastName: userLastName,
-      password: userPassword,
-      // clubs: [{clubID: x, isPM, boolean}, {clubID: y, isPM: boolean}, ...]
       clubs: [],
-    }
+    };
+
     const result = await db.collection('Users').insertOne(userValues);
-    if (!result.acknowledged){
-      console.log('register to backend unsuccessful')
+    if (!result.acknowledged) {
+      console.log('register to backend unsuccessful');
+      return false;
     }
-  } catch(err) {
+    return result;
+  } catch (err) {
     console.error(err);
-    throw new Error('unable to register user')
+    throw new Error('unable to register user');
   }
 };
 
 // check if login infomation is correct
-const verifyLoginInfo = async (userEmail, userPassword) => {
+const verifyLoginInfo = async (db, userEmail, userPassword) => {
   try {
-    const user = await db.collection('Users').findOne({'email': userEmail});
-    if (user && user.password === userPassword) return true;
+    const user = await db.collection('Users').findOne({ email: `${userEmail}` });
+    if (user && user.password === userPassword) {
+      return true;
+    }
     return false;
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     throw new Error('unable to verify login infomation');
   }
 };
 
-const getUserUniqueId = async (userEmail) => {
+const getUserUniqueId = async (db, userEmail) => {
   try {
-    const user = await db.collection('Users').findOne({'email': userEmail});
+    const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) return user._id;
     console.log('user not found');
-  } catch(err) {
+    return null;
+  } catch (err) {
     console.error(err);
     throw new Error('unable to get user id');
   }
 };
 
-const getUserFullName = async (userEmail) => {
+const getUserFullName = async (db, userId) => {
   try {
-    const user = await db.collection('Users').findOne({'email': userEmail});
-    if (user) return `${user.firstName} ${user.lastName}`;
+    const user = await db.collection('Users').findOne({ _id: userId });
+    if (user) {
+      return user;
+    }
     console.log('user not found');
-  } catch(err) {
+    return null;
+  } catch (err) {
     console.error(err);
     throw new Error('unable to get user full name');
   }
 };
 
-const getUserClub = async (userEmail) => {
+const getUserClub = async (db, userId) => {
   try {
-    const user = await db.collection('Users').findOne({'email': userEmail});
+    const user = await db.collection('Users').findOne({ _id: userId });
     if (user) return user.clubs;
     console.log('user not found');
-  } catch(err) {
+    return null;
+  } catch (err) {
     console.error(err);
     throw new Error('unable to get user clubs');
   }
@@ -101,91 +119,111 @@ const getUserClub = async (userEmail) => {
  */
 
 // addClubToChats equivalent create a chat for club
-const createClubChat = async (clubName) => {
+const createClubChat = async (db, clubName) => {
   try {
-    const club = await db.collection('Clubs').findOne({'clubName': clubName});
+    const club = await db.collection('Clubs').findOne({ clubName });
     if (club) {
       // TODO: Create chat
-      return; 
-    } 
-    console.log("could't find club to create chat")
-  } catch(err) {
+      return;
+    }
+    console.log("couldn't find club to create chat");
+  } catch (err) {
     console.error(err);
     throw new Error('unable to add a new club chat');
   }
-}
+};
 
-const getClubChat = async (clubName) => {
+const getClubChat = async (db, clubName) => {
 
 };
 
-const sendMessage = async (clubName, userEmail, message, timeStamp) => {
+const sendMessage = async (db, clubName, userEmail, message, timeStamp) => {
 
 };
-
 
 /**
  * Club Methods
  */
 
-const createClub = async (clubName, master) => {
+const createClub = async (db, newClubName, newMasterId) => {
   try {
-    const club = db.collection('Clubs').findOne({'clubName': clubName});
-    const user = db.collection('Users').findOne({'email': master});
+    const club = await db.collection('Clubs').findOne({ clubName: `${newClubName}` });
+    const masterName = await getUserFullName(db, newMasterId);
     if (!club) {
-      clubValues = {
-        clubName: clubName,
-        master: master,
-        masters: [user._id],
+      const clubValues = {
+        clubName: newClubName,
+        masterId: newMasterId,
+        masterName: `${masterName.firstName} ${masterName.lastName}`,
+        // list of userIds associated with masters
+        admins: [newMasterId],
+        // list of projectIds associated with masters
         projects: [],
+      };
+      const result = await db.collection('Clubs').insertOne(clubValues);
+      if (!result.acknowledged) {
+        // to be caught by catch below
+        throw new Error();
       }
-      const result = db.collection('Clubs').insertOne(clubValues);
-      if (!result.acknowledged){
-        console.log('datebase: club creation unsuccessful');
-      }
-      return;
+      // good club creation
+      return true;
     }
     console.log('club creation failed: clubname already exists');
-  } catch(err) {
+    return false;
+  } catch (err) {
     console.error(err);
     throw new Error('unable to create new club');
   }
 };
 
-const getClub = async (clubName) => {
+const getClub = async (db, clubName) => {
   try {
-    const club = db.collection('Clubs').getOne({'clubName': clubName})
-    if (club) return club;
+    const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
+    if (club) {
+      // get data out without id
+      return club;
+    }
     console.log('club not found');
-  } catch(err) {
+    return null;
+  } catch (err) {
     console.error(err);
     throw new Error('unable to get club');
   }
-}
+};
 
-const getUserClubs = async (userEmail) => {
-  try {
-    const user = db.collection('Users').getOne({'email': userEmail});
-    if (user) {
-      return user.clubs;
-    }
-    console.log('user not found');
-  } catch(err) {
-    console.error(err);
-    throw new Error('unable to get user\'t clubs');
-  }
-}
+// TODO: is this a duplicate of getUserClub?
+// const getUserClubs = async (db, userId) => {
+//   try {
+//     const user = db.collection('Users').findOne({ _id: `${userId}` });
+//     if (user) {
+//       return user.clubs;
+//     }
+//     console.log('user not found');
+//     return null;
+//   } catch (err) {
+//     console.error(err);
+//     throw new Error('unable to get user\'t clubs');
+//   }
+// };
 
-const joinClub = async (userEmail, clubName, master) => {
+// TODO: Is the add to a club, or join?
+const joinClub = async (db, userEmail, clubName, master) => {
   try {
-    
-  } catch(err) {
+
+  } catch (err) {
     console.error(err);
     throw new Error('unable to join club');
   }
-}
-
+};
 
 module.exports = {
-    connect,
-}
+  connect,
+  verifyLoginInfo,
+  registerUser,
+  getUserFullName,
+  checkIfEmailAlreadyExists,
+  getUserUniqueId,
+  getUserClub,
+  createClub,
+  getClub,
+  getUserClubs,
+};
