@@ -63,7 +63,7 @@ webapp.post('/register', async (req, res) => {
   }
 });
 
-// home w/ profile with id as a parameter, gets full name as json
+// home w/ profile with user id as a parameter, gets full name as json
 webapp.get('/home/:id', async (req, res) => {
   try {
     const dbRes = await lib.getUserFullName(db, req.params.id);
@@ -82,6 +82,7 @@ webapp.get('/home/:id', async (req, res) => {
 // clubs endpoints
 
 // getClubs endpoint, get all clubs for a userId as parameter
+// getClubs needed for the chats endpoint too
 webapp.get('/clubs/:id', async (req, res) => {
   try {
     const dbres = await lib.getUserClubs(db, req.params.id);
@@ -113,6 +114,21 @@ webapp.post('/createClub/:id/:clubName', async (req, res) => {
 webapp.get('/club/:clubName', async (req, res) => {
   try {
     const dbres = await lib.getClub(db, req.params.clubName);
+    if (dbres === null) {
+      return res.status(400).json({ error: 'Club name does not exist' });
+    }
+    // this is returned as a large json object
+    return res.status(200).json({ clubObject: dbres });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// chat endpoint, use this to get the chat log of a specific club by Clubname
+webapp.get('/chats/:clubName', async (req, res) => {
+  try {
+    const dbres = await lib.getClubChat(db, req.params.clubName);
     if (dbres === null) {
       return res.status(400).json({ error: 'Club name does not exist' });
     }

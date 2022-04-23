@@ -119,18 +119,20 @@ const getUserClubs = async (db, userId) => {
  */
 
 // addClubToChats equivalent create a chat for club
-const createClubChat = async (db, clubName) => {
+const createClubChat = async (db, newClubName) => {
   try {
-    const club = await db.collection('Clubs').findOne({ clubName });
+    const club = await db.collection('Clubs').findOne({ clubName: `${newClubName}` });
     if (club) {
       const chatValues = {
-        'clubName': clubName,
-        'messages': [],
+        clubId: club._id,
+        clubName: newClubName,
+        messages: [],
       };
       const result = await db.collection('Chats').insertOne(chatValues);
       return result;
     }
     console.log("couldn't find club to create chat");
+    return null;
   } catch (err) {
     console.error(err);
     throw new Error('unable to add a new club chat');
@@ -144,6 +146,9 @@ const getClubChat = async (db, clubName) => {
     if (chat) {
       return chat.messages;
     }
+
+    // TODO: Create the club chat if uninitialized in the database
+
     console.log("couldn't find club to create chat");
     return null;
   } catch (err) {
@@ -155,7 +160,7 @@ const getClubChat = async (db, clubName) => {
 // sends a message to a club chat
 const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId) => {
   try {
-    return db.collection('Clubs').updateOne({ clubName: `${clubName}`}, { $push: {messages: [userEmail, message, timeStamp, uniqueId]}})
+    return db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { messages: [userEmail, message, timeStamp, uniqueId] } });
   } catch (err) {
     console.error(err);
     throw new Error('unable to send message');
@@ -180,6 +185,7 @@ const createClub = async (db, newClubName, newMasterId) => {
         admins: [newMasterId],
         // list of projectIds associated with masters
         projects: [],
+        // list of member UserIds associated with this club
       };
       const result = await db.collection('Clubs').insertOne(clubValues);
       if (!result.acknowledged) {
@@ -221,9 +227,9 @@ const joinClub = async (db, userEmail, clubName, master) => {
     // master ~~ password -> add user to club
     if (club && club.master == master && !club.members.includes(userEmail)) {
       // update club side
-      db.collection('Clubs').updateOne({clubName: `${clubName}`}, {$push: {members: userEmail}})
+      db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { members: userEmail } })
       // update user side
-      db.collection('Users').updateOne({email: `${userEmail}`}, {$push: {clubs: `${clubName}`}})
+      db.collection('Users').updateOne({ email: `${userEmail}` }, { $push: { clubs: `${clubName}` } })
       return club;
     }
     // club not found
@@ -245,4 +251,5 @@ module.exports = {
   getUserClubs,
   createClub,
   getClub,
+  getClubChat,
 };
