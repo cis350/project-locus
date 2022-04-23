@@ -5,7 +5,6 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { v4 as uuidv4 } from 'uuid';
 // import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
@@ -24,11 +23,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
 
   const navigate = useNavigate();
 
-  let registerData;
+  // let registerData;
 
-  function setRegisterData(data) {
-    registerData = data;
-  }
+  // function setRegisterData(data) {
+  //   registerData = data;
+  // }
 
   // handles redirecting to "/home"
   function onRegister(path) {
@@ -141,7 +140,6 @@ const Register = function RegisterComponent({ setJustRegistered }) {
             userLastName: lastName,
             userEmail: email,
             userPassword: password,
-            userUniqueId: uuidv4(),
           },
         })
           .then((res) => res.json())

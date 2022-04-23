@@ -182,7 +182,7 @@ const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId
 const createClub = async (db, newClubName, masterEmail) => {
   try {
     const club = await db.collection('Clubs').findOne({ clubName: `${newClubName}` });
-    const masterName = await getUserFullName(db, newMasterId);
+    const masterName = await getUserFullName(db, masterEmail);
     if (!club) {
       const clubValues = {
         clubName: newClubName,
@@ -246,6 +246,19 @@ const joinClub = async (db, userEmail, clubName, masterEmail) => {
   } catch (err) {
     console.error(err);
     throw new Error('unable to join club');
+  }
+};
+
+/**
+ * Project Methods
+ */
+
+const createProject = async (db, clubName, projectName, projectLead) => {
+  try {
+
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to create project');
   }
 };
 

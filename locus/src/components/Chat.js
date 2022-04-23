@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import {
   Button, Form, Container, Row, Col, Stack,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
+// import from api functions instead
 import {
   getUserFullName, getUserClubs, getClubChat, sendMessage,
 } from '../modules/storage';
@@ -34,7 +34,8 @@ function Chat({ userEmail }) {
 
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
-      sendMessage(currentClub.current, userEmail, message.current, new Date(), uuidv4());
+      // update to api's sendmessage
+      sendMessage(currentClub.current, userEmail, message.current, new Date());
     }
     const updatedChat = getClubChat(currentClub.current);
     message.current = '';
