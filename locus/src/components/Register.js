@@ -6,7 +6,7 @@ import {
   Alert,
 } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
-import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
+// import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
   const [firstName, setFirstName] = useState('');
@@ -24,12 +24,16 @@ const Register = function RegisterComponent({ setJustRegistered }) {
 
   const navigate = useNavigate();
 
+  let registerData;
+
+  function setRegisterData(data) {
+    registerData = data;
+  }
+
   // handles redirecting to "/home"
   function onRegister(path) {
     // referenced https://www.npmjs.com/package/uuid
-    const uniqueId = uuidv4();
     setJustRegistered(true);
-    registerUser(firstName, lastName, email, password, uniqueId);
     navigate(path);
   }
 
@@ -80,21 +84,23 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     return true;
   };
 
-  const checkValidEmail = () => {
-    if (!validateEmail(email)) {
-      setEmailAlreadyExists(false);
-      setIsInvalidEmail(true);
-      return false;
-    }
-    if (!checkIfEmailAlreadyExists(email)) {
-      setIsInvalidEmail(false);
-      setEmailAlreadyExists(true);
-      return false;
-    }
-    setIsInvalidEmail(false);
-    setEmailAlreadyExists(false);
-    return true;
-  };
+  // const checkValidEmail = () => {
+  //   fetch('/register').then((res) => res.json()).then((data) => setRegisterData(data));
+
+  //   if (registerData.status === 201) {
+  //     setIsInvalidEmail(false);
+  //     setEmailAlreadyExists(false);
+  //     return true;
+  //   }
+
+  //   if (registerData.status === 400) {
+  //     setIsInvalidEmail(false);
+  //     setEmailAlreadyExists(true);
+  //     return false;
+  //   }
+
+  //   return false;
+  // };
 
   const checkValidPassword = () => {
     if (password !== verifyPassword) {
@@ -122,8 +128,35 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   };
 
   const processUserInputs = () => {
-    if (checkEmptyFields() && checkValidEmail() && checkValidPassword()) {
-      onRegister('/');
+    if (checkEmptyFields() && checkValidPassword()) {
+      if (!validateEmail(email)) {
+        setEmailAlreadyExists(false);
+        setIsInvalidEmail(true);
+      } else {
+        fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: {
+            userFirstName: firstName,
+            userLastName: lastName,
+            userEmail: email,
+            userPassword: password,
+            userUniqueId: uuidv4(),
+          },
+        })
+          .then((res) => res.json())
+          .then((res) => {
+            if (res.status === 201) {
+              setIsInvalidEmail(false);
+              setEmailAlreadyExists(false);
+              onRegister('/');
+            }
+            if (res.status === 400) {
+              setIsInvalidEmail(false);
+              setEmailAlreadyExists(true);
+            }
+          });
+      }
     }
   };
 
