@@ -84,7 +84,7 @@ webapp.get('/home/:id', async (req, res) => {
 // getClubs endpoint, get all clubs for a userId as parameter
 webapp.get('/clubs/:id', async (req, res) => {
   try {
-    const dbres = await lib.getUserClub(db, req.params.id);
+    const dbres = await lib.getUserClubs(db, req.params.id);
     if (dbres === null) {
       return res.status(400).json({ error: 'User not found' });
     }
@@ -96,7 +96,7 @@ webapp.get('/clubs/:id', async (req, res) => {
 });
 
 // createClub endpoint, require clubName in req and :id param
-webapp.post('/clubs/:id', async (req, res) => {
+webapp.post('/createClub/:id/:clubName', async (req, res) => {
   try {
     const dbres = await lib.createClub(db, req.body.clubName, req.params.id);
     if (dbres) {
