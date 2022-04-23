@@ -38,11 +38,9 @@ const registerUser = async (
   userLastName,
   userEmail,
   userPassword,
-  userUniqueId,
 ) => {
   try {
     const userValues = {
-      _id: userUniqueId,
       email: userEmail,
       password: userPassword,
       firstName: userFirstName,
@@ -55,7 +53,7 @@ const registerUser = async (
       console.log('register to backend unsuccessful');
       return false;
     }
-    return result;
+    return true;
   } catch (err) {
     console.error(err);
     throw new Error('unable to register user');
@@ -88,9 +86,9 @@ const getUserUniqueId = async (db, userEmail) => {
   }
 };
 
-const getUserFullName = async (db, userId) => {
+const getUserFullName = async (db, email) => {
   try {
-    const user = await db.collection('Users').findOne({ _id: userId });
+    const user = await db.collection('Users').findOne({ email });
     if (user) {
       return user;
     }
@@ -102,9 +100,9 @@ const getUserFullName = async (db, userId) => {
   }
 };
 
-const getUserClubs = async (db, userId) => {
+const getUserClubs = async (db, email) => {
   try {
-    const user = await db.collection('Users').findOne({ _id: userId });
+    const user = await db.collection('Users').findOne({ email });
     if (user) return user.clubs;
     console.log('user not found');
     return null;
@@ -121,7 +119,7 @@ const getUserClubs = async (db, userId) => {
 // addClubToChats equivalent create a chat for club
 const createClubChat = async (db, newClubName) => {
   try {
-    const club = await db.collection('Clubs').findOne({ clubName: `${newClubName}` });
+    const club = await db.collection('Clubs').findOne({ clubName: newClubName });
     if (club) {
       const chatValues = {
         clubId: club._id,
@@ -129,10 +127,10 @@ const createClubChat = async (db, newClubName) => {
         messages: [],
       };
       const result = await db.collection('Chats').insertOne(chatValues);
-      return result;
+      return true;
     }
     console.log("couldn't find club to create chat");
-    return null;
+    return false;
   } catch (err) {
     console.error(err);
     throw new Error('unable to add a new club chat');
@@ -142,13 +140,16 @@ const createClubChat = async (db, newClubName) => {
 // get the chat of a club
 const getClubChat = async (db, clubName) => {
   try {
-    const chat = await db.collection('Chat').findOne({ clubName : `${clubName}` });
+    const chat = await db.collection('Chats').findOne({ clubName });
     if (chat) {
       return chat.messages;
     }
-
     // TODO: Create the club chat if uninitialized in the database
-
+    chatValues = {
+      clubName,
+      messages: []
+    };
+    const result = await db.collection('Chats').insertOne({ clubValues });
     console.log("couldn't find club to create chat");
     return null;
   } catch (err) {
@@ -157,10 +158,16 @@ const getClubChat = async (db, clubName) => {
   }
 };
 
-// sends a message to a club chat
+// sends a message to a club chat (true for success, false for failure)
 const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId) => {
   try {
-    return db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { messages: [userEmail, message, timeStamp, uniqueId] } });
+    const chat = db.collection('Chats').findOne({ clubName });
+    if (chat) {
+      await db.collection('Clubs').updateOne({ clubName }, { $push: { messages: { userEmail, message, timeStamp, uniqueId } } });
+      return true;
+    }
+    console.log('chat not found');
+    return false;
   } catch (err) {
     console.error(err);
     throw new Error('unable to send message');
@@ -172,20 +179,21 @@ const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId
  */
 
 // creates a new club
-const createClub = async (db, newClubName, newMasterId) => {
+const createClub = async (db, newClubName, masterEmail) => {
   try {
     const club = await db.collection('Clubs').findOne({ clubName: `${newClubName}` });
     const masterName = await getUserFullName(db, newMasterId);
     if (!club) {
       const clubValues = {
         clubName: newClubName,
-        masterId: newMasterId,
+        masterEmail,
         masterName: `${masterName.firstName} ${masterName.lastName}`,
         // list of userIds associated with masters
-        admins: [newMasterId],
+        admins: [masterEmail],
         // list of projectIds associated with masters
         projects: [],
         // list of member UserIds associated with this club
+        members: [masterEmail],
       };
       const result = await db.collection('Clubs').insertOne(clubValues);
       if (!result.acknowledged) {
@@ -221,11 +229,11 @@ const getClub = async (db, clubName) => {
 
 
 // add a user to an existing club
-const joinClub = async (db, userEmail, clubName, master) => {
+const joinClub = async (db, userEmail, clubName, masterEmail) => {
   try {
     const club = getClub(db, clubName);
     // master ~~ password -> add user to club
-    if (club && club.master == master && !club.members.includes(userEmail)) {
+    if (club && club.masterEmail == masterEmail && !club.members.includes(userEmail)) {
       // update club side
       db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { members: userEmail } })
       // update user side
