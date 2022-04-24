@@ -6,6 +6,7 @@ import {
   Alert,
 } from 'react-bootstrap';
 import { register } from '../modules/fetchRequests';
+// import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
   const [firstName, setFirstName] = useState('');
@@ -102,7 +103,7 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     return true;
   };
 
-  const processUserInputs = () => {
+  const processUserInputs = async () => {
     if (checkEmptyFields() && checkValidPassword()) {
       if (!validateEmail(email)) {
         setEmailAlreadyExists(false);
