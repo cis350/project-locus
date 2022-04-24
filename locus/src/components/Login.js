@@ -5,7 +5,7 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
+// import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
 
 const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
   const [logInEmail, setLogInEmail] = useState('');
@@ -15,6 +15,12 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
   const [logInInfoInvalid, setLogInInfoInvalid] = useState(false);
 
   const navigate = useNavigate();
+
+  let logInData;
+
+  function setLogInData(data) {
+    logInData = data;
+  }
 
   // handles redirecting to "/home"
   function onLogIn(path) {
@@ -35,15 +41,28 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
     if (logInEmail === '' || logInPassword === '') {
       setLogInFieldEmpty(true);
       setLogInInfoInvalid(false);
-    } else if (!verifyLogInInfo(logInEmail, logInPassword)) {
-      setLogInFieldEmpty(false);
-      setLogInInfoInvalid(true);
-    } else {
-      const uniqueId = getUserUniqueId(logInEmail);
+    }
+
+    fetch('/login').then((res) => res.json()).then((data) => setLogInData(data));
+
+    if (logInData.status === 200) {
       setLogInFieldEmpty(false);
       setLogInInfoInvalid(false);
-      onLogIn(`/home/${uniqueId}`);
+      onLogIn(`/home/${logInData.userId}`);
+    } else {
+      setLogInFieldEmpty(false);
+      setLogInInfoInvalid(true);
     }
+
+    // else if (!verifyLogInInfo(logInEmail, logInPassword)) {
+    //   setLogInFieldEmpty(false);
+    //   setLogInInfoInvalid(true);
+    // } else {
+    //   const uniqueId = getUserUniqueId(logInEmail);
+    //   setLogInFieldEmpty(false);
+    //   setLogInInfoInvalid(false);
+    //   onLogIn(`/home/${uniqueId}`);
+    // }
   };
 
   const errorMsgEmptyFields = (() => (
