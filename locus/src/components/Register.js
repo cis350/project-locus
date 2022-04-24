@@ -6,6 +6,7 @@ import {
   Alert,
 } from 'react-bootstrap';
 import { register } from '../modules/fetchRequests';
+import majors from '../assets/Majors.json';
 // import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
@@ -13,6 +14,8 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [year, setYear] = useState('');
+  const [major, setMajor] = useState('');
   const [verifyPassword, setVerifyPassword] = useState('');
 
   const [fieldEmpty, setFieldEmpty] = useState(false);
@@ -23,6 +26,15 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   const [passwordNotLong, setPasswordNotLong] = useState(false);
 
   const navigate = useNavigate();
+
+  // setup major selection form
+  const sortedMajors = majors.sort();
+  const displayMajorSelections = [];
+  for (let i = 0; i < sortedMajors.length; i+= 1) {
+    displayMajorSelections.push(
+      <option value={sortedMajors[i]} key={`major${i}`}>{sortedMajors[i]}</option>
+    )
+  }
 
   // handles redirecting to "/home"
   function onRegister(path) {
@@ -192,15 +204,26 @@ const Register = function RegisterComponent({ setJustRegistered }) {
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>First name</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updateFirstName(e)} />
+              <Form.Control style={{ height: '35px' }} type="name" onChange={(e) => updateFirstName(e)} />
               <Form.Label>Last name</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updateLastName(e)} />
+              <Form.Control style={{ height: '35px' }} type="name" onChange={(e) => updateLastName(e)} />
               <Form.Label>Email</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="email" onChange={(e) => updateEmail(e)} />
+              <Form.Control style={{ height: '35px' }} type="email" onChange={(e) => updateEmail(e)} />
+              <Form.Label>Year</Form.Label>
+              <Form.Select onChange={(e) => setYear(e.target.value)}>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+              </Form.Select>
+              <Form.Label>Major</Form.Label>
+              <Form.Select onChange={(e) => setMajor(e.target.value)}>
+                {displayMajorSelections}
+              </Form.Select>
               <Form.Label>Password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updatePassword(e)} />
+              <Form.Control style={{ height: '35px' }} type="password" onChange={(e) => updatePassword(e)} />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '35px' }} type="password" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
