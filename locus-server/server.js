@@ -1,6 +1,5 @@
 const express = require('express');
-// const req = require('express/lib/request');
-
+const cors = require('cors');
 const lib = require('./dbOperations');
 
 let db;
@@ -8,6 +7,11 @@ const url = 'mongodb+srv://cis350:rv1wLHpUDR94Bmmk@locus.cyx90.mongodb.net/Locus
 
 // intialize web app with json
 const webapp = express();
+
+// enabling cors
+webapp.use(cors());
+
+// enabling json
 webapp.use(express.json());
 webapp.use(
   express.urlencoded({
