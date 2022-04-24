@@ -120,10 +120,8 @@ const Register = function RegisterComponent({ setJustRegistered }) {
         setEmailAlreadyExists(false);
         setIsInvalidEmail(true);
       } else {
-        register(firstName, lastName, email, password)
+        register(firstName, lastName, email, password, year, major)
           .then((res) => {
-            console.log(res.jsonContent);
-            console.log(res.status);
             if (res.status === 201) {
               setIsInvalidEmail(false);
               setEmailAlreadyExists(false);

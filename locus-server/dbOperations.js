@@ -38,6 +38,8 @@ const registerUser = async (
   userLastName,
   userEmail,
   userPassword,
+  userYear,
+  userMajor,
 ) => {
   try {
     const userValues = {
@@ -45,6 +47,8 @@ const registerUser = async (
       password: userPassword,
       firstName: userFirstName,
       lastName: userLastName,
+      year: userYear,
+      major: userMajor,
       clubs: [],
     };
 
