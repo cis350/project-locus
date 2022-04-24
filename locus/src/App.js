@@ -9,26 +9,21 @@ import Home from './components/Home';
 import ManageProject from './components/ManageProject';
 import SelectProject from './components/SelectProject';
 import Chat from './components/Chat';
-import { getUserUniqueId } from './modules/storage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [justRegistered, setJustRegistered] = useState(false);
   const [projectId, setProjectId] = useState(-1);
-
-  let uniqueId = '';
-  if (isLoggedIn) {
-    uniqueId = getUserUniqueId(userEmail);
-  }
+  const [uniqueId, setUniqueId] = useState('');
 
   return (
     <div>
-      <Navigation isLoggedIn={isLoggedIn} userEmail={userEmail} />
+      <Navigation isLoggedIn={isLoggedIn} userId={uniqueId} />
       <Routes>
         <Route exact path="/" element={<Main justRegistered={justRegistered} setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/home/${uniqueId}`} element={<Home userEmail={userEmail} />} />
-        <Route exact path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserEmail={setUserEmail} />} />
+        <Route exact path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserEmail={setUserEmail} setUniqueId={setUniqueId} />} />
         <Route exact path="/register" element={<Register setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/clubs/${uniqueId}`} element={<Clubs userEmail={userEmail} />} />
         <Route exact path={`/projects/select-projects/${uniqueId}`} element={<SelectProject setProjectId={setProjectId} />} />

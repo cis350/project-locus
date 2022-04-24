@@ -1,6 +1,5 @@
 const express = require('express');
-// const req = require('express/lib/request');
-
+const cors = require('cors');
 const lib = require('./dbOperations');
 
 let db;
@@ -8,6 +7,11 @@ const url = 'mongodb+srv://cis350:rv1wLHpUDR94Bmmk@locus.cyx90.mongodb.net/Locus
 
 // intialize web app with json
 const webapp = express();
+
+// enabling cors
+webapp.use(cors());
+
+// enabling json
 webapp.use(express.json());
 webapp.use(
   express.urlencoded({
@@ -21,19 +25,32 @@ webapp.get('/', (_req, res) => {
 });
 
 // login endpoint, verifies given login using Request body
-webapp.get('/login', async (req, res) => {
+webapp.post('/login', async (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   try {
     const isSuccess = await lib.verifyLoginInfo(db, userEmail, userPassword);
     if (isSuccess) {
       const userId = await lib.getUserUniqueId(db, userEmail);
-      res.status(200).json({ message: 'Login successful', userId: `${userId}` });
-    } else {
-      res.status(400).json({ error: 'Login unsucessful' });
+      console.log(`Login retrival ${userId}`);
+      return res.status(200).json({ message: 'Login successful', userId: `${userId}` });
     }
+    return res.status(400).json({ error: 'Login unsucessful' });
   } catch (e) {
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.post('/id', async (req, res) => {
+  const requestedEmail = req.body.email;
+  try {
+    const userId = await lib.getUserUniqueId(db, requestedEmail);
+    if (userId) {
+      return res.status(200).json({ message: 'Id found', userId: `${userId}` });
+    }
+    return res.status(404).json({ error: 'Id not found' });
+  } catch (e) {
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -51,22 +68,22 @@ webapp.post('/register', async (req, res) => {
       req.body.userLastName,
       req.body.userEmail,
       req.body.userPassword,
-      req.body.userUniqueId,
     );
-    if (dbRes.insertedId === req.body.userUniqueId) {
-      return res.status(201).json({ message: `${req.body.userFirstName} ${req.body.userLastName} added` });
+    if (dbRes === null) {
+      return res.status(403).json({ error: 'Forbidden POST' });
     }
-    return res.status(403).json({ error: 'Forbidden POST' });
+    return res.status(201).json({ message: `${req.body.userFirstName} ${req.body.userLastName} added` });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// home w/ profile with user id as a parameter, gets full name as json
-webapp.get('/home/:id', async (req, res) => {
+// home w/ profile with email in body, gets full name as json
+// TODO: Maybe need to change for Post or add parameters
+webapp.get('/home/', async (req, res) => {
   try {
-    const dbRes = await lib.getUserFullName(db, req.params.id);
+    const dbRes = await lib.getUserFullName(db, req.body.email);
     if (dbRes === null) {
       res.status(400).json({ error: 'Bad request' });
     } else {
@@ -80,16 +97,16 @@ webapp.get('/home/:id', async (req, res) => {
 });
 
 // clubs endpoints
-
-// getClubs endpoint, get all clubs for a userId as parameter
+// TODO: Maybe need to change for Post or add parameters
+// getClubs endpoint, get all clubs for a email as a body parameter
 // getClubs needed for the chats endpoint too
-webapp.get('/clubs/:id', async (req, res) => {
+webapp.get('/clubs/', async (req, res) => {
   try {
-    const dbres = await lib.getUserClubs(db, req.params.id);
+    const dbres = await lib.getUserClubs(db, req.body.email);
     if (dbres === null) {
       return res.status(400).json({ error: 'User not found' });
     }
-    return res.status(200).json({ clubsArray: dbres }); 
+    return res.status(200).json({ clubsArray: dbres });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Internal server error' });
