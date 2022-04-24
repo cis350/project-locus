@@ -2,18 +2,19 @@ import React from 'react';
 import {
   View, TouchableHighlight, Text, StyleSheet, TextInput, Alert,
 } from 'react-native';
-// import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
+import login from '../modules/api';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
   // verify user information once we have a backend
-  function handleLogin() {
-    if (email === '' || password === '') {
+  async function handleLogin() {
+    const loginSuccess = await login(email, password);
+    if (!loginSuccess) {
       Alert.alert('Invalid Username/Password');
     } else {
-      navigation.navigate('AppNavigation');
+      navigation.navigate('AppNavigation', { email });
     }
   }
 
