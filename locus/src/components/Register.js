@@ -5,7 +5,7 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-// import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
+import { register } from '../modules/fetchRequests';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
   const [firstName, setFirstName] = useState('');
@@ -22,12 +22,6 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   const [passwordNotLong, setPasswordNotLong] = useState(false);
 
   const navigate = useNavigate();
-
-  // let registerData;
-
-  // function setRegisterData(data) {
-  //   registerData = data;
-  // }
 
   // handles redirecting to "/home"
   function onRegister(path) {
@@ -83,24 +77,6 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     return true;
   };
 
-  // const checkValidEmail = () => {
-  //   fetch('/register').then((res) => res.json()).then((data) => setRegisterData(data));
-
-  //   if (registerData.status === 201) {
-  //     setIsInvalidEmail(false);
-  //     setEmailAlreadyExists(false);
-  //     return true;
-  //   }
-
-  //   if (registerData.status === 400) {
-  //     setIsInvalidEmail(false);
-  //     setEmailAlreadyExists(true);
-  //     return false;
-  //   }
-
-  //   return false;
-  // };
-
   const checkValidPassword = () => {
     if (password !== verifyPassword) {
       setPasswordNotAlphanumeric(false);
@@ -132,18 +108,10 @@ const Register = function RegisterComponent({ setJustRegistered }) {
         setEmailAlreadyExists(false);
         setIsInvalidEmail(true);
       } else {
-        fetch('/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: {
-            userFirstName: firstName,
-            userLastName: lastName,
-            userEmail: email,
-            userPassword: password,
-          },
-        })
-          .then((res) => res.json())
+        register(firstName, lastName, email, password)
           .then((res) => {
+            console.log(res.jsonContent);
+            console.log(res.status);
             if (res.status === 201) {
               setIsInvalidEmail(false);
               setEmailAlreadyExists(false);

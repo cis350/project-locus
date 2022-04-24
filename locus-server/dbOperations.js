@@ -49,11 +49,10 @@ const registerUser = async (
     };
 
     const result = await db.collection('Users').insertOne(userValues);
-    if (!result.acknowledged) {
-      console.log('register to backend unsuccessful');
-      return false;
+    if (result) {
+      return result;
     }
-    return true;
+    return null;
   } catch (err) {
     console.error(err);
     throw new Error('unable to register user');
@@ -63,7 +62,7 @@ const registerUser = async (
 // check if login infomation is correct
 const verifyLoginInfo = async (db, userEmail, userPassword) => {
   try {
-    const user = await db.collection('Users').findOne({ email: `${userEmail}` });
+    const user = await db.collection('Users').findOne({ email: userEmail });
     if (user && user.password === userPassword) {
       return true;
     }
@@ -77,7 +76,9 @@ const verifyLoginInfo = async (db, userEmail, userPassword) => {
 const getUserUniqueId = async (db, userEmail) => {
   try {
     const user = await db.collection('Users').findOne({ email: userEmail });
-    if (user) return user._id;
+    if (user) {
+      return user._id.toString();
+    }
     console.log('user not found');
     return null;
   } catch (err) {
@@ -86,9 +87,9 @@ const getUserUniqueId = async (db, userEmail) => {
   }
 };
 
-const getUserFullName = async (db, email) => {
+const getUserFullName = async (db, userEmail) => {
   try {
-    const user = await db.collection('Users').findOne({ email });
+    const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
       return user;
     }

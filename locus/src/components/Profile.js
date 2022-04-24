@@ -1,12 +1,15 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
 import '../assets/Profile.css';
-import { getUserFullName, getUserUniqueId } from '../modules/storage';
 
-export default function Profile({ userEmail }) {
+export default function Profile({ userEmail, userId }) {
   // fetch user with the given id and display user with following info
   const user = {
-    id: getUserUniqueId(userEmail), name: getUserFullName(userEmail), year: 2024, major: 'Computer Science', email: userEmail,
+    id: userId,
+    name: 'To be added', // Backend call here
+    year: 2024,
+    major: 'Computer Science',
+    email: userEmail,
   };
 
   // determine what the user can do on this profile

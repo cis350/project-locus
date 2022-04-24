@@ -1,34 +1,34 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar, Button, Container } from 'react-bootstrap';
-import { getUserUniqueId } from '../modules/storage';
+//  import { getUserUniqueId } from '../modules/storage';
 import '../assets/Navigation.css';
 
-const Navigation = function NavigationComponent({ isLoggedIn, userEmail }) {
+const Navigation = function NavigationComponent({ isLoggedIn, userId }) {
   // link to home if the user is logged in
   const mainForLoggedInUser = (() => (
     <div>
-      <Link to={`/home/${getUserUniqueId(userEmail)}`} className="navbar-brand">
+      <Link to={`/home/${userId}`} className="navbar-brand">
         <Button id="logoNav-button" className="navbar-button">
           Locus
         </Button>
       </Link>
-      <Link to={`/home/${getUserUniqueId(userEmail)}`} className="navbar-brand">
+      <Link to={`/home/${userId}`} className="navbar-brand">
         <Button className="navbar-button">
           Home
         </Button>
       </Link>
-      <Link to={`/chats/${getUserUniqueId(userEmail)}`} className="navbar-brand">
+      <Link to={`/chats/${userId}`} className="navbar-brand">
         <Button className="navbar-button">
           Chats
         </Button>
       </Link>
-      <Link to={`/clubs/${getUserUniqueId(userEmail)}`} className="navbar-brand">
+      <Link to={`/clubs/${userId}`} className="navbar-brand">
         <Button className="navbar-button">
           Club
         </Button>
       </Link>
-      <Link to={`/projects/manage-projects/${getUserUniqueId(userEmail)}`} className="navbar-brand">
+      <Link to={`/projects/manage-projects/${userId}`} className="navbar-brand">
         <Button className="navbar-button">
           Projects
         </Button>

@@ -5,9 +5,10 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
+import { login } from '../modules/fetchRequests';
 // import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
 
-const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
+const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId }) {
   const [logInEmail, setLogInEmail] = useState('');
   const [logInPassword, setLogInPassword] = useState('');
 
@@ -16,17 +17,11 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
 
   const navigate = useNavigate();
 
-  let logInData;
-
-  function setLogInData(data) {
-    logInData = data;
-  }
-
   // handles redirecting to "/home"
   function onLogIn(path) {
-    navigate(path);
     setIsLoggedIn(true);
     setUserEmail(logInEmail);
+    navigate(path);
   }
 
   const updateEmail = (e) => {
@@ -37,21 +32,26 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail }) {
     setLogInPassword(e.target.value);
   };
 
-  const processUserInputs = () => {
+  const processUserInputs = async () => {
     if (logInEmail === '' || logInPassword === '') {
       setLogInFieldEmpty(true);
       setLogInInfoInvalid(false);
-    }
-
-    fetch('/login').then((res) => res.json()).then((data) => setLogInData(data));
-
-    if (logInData.status === 200) {
-      setLogInFieldEmpty(false);
-      setLogInInfoInvalid(false);
-      onLogIn(`/home/${logInData.userId}`);
     } else {
-      setLogInFieldEmpty(false);
-      setLogInInfoInvalid(true);
+      login(logInEmail, logInPassword)
+        .then((res) => {
+          // TODO: Remove after debugging
+          console.log(res.jsonContent);
+          console.log(res.status);
+          if (res.status === 200) {
+            setLogInFieldEmpty(false);
+            setLogInInfoInvalid(false);
+            setUniqueId(res.jsonContent.userId);
+            onLogIn(`/home/${res.jsonContent.userId}`);
+          } else {
+            setLogInFieldEmpty(false);
+            setLogInInfoInvalid(true);
+          }
+        });
     }
 
     // else if (!verifyLogInInfo(logInEmail, logInPassword)) {
