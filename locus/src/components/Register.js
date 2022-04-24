@@ -28,12 +28,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   const navigate = useNavigate();
 
   // setup major selection form
-  const sortedMajors = majors.sort();
   const displayMajorSelections = [];
-  for (let i = 0; i < sortedMajors.length; i+= 1) {
+  for (let i = 0; i < majors.length; i += 1) {
     displayMajorSelections.push(
-      <option value={sortedMajors[i]} key={`major${i}`}>{sortedMajors[i]}</option>
-    )
+      <option value={majors[i]} key={`major${i}`}>{majors[i]}</option>,
+    );
   }
 
   // handles redirecting to "/home"
