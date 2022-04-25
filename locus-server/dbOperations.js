@@ -193,16 +193,16 @@ const createClub = async (db, newClubName, masterEmail) => {
         clubName: newClubName,
         masterEmail,
         masterName: `${masterName.firstName} ${masterName.lastName}`,
-        // list of userIds associated with masters
+        // list of user emails associated with masters
         admins: [masterEmail],
-        // list of projectIds associated with masters
+        // list of project names associated with this club
         projects: [],
-        // list of member UserIds associated with this club
+        // list of member user emails associated with this club
         members: [masterEmail],
       };
       const result = await db.collection('Clubs').insertOne(clubValues);
       if (!result.acknowledged) {
-        // to be caught by catch below
+        console.log('create club not acknowledged');
         throw new Error();
       }
       // good club creation
@@ -221,7 +221,7 @@ const getClub = async (db, clubName) => {
   try {
     const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     if (club) {
-      // get data out without id
+      delete club._id;
       return club;
     }
     console.log('club not found');
@@ -254,18 +254,148 @@ const joinClub = async (db, userEmail, clubName, masterEmail) => {
   }
 };
 
+// allow admins to remove a user from club (true for success)
+const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => {
+  try {
+    const club = getClub(db, clubName);
+    if (club && club.admins.includes(requestedEmail) && club.members.includes(targetEmail) && !club.admins.includes(targetEmail)) {
+      // remove user from club
+      const removeFromClub = await db.collection('Clubs').updateOne({ clubName }, { $pull: { members: targetEmail }});
+      // remove user from any project
+      const projectsOfUser = await db.collectin('Projects').updateMany({ clubName, members: targetEmail}, { $pull: { members: targetEmail }})
+      // update user's club involvement
+      const userClubUpdate = await db.collection('Users').updateOne({ targetEmail }, { $pull: {clubs: clubName }});
+      if (!removeFromClub.acknowledged || !projectsOfUser.acknowledged || !userClubUpdate.acknowledged) {
+        console.log('user remove from club: something did not update correctly, check backend');
+      }
+      return true;
+    }
+    console.log('user removal from club criteria not met');
+    return false;
+  } catch(err) {
+    console.error(err);
+    throw new Error('unable to remove user from club')
+  }
+}
+
 /**
  * Project Methods
  */
 
-const createProject = async (db, clubName, projectName, projectLead) => {
+// creates a project (true for success)
+const createProject = async (db, clubName, projectName, leaderEmail) => {
   try {
-
+    const project = await db.collection('Projects').findOne({ clubName, projectName });
+    if (!project) {
+      const projectValues = {
+        projectName,
+        clubName,
+        leaderEmail,
+        members: [leaderEmail],
+        tasks: [],
+      }
+      const result = await db.collection('Projects').insertOne(projectValues);
+      if (!result.acknowledged) {
+        console.log('create project not acknowledged');
+        return false;
+      }
+      // update club project lists
+      const club = await db.collection('Club').updateOne({ clubName }, { $push: { projects: projectName }});
+      return true;
+    }
+    console.log('there is another project of the same name');
+    return false;
   } catch (err) {
     console.error(err);
     throw new Error('unable to create project');
   }
 };
+
+// assigns assigneeEmail to project if authorized (true for success)
+const assignUserToProject = async (db, clubName, projectName, requestedEmail, assigneeEmail) => {
+  try {
+    const project = await db.collection('Projects').findOne({ clubName, projectName});
+    const club = await db.collection('Clubs').findOne({ clubName });
+    // check authorization
+    if (club && project && (club.admins.includes(requestedEmail) || project.leaderEmail === requestedEmail) && club.members.includes(assigneeEmail)) {
+      const result = await db.collection('Projects').updateOne({ clubName, projectName }, { $push: { members: assigneeEmail }});
+      if (!result.acknowledged) {
+        console.log('project assignment not acknowledged');
+        return false; 
+      }
+      return true;
+    }
+    console.log('user not authorized');
+    return false;
+  } catch(err) {
+    console.error(err);
+    throw new Error(`unable to assign ${assigneeEmail} to project`);
+  }
+}
+
+const removeUserFromProject = async (db, clubName, projectName, requestedEmail, targetEmail) => {
+  try {
+    const project = await db.collection('Projects').findOne({ clubName, projectName});
+    const club = await db.collection('Clubs').findOne({ clubName });
+    // check authorization
+    if (club && project && (club.admins.includes(requestedEmail) || project.leaderEmail === requestedEmail) && project.members.includes(targetEmail)) {
+      const result = await db.collection('Projects').updateOne({ clubName, projectName }, { $pull: { members: targetEmail }});
+      if (!result.acknowledged) {
+        console.log('project user removal not acknowledged');
+        return false; 
+      }
+      return true;
+    }
+    console.log('user not authorized');
+    return false;
+  } catch(err) {
+    console.error(err);
+    throw new Error(`unable to assign ${targetEmail} to project`);
+  }
+}
+
+// returns project values without id (null if failed)
+const getProject = async (db, clubName, projectName) => {
+  try {
+    const project = await db.collection('Project').findOne({ clubName, projectName });
+    if (project) {
+      delete project._id;
+      return project;
+    }
+    console.log('project not found');
+    return null;
+  } catch(err) {
+    console.error(err);
+    throw new Error(`unable to get project ${projectName}`);
+  }
+}
+
+// delete project if requestedEmail has authority (true for success)
+const deleteProject = async (db, clubName, projectName, requestedEmail) => {
+  try {
+    const project = await db.collection('Projects').findOne({ clubName, projectName});
+    const club = await db.collection('Clubs').findOne({ clubName });
+    // check authorization
+    if (project && (club.admins.includes(requestedEmail) || project.leaderEmail === requestedEmail)) {
+      const result = await db.collection('Projects').deleteOne({ clubName, projectName});
+      if (!result.acknowledged) {
+        console.log('project deletion not acknowledged');
+        return false;
+      }
+      return true;
+    }
+    console.log('user not authorized');
+    return false;
+  } catch(err) {
+    console.error(err);
+    throw new Error('unable to delete project');
+  }
+}
+
+
+/**
+ * Task Methods
+ */
 
 module.exports = {
   connect,
