@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const lib = require('./dbOperations');
+//const e = require('express');
 
 let db;
 const url = 'mongodb+srv://cis350:rv1wLHpUDR94Bmmk@locus.cyx90.mongodb.net/Locus?retryWrites=true&w=majority';
@@ -85,30 +86,28 @@ webapp.get('/user/:email', async (req, res) => {
   try {
     const dbRes = await lib.getUserProfile(db, req.params.email);
     if (dbRes === null) {
-      res.status(400).json({ error: 'Bad request' });
-    } else {
-      res.status(200).json({ result: dbRes });
+      return res.status(400).json({ error: 'Bad request' });
     }
+    return res.status(200).json({ result: dbRes });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // clubs endpoints
-// TODO: Maybe need to change for Post or add parameters
 // getClubs endpoint, get all clubs for a email as a body parameter
 // getClubs needed for the chats endpoint too
-webapp.get('/clubs/', async (req, res) => {
+webapp.get('/clubs/:email', async (req, res) => {
   try {
-    const dbres = await lib.getUserClubs(db, req.body.email);
+    const dbres = await lib.getUserClubs(db, req.params.email);
     if (dbres === null) {
       return res.status(400).json({ error: 'User not found' });
     }
     return res.status(200).json({ clubsArray: dbres });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

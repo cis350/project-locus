@@ -113,10 +113,12 @@ const getUserProfile = async (db, userEmail) => {
   }
 };
 
-const getUserClubs = async (db, email) => {
+const getUserClubs = async (db, userEmail) => {
   try {
-    const user = await db.collection('Users').findOne({ email });
-    if (user) return user.clubs;
+    const user = await db.collection('Users').findOne({ email: userEmail });
+    if (user) {
+      return user.clubs;
+    }
     console.log('user not found');
     return null;
   } catch (err) {
@@ -195,7 +197,8 @@ const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId
 const createClub = async (db, newClubName, masterEmail) => {
   try {
     const club = await db.collection('Clubs').findOne({ clubName: `${newClubName}` });
-    const masterName = await getUserFullName(db, masterEmail);
+    const userProfile = await getUserProfile(db, masterEmail);
+    const masterName = `${userProfile.firstName} ${userProfile.lastName}`;
     if (!club) {
       const clubValues = {
         clubName: newClubName,
@@ -239,7 +242,6 @@ const getClub = async (db, clubName) => {
     throw new Error('unable to get club');
   }
 };
-
 
 // add a user to an existing club
 const joinClub = async (db, userEmail, clubName, masterEmail) => {
