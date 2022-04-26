@@ -1,10 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { Text } from 'react-native';
 import Home from './Home';
 import AllChats from './AllChats';
 import ClubsNavigation from './ClubsNavigation';
+import AllProjects from './AllProjects';
 
 const Tab = createBottomTabNavigator();
 export default function Navigation({ route }) {
@@ -28,6 +28,7 @@ export default function Navigation({ route }) {
       <Tab.Screen
         name="Chat"
         component={AllChats}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
@@ -41,6 +42,7 @@ export default function Navigation({ route }) {
       <Tab.Screen
         name="Clubs"
         component={ClubsNavigation}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
@@ -54,7 +56,8 @@ export default function Navigation({ route }) {
       />
       <Tab.Screen
         name="Projects"
-        component={() => <Text>Projects</Text>}
+        component={AllProjects}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
