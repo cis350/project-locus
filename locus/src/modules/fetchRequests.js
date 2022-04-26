@@ -1,4 +1,4 @@
-async function register(firstName, lastName, email, password) {
+async function register(firstName, lastName, email, password, year, major) {
   const result = await fetch('/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -7,6 +7,8 @@ async function register(firstName, lastName, email, password) {
       userLastName: lastName,
       userEmail: email,
       userPassword: password,
+      userYear: year,
+      userMajor: major,
     }),
   });
   const resultJson = await result.json();
@@ -27,12 +29,9 @@ async function login(userEmail, userPassword) {
 }
 
 async function getUserId(userEmail) {
-  const result = await fetch('/id', {
-    method: 'POST',
+  const result = await fetch(`/id/${userEmail}`, {
+    method: 'GET',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email: userEmail,
-    }),
   });
   const resultJson = await result.json();
   return { status: result.status, jsonContent: resultJson };
