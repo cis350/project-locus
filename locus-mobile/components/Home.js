@@ -3,15 +3,16 @@ import {
   View, Text, StyleSheet, TouchableHighlight,
 } from 'react-native';
 import Profile from './Profile';
-// import { getUserFullName } from '../modules/storage';
 
-export default function Home({ navigation }) {
+// home page just displays user profile with an option to log out
+export default function Home({ route, navigation }) {
+  const { user } = route.params;
   function handleLogout() {
     navigation.navigate('Main');
   }
   return (
     <View style={styles.container}>
-      <Profile />
+      <Profile user={user} />
       <TouchableHighlight style={styles.button} onPress={() => handleLogout()} underlayColor="#b00017">
         <Text style={{ textAlign: 'center', fontSize: 30 }}>Logout</Text>
       </TouchableHighlight>

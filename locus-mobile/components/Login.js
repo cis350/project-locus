@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, TouchableHighlight, Text, StyleSheet, TextInput, Alert,
 } from 'react-native';
-import login from '../modules/api';
+import { login, getUser } from '../modules/api';
 
 export default function Login({ navigation }) {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const loginAttempts = useRef(0);
 
-  // verify user information once we have a backend
   async function handleLogin() {
     const loginSuccess = await login(email, password);
     if (!loginSuccess) {
       Alert.alert('Invalid Username/Password');
+      loginAttempts.current += 1;
+      console.log(loginAttempts.current);
     } else {
-      navigation.navigate('AppNavigation', { email });
+      const user = (await getUser(email)).result;
+      if (!user) return;
+      navigation.navigate('TabNavigation', { user });
     }
   }
 

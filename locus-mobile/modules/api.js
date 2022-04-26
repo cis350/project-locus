@@ -15,9 +15,8 @@ export async function login(email, password) {
 
 export async function getUser(email) {
   try {
-    const response = await axios.get(`${domain}/login`, { email });
-    if (response.data.message === 'Login successful') return true;
-    return false;
+    const response = await axios.get(`${domain}/user/${email}`);
+    return response.data;
   } catch (err) {
     return false;
   }

@@ -7,12 +7,14 @@ import AllChats from './AllChats';
 import ClubsNavigation from './ClubsNavigation';
 
 const Tab = createBottomTabNavigator();
-export default function Navigation() {
+export default function Navigation({ route }) {
+  const { user } = route.params;
   return (
     <Tab.Navigator initialRouteName="Home">
       <Tab.Screen
         name="Home"
         component={Home}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
