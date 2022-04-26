@@ -29,12 +29,9 @@ async function login(userEmail, userPassword) {
 }
 
 async function getUserId(userEmail) {
-  const result = await fetch('/id', {
-    method: 'POST',
+  const result = await fetch(`/id/${userEmail}`, {
+    method: 'GET',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email: userEmail,
-    }),
   });
   const resultJson = await result.json();
   return { status: result.status, jsonContent: resultJson };

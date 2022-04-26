@@ -91,13 +91,21 @@ const getUserUniqueId = async (db, userEmail) => {
   }
 };
 
-const getUserFullName = async (db, userEmail) => {
+const getUserProfile = async (db, userEmail) => {
   try {
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
-      return user;
+      const userOnlyData = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        year: user.year,
+        major: user.major,
+        clubs: user.clubs,
+      };
+      return userOnlyData;
     }
-    console.log('user not found');
+    console.log(`user with ${userEmail} not found`);
     return null;
   } catch (err) {
     console.error(err);
@@ -401,7 +409,7 @@ module.exports = {
   connect,
   verifyLoginInfo,
   registerUser,
-  getUserFullName,
+  getUserProfile,
   checkIfEmailAlreadyExists,
   getUserUniqueId,
   getUserClubs,

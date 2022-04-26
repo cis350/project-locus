@@ -32,7 +32,6 @@ webapp.post('/login', async (req, res) => {
     const isSuccess = await lib.verifyLoginInfo(db, userEmail, userPassword);
     if (isSuccess) {
       const userId = await lib.getUserUniqueId(db, userEmail);
-      console.log(`Login retrival ${userId}`);
       return res.status(200).json({ message: 'Login successful', userId: `${userId}` });
     }
     return res.status(400).json({ error: 'Login unsucessful' });
@@ -41,8 +40,8 @@ webapp.post('/login', async (req, res) => {
   }
 });
 
-webapp.post('/id', async (req, res) => {
-  const requestedEmail = req.body.email;
+webapp.get('/id/:useremail', async (req, res) => {
+  const requestedEmail = req.params.useremail;
   try {
     const userId = await lib.getUserUniqueId(db, requestedEmail);
     if (userId) {
@@ -81,16 +80,14 @@ webapp.post('/register', async (req, res) => {
   }
 });
 
-// home w/ profile with email in body, gets full name as json
-// TODO: Maybe need to change for Post or add parameters
-webapp.get('/home/', async (req, res) => {
+// get userProfile with email as param, gets all JSON data
+webapp.get('/user/:email', async (req, res) => {
   try {
-    const dbRes = await lib.getUserFullName(db, req.body.email);
+    const dbRes = await lib.getUserProfile(db, req.params.email);
     if (dbRes === null) {
       res.status(400).json({ error: 'Bad request' });
     } else {
-      res.status(200).json({ firstName: dbRes.firstName, lastName: dbRes.lastName });
-      console.log(dbRes);
+      res.status(200).json({ result: dbRes });
     }
   } catch (e) {
     console.error(e);
@@ -137,7 +134,7 @@ webapp.get('/club/:clubName', async (req, res) => {
       return res.status(400).json({ error: 'Club name does not exist' });
     }
     // this is returned as a large json object
-    return res.status(200).json({ clubObject: dbres });
+    return res.status(200).json({ result: dbres });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Internal server error' });
