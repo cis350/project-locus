@@ -54,6 +54,33 @@ webapp.get('/id/:useremail', async (req, res) => {
   }
 });
 
+webapp.get('/lockout/:useremail', async (req, res) => {
+  const requestedEmail = req.params.useremail;
+  try {
+    const lockout = await lib.getLockoutStatus(db, requestedEmail);
+    if (lockout) {
+      return res.status(200).json({ message: 'Lockout date found', userLockout: `${lockout}` });
+    }
+    return res.status(404).json({ error: 'Lockout not found' });
+  } catch (e) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.put('/lockoutupdate/:useremail/:lockout', async (req, res) => {
+  const requestedEmail = req.params.useremail;
+  const lockoutStatus = req.params.lockout;
+  try {
+    const lockout = await lib.setLockoutStatus(db, requestedEmail, lockoutStatus);
+    if (lockout) {
+      return res.status(200).json({ message: 'Lockout date updated' });
+    }
+    return res.status(404).json({ error: 'Lockout not updated' });
+  } catch (e) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // register, creates a user using Request body
 webapp.post('/register', async (req, res) => {
   try {

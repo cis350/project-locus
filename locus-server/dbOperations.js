@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const { MongoClient } = require('mongodb');
+const { lock } = require('./server');
 
 // url is the MongoDB url provided
 const connect = async (url) => {
@@ -117,10 +118,38 @@ const getUserClubs = async (db, userEmail) => {
   try {
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
+      return user.lockoutStatus;
+    }
+    console.log('user not found');
+    return null;
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to get user clubs');
+  }
+};
+
+const getLockoutStatus = async (db, userEmail) => {
+  try {
+    const user = await db.collection('Users').findOne({ email: userEmail });
+    if (user) {
       return user.clubs;
     }
     console.log('user not found');
     return null;
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to get user clubs');
+  }
+};
+
+const setLockoutStatus = async (db, userEmail, lockout) => {
+  try {
+    const user = await db.collection('Users').updateOne({ email: userEmail }, { $set: { lockoutStatus: lockout } });
+    if (user) {
+      return true;
+    }
+    console.log('user not found');
+    return false;
   } catch (err) {
     console.error(err);
     throw new Error('unable to get user clubs');
@@ -418,4 +447,6 @@ module.exports = {
   createClub,
   getClub,
   getClubChat,
+  getLockoutStatus,
+  setLockoutStatus,
 };
