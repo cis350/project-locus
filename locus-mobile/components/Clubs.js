@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ProgressBar from 'react-native-progress/Bar';
+import { createClub } from '../modules/api';
 
 const club1 = {
   name: 'Club 1',
@@ -20,7 +21,8 @@ const club2 = {
 export default function Clubs({ navigation }) {
   // **change this to fetch all clubs that the user is a part of from DB
   const userClubs = [club1, club2, club2, club2];
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [clubName, setClubName] = useState('');
   // set up the view for all the clubs that the user is in
   const displayClubs = [];
   for (let i = 0; i < userClubs.length; i += 1) {
@@ -41,10 +43,38 @@ export default function Clubs({ navigation }) {
   function showClub(club) {
     navigation.navigate('Club', { club });
   }
+
+  async function handleCreateClub() {
+    await createClub(clubName);
+    setClubName('');
+    setModalVisible(false);
+  }
+
   return (
     <ScrollView>
       <View style={styles.container}>
+        {/* modal for creating clubs */}
+        <Modal
+          animationType="slide"
+          transparent
+          visible={modalVisible}
+        >
+          <View style={styles.container}>
+            <TextInput
+              style={styles.input}
+              placeholder="Club Name"
+              onChangeText={setClubName}
+              value={clubName}
+            />
+            <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
+              <Text style={{ fontSize: 20 }}>Create</Text>
+            </TouchableHighlight>
+          </View>
+        </Modal>
         <Text style={{ fontSize: 24 }}>Which Club Needs Work?</Text>
+        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setModalVisible(true)}>
+          <Text style={{ fontSize: 20 }}>Create Club</Text>
+        </TouchableHighlight>
         <View style={styles.clubContainer}>
           {displayClubs}
         </View>
@@ -83,5 +113,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: 'white',
     marginVertical: 5,
+  },
+  button: {
+    backgroundColor: '#6A9B72',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    paddingHorizontal: 5,
   },
 });

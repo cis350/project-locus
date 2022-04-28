@@ -9,13 +9,22 @@ export async function login(email, password) {
     if (response.data.message === 'Login successful') return true;
     return false;
   } catch (err) {
-    return false;
+    return 'Server Error';
   }
 }
 
 export async function getUser(email) {
   try {
     const response = await axios.get(`${domain}/user/${email}`);
+    return response.data;
+  } catch (err) {
+    return false;
+  }
+}
+
+export async function createClub(clubName) {
+  try {
+    const response = await axios.post(`${domain}/createClub/${clubName}`);
     return response.data;
   } catch (err) {
     return false;

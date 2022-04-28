@@ -7,14 +7,11 @@ import { login, getUser } from '../modules/api';
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const loginAttempts = useRef(0);
 
   async function handleLogin() {
     const loginSuccess = await login(email, password);
     if (!loginSuccess) {
       Alert.alert('Invalid Username/Password');
-      loginAttempts.current += 1;
-      console.log(loginAttempts.current);
     } else {
       const user = (await getUser(email)).result;
       if (!user) return;
