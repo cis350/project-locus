@@ -2,6 +2,9 @@
 /* eslint-disable no-underscore-dangle */
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectID;
+const bcrypt = require('bcryptjs');
+
+const salt = bcrypt.genSaltSync(10);
 
 // url is the MongoDB url provided
 const connect = async (url) => {
@@ -50,9 +53,10 @@ const registerUser = async (
       || !userEmail || !userPassword || !userYear || !userMajor || !lockoutStatus) {
       return null;
     }
+    const hashedPassword = await bcrypt.hash(userPassword, salt);
     const userValues = {
       email: userEmail,
-      password: userPassword,
+      password: hashedPassword,
       firstName: userFirstName,
       lastName: userLastName,
       year: userYear,
@@ -82,7 +86,7 @@ const verifyLoginInfo = async (db, userEmail, userPassword) => {
     const emailExists = await checkIfEmailAlreadyExists(db, userEmail);
     if (emailExists) {
       const user = await db.collection('Users').findOne({ email: userEmail });
-      if (user && user.password === userPassword) {
+      if (user && await (bcrypt.compare(userPassword, user.password))) {
         return true;
       }
     }

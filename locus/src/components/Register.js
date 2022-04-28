@@ -221,11 +221,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
               <Form.Control
                 style={{ height: '35px' }}
                 type="password"
-                maxlength="20"
+                maxLength="20"
                 onChange={(e) => updatePassword(e)}
               />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="password" maxlength="20" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '35px' }} type="password" maxLength="20" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
