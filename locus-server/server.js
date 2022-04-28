@@ -142,7 +142,7 @@ webapp.get('/clubs/:email', async (req, res) => {
 // create club endpoint, require clubName in req and :id param
 webapp.post('/club', async (req, res) => {
   try {
-    const dbres = await lib.createClub(db, req.body.clubName, req.params.id);
+    const dbres = await lib.createClub(db, req.body.clubName, req.body.id);
     if (dbres) {
       return res.status(200).json({ message: `Club created with name ${req.body.clubName}` });
     }
