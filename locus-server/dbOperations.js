@@ -1,4 +1,3 @@
-/* eslint-disable object-curly-newline */
 /* eslint-disable no-underscore-dangle */
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectID;
