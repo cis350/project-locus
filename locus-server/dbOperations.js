@@ -57,6 +57,7 @@ const registerUser = async (
       lastName: userLastName,
       year: userYear,
       major: userMajor,
+      registrationDate: new Date(),
       lockoutStatus,
       clubs: [],
     };

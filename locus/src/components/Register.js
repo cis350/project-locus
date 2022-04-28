@@ -218,9 +218,14 @@ const Register = function RegisterComponent({ setJustRegistered }) {
                 {displayMajorSelections}
               </Form.Select>
               <Form.Label>Password</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="password" onChange={(e) => updatePassword(e)} />
+              <Form.Control
+                style={{ height: '35px' }}
+                type="password"
+                maxlength="20"
+                onChange={(e) => updatePassword(e)}
+              />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="password" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '35px' }} type="password" maxlength="20" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
