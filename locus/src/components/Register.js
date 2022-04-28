@@ -5,14 +5,17 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { v4 as uuidv4 } from 'uuid';
-import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
+import { register } from '../modules/fetchRequests';
+import majors from '../assets/Majors.json';
+// import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [year, setYear] = useState('2022');
+  const [major, setMajor] = useState('Accounting');
   const [verifyPassword, setVerifyPassword] = useState('');
 
   const [fieldEmpty, setFieldEmpty] = useState(false);
@@ -24,12 +27,18 @@ const Register = function RegisterComponent({ setJustRegistered }) {
 
   const navigate = useNavigate();
 
+  // setup major selection form
+  const displayMajorSelections = [];
+  for (let i = 0; i < majors.length; i += 1) {
+    displayMajorSelections.push(
+      <option value={majors[i]} key={`major${i}`}>{majors[i]}</option>,
+    );
+  }
+
   // handles redirecting to "/home"
   function onRegister(path) {
     // referenced https://www.npmjs.com/package/uuid
-    const uniqueId = uuidv4();
     setJustRegistered(true);
-    registerUser(firstName, lastName, email, password, uniqueId);
     navigate(path);
   }
 
@@ -80,22 +89,6 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     return true;
   };
 
-  const checkValidEmail = () => {
-    if (!validateEmail(email)) {
-      setEmailAlreadyExists(false);
-      setIsInvalidEmail(true);
-      return false;
-    }
-    if (!checkIfEmailAlreadyExists(email)) {
-      setIsInvalidEmail(false);
-      setEmailAlreadyExists(true);
-      return false;
-    }
-    setIsInvalidEmail(false);
-    setEmailAlreadyExists(false);
-    return true;
-  };
-
   const checkValidPassword = () => {
     if (password !== verifyPassword) {
       setPasswordNotAlphanumeric(false);
@@ -121,9 +114,25 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     return true;
   };
 
-  const processUserInputs = () => {
-    if (checkEmptyFields() && checkValidEmail() && checkValidPassword()) {
-      onRegister('/');
+  const processUserInputs = async () => {
+    if (checkEmptyFields() && checkValidPassword()) {
+      if (!validateEmail(email)) {
+        setEmailAlreadyExists(false);
+        setIsInvalidEmail(true);
+      } else {
+        register(firstName, lastName, email, password, year, major)
+          .then((res) => {
+            if (res.status === 201) {
+              setIsInvalidEmail(false);
+              setEmailAlreadyExists(false);
+              onRegister('/');
+            }
+            if (res.status === 400) {
+              setIsInvalidEmail(false);
+              setEmailAlreadyExists(true);
+            }
+          });
+      }
     }
   };
 
@@ -192,15 +201,31 @@ const Register = function RegisterComponent({ setJustRegistered }) {
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>First name</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updateFirstName(e)} />
+              <Form.Control style={{ height: '35px' }} type="name" onChange={(e) => updateFirstName(e)} />
               <Form.Label>Last name</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="name" onChange={(e) => updateLastName(e)} />
+              <Form.Control style={{ height: '35px' }} type="name" onChange={(e) => updateLastName(e)} />
               <Form.Label>Email</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="email" onChange={(e) => updateEmail(e)} />
+              <Form.Control style={{ height: '35px' }} type="email" onChange={(e) => updateEmail(e)} />
+              <Form.Label>Year</Form.Label>
+              <Form.Select onChange={(e) => setYear(e.target.value)}>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+              </Form.Select>
+              <Form.Label>Major</Form.Label>
+              <Form.Select onChange={(e) => setMajor(e.target.value)}>
+                {displayMajorSelections}
+              </Form.Select>
               <Form.Label>Password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updatePassword(e)} />
+              <Form.Control
+                style={{ height: '35px' }}
+                type="password"
+                maxLength="20"
+                onChange={(e) => updatePassword(e)}
+              />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '35px' }} type="password" maxLength="20" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>

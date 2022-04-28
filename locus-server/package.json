@@ -4,17 +4,25 @@
   "description": "Server for locus application",
   "main": "server.js",
   "scripts": {
-    "test": "jest --coverage --detectOpenHandles",
-    "start": "node server"
+    "test": "jest --coverage",
+    "start": "node server",
+    "lint": "eslint . --ext .js"
   },
   "author": "dustin, heng, james, soham, jefrrey",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "express": "^4.17.3",
     "jest": "^27.5.1",
     "mongodb": "^4.5.0"
   },
   "devDependencies": {
+    "cors": "^2.8.5",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-mongodb": "^1.0.0",
     "supertest": "^6.2.2"
   }
 }

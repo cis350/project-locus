@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import {
   Button, Form, Container, Row, Col, Stack,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
+// import api functions instead
 import {
   getUserFullName, getUserClubs, joinClub, getClub,
 } from '../modules/storage';
@@ -26,7 +26,8 @@ function Clubs({ userEmail }) {
   const masterName = useRef('');
 
   const handleClubs = () => {
-    const clubValues = joinClub(userEmail, clubName.current, masterName.current, uuidv4());
+    // update to api's joinClub
+    const clubValues = joinClub(userEmail, clubName.current, masterName.current);
     if (clubValues) {
       const newClub = {
         clubItemName: clubName.current,
