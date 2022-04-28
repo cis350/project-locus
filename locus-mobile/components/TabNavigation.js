@@ -1,16 +1,20 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { Text } from 'react-native';
 import Home from './Home';
+import AllChats from './AllChats';
+import ClubsNavigation from './ClubsNavigation';
+import AllProjects from './AllProjects';
 
 const Tab = createBottomTabNavigator();
-export default function Navigation() {
+export default function Navigation({ route }) {
+  const { user } = route.params;
   return (
     <Tab.Navigator initialRouteName="Home">
       <Tab.Screen
         name="Home"
         component={Home}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
@@ -23,7 +27,8 @@ export default function Navigation() {
       />
       <Tab.Screen
         name="Chat"
-        component={() => <Text>Hello</Text>}
+        component={AllChats}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
@@ -36,7 +41,8 @@ export default function Navigation() {
       />
       <Tab.Screen
         name="Clubs"
-        component={() => <Text>Clubs</Text>}
+        component={ClubsNavigation}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons
@@ -45,11 +51,13 @@ export default function Navigation() {
               color={tabInfo.focused ? '#006600' : '#8e8e93'}
             />
           ),
+          headerShown: false,
         }}
       />
       <Tab.Screen
         name="Projects"
-        component={() => <Text>Projects</Text>}
+        component={AllProjects}
+        initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (
             <Ionicons

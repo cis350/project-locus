@@ -4,15 +4,11 @@ import {
 } from 'react-native';
 
 export default function Main({ navigation }) {
-  function handleLogin() {
-    navigation.navigate('Login');
-  }
-
   return (
     <View style={styles.container}>
       <Text style={{ textAlign: 'center', fontSize: 40 }}>Welcome To Locus!</Text>
       <View style={styles.buttonContainer}>
-        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleLogin()}>
+        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => navigation.navigate('Login')}>
           <Text style={{ fontSize: 30 }}>Login</Text>
         </TouchableHighlight>
       </View>

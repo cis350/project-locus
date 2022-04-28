@@ -1,80 +1,127 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
-  Button, Form, Container, Row, Col, Stack,
-} from 'react-bootstrap';
-import '../assets/Clubs.css';
-import { getUserFullName } from '../modules/storage';
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import ProgressBar from 'react-native-progress/Bar';
+import { createClub } from '../modules/api';
 
-function Clubs({ userEmail }) {
-  const [clubsArray, addClub] = useState([]);
+const club1 = {
+  name: 'Club 1',
+  master: 'James',
+  progress: 0.3,
+};
 
-  const clubName = useRef('');
-  const masterName = useRef('');
+const club2 = {
+  name: 'Club 2',
+  master: 'Jeffrey',
+  progress: 0.2,
+};
 
-  const handleClubs = () => {
-    const newClub = {
-      clubItemName: clubName.current,
-      masterItemName: masterName.current,
-    };
-    addClub([...clubsArray, newClub]);
-  };
+export default function Clubs({ navigation }) {
+  // **change this to fetch all clubs that the user is a part of from DB
+  const userClubs = [club1, club2, club2, club2];
+  const [modalVisible, setModalVisible] = useState(false);
+  const [clubName, setClubName] = useState('');
+  // set up the view for all the clubs that the user is in
+  const displayClubs = [];
+  for (let i = 0; i < userClubs.length; i += 1) {
+    displayClubs.push(
+      <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => showClub(userClubs[i])}>
+        <Text style={styles.clubText}>{userClubs[i].name}</Text>
+        <Text style={styles.clubText}>Master: {userClubs[i].master}</Text>
+        <ProgressBar progress={userClubs[i].progress} width={200} height={30} color="#8FC7FC" borderRadius={40} />
+        <Ionicons
+          style={{ color: 'white', textAlign: 'center', paddingVertical: 20 }}
+          name="settings"
+          size={24}
+        />
+      </TouchableOpacity>,
+    );
+  }
 
-  const makeClubName = (e) => {
-    clubName.current = e.target.value;
-  };
+  function showClub(club) {
+    navigation.navigate('Club', { club });
+  }
 
-  const makeMasterName = (e) => {
-    masterName.current = e.target.value;
-  };
+  async function handleCreateClub() {
+    await createClub(clubName);
+    setClubName('');
+    setModalVisible(false);
+  }
 
   return (
-    <div>
-      <Container fluid>
-        <Stack gap={20}>
-          <Row>
-            <h1 className="club-header">
-              Which Club Needs Work, &nbsp;
-              {getUserFullName(userEmail)}
-              ?
-            </h1>
-          </Row>
-          <div className="club-table">
-            {clubsArray.map((clubItem) => (
-              <div className="club-item">
-                <Button className="club-button">
-                  <Row>
-                    <Col className="d-flex justify-content-center">
-                      {clubItem.clubItemName}
-                    </Col>
-                    <Col className="d-flex justify-content-center">
-                      Master: &nbsp;
-                      {clubItem.masterItemName}
-                    </Col>
-                    <Col className="d-flex justify-content-center">
-                      Settings
-                    </Col>
-                  </Row>
-                </Button>
-              </div>
-            ))}
-          </div>
-          <div className="add-club-form">
-            <Row>
-              <Form className="club-form">
-                <input type="text" onChange={makeClubName} placeholder="Club name" />
-              </Form>
-              <Form className="club-form">
-                <input type="text" onChange={makeMasterName} placeholder="Clubmaster name" />
-              </Form>
-              <Button className="add-club-button" onClick={handleClubs}>
-                Add Club
-              </Button>
-            </Row>
-          </div>
-        </Stack>
-      </Container>
-    </div>
+    <ScrollView>
+      <View style={styles.container}>
+        {/* modal for creating clubs */}
+        <Modal
+          animationType="slide"
+          transparent
+          visible={modalVisible}
+        >
+          <View style={styles.container}>
+            <TextInput
+              style={styles.input}
+              placeholder="Club Name"
+              onChangeText={setClubName}
+              value={clubName}
+            />
+            <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
+              <Text style={{ fontSize: 20 }}>Create</Text>
+            </TouchableHighlight>
+          </View>
+        </Modal>
+        <Text style={{ fontSize: 24 }}>Which Club Needs Work?</Text>
+        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setModalVisible(true)}>
+          <Text style={{ fontSize: 20 }}>Create Club</Text>
+        </TouchableHighlight>
+        <View style={styles.clubContainer}>
+          {displayClubs}
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
-export default Clubs;
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingTop: 25,
+  },
+  clubContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    backgroundColor: '#B5E48C',
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginVertical: 30,
+  },
+  club: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#6A9B72',
+    width: 300,
+    height: 200,
+    marginVertical: 10,
+    borderRadius: 10,
+  },
+  clubText: {
+    textAlign: 'center',
+    fontSize: 24,
+    color: 'white',
+    marginVertical: 5,
+  },
+  button: {
+    backgroundColor: '#6A9B72',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    paddingHorizontal: 5,
+  },
+});
