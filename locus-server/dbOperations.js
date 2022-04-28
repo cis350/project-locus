@@ -22,10 +22,10 @@ const connect = async (url) => {
  */
 
 // true if email already exists
-const checkIfEmailAlreadyExists = async (db, email) => {
+const checkIfEmailAlreadyExists = async (db, userEmail) => {
   try {
-    if (!email) return false;
-    const user = await db.collection('Users').findOne({ email });
+    if (!userEmail) return false;
+    const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) return true;
     return false;
   } catch (err) {
@@ -78,7 +78,7 @@ const registerUser = async (
 const verifyLoginInfo = async (db, userEmail, userPassword) => {
   try {
     if (!userEmail || !userPassword) return false;
-    const emailExists = await checkIfEmailAlreadyExists(userEmail);
+    const emailExists = await checkIfEmailAlreadyExists(db, userEmail);
     if (emailExists) {
       const user = await db.collection('Users').findOne({ email: userEmail });
       if (user && user.password === userPassword) {

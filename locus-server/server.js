@@ -35,7 +35,7 @@ webapp.post('/login', async (req, res) => {
       const userId = await lib.getUserUniqueId(db, userEmail);
       return res.status(200).json({ message: 'Login successful', userId: `${userId}` });
     }
-    return res.status(400).json({ error: 'Login unsucessful' });
+    return res.status(400).json({ error: `Login unsucessful for ${userEmail}` });
   } catch (e) {
     return res.status(500).json({ error: 'Internal server error' });
   }
