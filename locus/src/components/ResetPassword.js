@@ -5,8 +5,9 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { getUserId } from '../modules/fetchRequests';
+import { getUserId } from '../modules/api';
 // import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
+
 
 const ResetPassword = function ResetPasswordComponent() {
   const [email, setEmail] = useState('');

@@ -5,7 +5,7 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { register } from '../modules/fetchRequests';
+import { register } from '../modules/api';
 import majors from '../assets/Majors.json';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
