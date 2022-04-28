@@ -29,13 +29,25 @@ webapp.get('/', (_req, res) => {
 webapp.post('/login', async (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
+  const currTime = Date.now();
+  const lockoutInterval = 5 * 60 * 1000;
   try {
-    const isSuccess = await lib.verifyLoginInfo(db, userEmail, userPassword);
-    if (isSuccess) {
-      const userId = await lib.getUserUniqueId(db, userEmail);
-      return res.status(200).json({ message: 'Login successful', userId: `${userId}` });
+    const user = await lib.verifyLoginInfo(db, userEmail, userPassword, currTime, lockoutInterval);
+    // user not found
+    if (user === null) {
+      return res.status(404).json({ error: 'User not found' });
     }
-    return res.status(400).json({ error: `Login unsucessful for ${userEmail}` });
+    // lockout is you are not within the time interval and lockoutAttempts is >= 3
+    if (user.lockoutDate > currTime && user.lockoutAttempts >= 3) {
+      return res.status(403).json({ error: `Account for ${userEmail} locked` });
+    }
+    // if your lockout attempts are less than three, but greater than 0, you must have bad login
+    if (user.lockoutAttempts > 0) {
+      return res.status(400).json({ error: `Incorrect password for ${userEmail}` });
+    }
+    // else if your lockoutAttempts are set to 0, send back login infor
+    const userId = await lib.getUserUniqueId(db, userEmail);
+    return res.status(200).json({ message: `Login successful for ${userEmail}`, userId: `${userId}` });
   } catch (e) {
     return res.status(500).json({ error: 'Internal server error' });
   }
@@ -49,33 +61,6 @@ webapp.get('/id/:useremail', async (req, res) => {
       return res.status(200).json({ message: 'Id found', userId: `${userId}` });
     }
     return res.status(404).json({ error: 'Id not found' });
-  } catch (e) {
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-webapp.get('/lockout/:useremail', async (req, res) => {
-  const requestedEmail = req.params.useremail;
-  try {
-    const lockout = await lib.getLockoutStatus(db, requestedEmail);
-    if (lockout) {
-      return res.status(200).json({ message: 'Lockout date found', userLockout: `${lockout}` });
-    }
-    return res.status(404).json({ error: 'Lockout not found' });
-  } catch (e) {
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-webapp.put('/lockoutupdate/:useremail/:lockout', async (req, res) => {
-  const requestedEmail = req.params.useremail;
-  const lockoutStatus = req.params.lockout;
-  try {
-    const lockout = await lib.setLockoutStatus(db, requestedEmail, lockoutStatus);
-    if (lockout) {
-      return res.status(200).json({ message: 'Lockout date updated' });
-    }
-    return res.status(404).json({ error: 'Lockout not updated' });
   } catch (e) {
     return res.status(500).json({ error: 'Internal server error' });
   }
@@ -97,7 +82,7 @@ webapp.post('/register', async (req, res) => {
       req.body.userPassword,
       req.body.userYear,
       req.body.userMajor,
-      req.body.lockoutStatus,
+      Date.now(),
     );
     if (dbRes === null) {
       return res.status(403).json({ error: 'Forbidden POST' });
@@ -142,7 +127,7 @@ webapp.get('/clubs/:email', async (req, res) => {
 // create club endpoint, require clubName in req and :id param
 webapp.post('/club', async (req, res) => {
   try {
-    const dbres = await lib.createClub(db, req.body.clubName, req.body.id);
+    const dbres = await lib.createClub(db, req.body.clubName, req.body.id, req.body.clubPassword);
     if (dbres) {
       return res.status(200).json({ message: `Club created with name ${req.body.clubName}` });
     }
@@ -216,7 +201,7 @@ webapp.post('/joinclub/:clubname', async (req, res) => {
 });
 
 webapp.delete('/removeMember/:clubname', async (req, res) => {
-  const { requestedEmail, targetEmail} = req.body;
+  const { requestedEmail, targetEmail } = req.body;
   const clubName = req.params.clubname;
   try {
     const result = await lib.removeUserFromClub(db, clubName, requestedEmail, targetEmail);

@@ -46,11 +46,11 @@ const registerUser = async (
   userPassword,
   userYear,
   userMajor,
-  lockoutStatus,
+  registerDate,
 ) => {
   try {
     if (!db || !userFirstName || !userLastName
-      || !userEmail || !userPassword || !userYear || !userMajor || !lockoutStatus) {
+      || !userEmail || !userPassword || !userYear || !userMajor || !registerDate) {
       return null;
     }
     const hashedPassword = await bcrypt.hash(userPassword, salt);
@@ -61,8 +61,9 @@ const registerUser = async (
       lastName: userLastName,
       year: userYear,
       major: userMajor,
-      registrationDate: new Date(),
-      lockoutStatus,
+      registrationDate: registerDate,
+      lockoutAttempts: 0,
+      lockoutDate: registerDate,
       clubs: [],
     };
     const emailExists = await checkIfEmailAlreadyExists(userEmail);
@@ -79,18 +80,27 @@ const registerUser = async (
   }
 };
 
-// check if login infomation is correct
-const verifyLoginInfo = async (db, userEmail, userPassword) => {
+// check if login infomation is correct; date = now
+const verifyLoginInfo = async (db, userEmail, userPassword, date, lockoutInterval) => {
   try {
-    if (!db || !userEmail || !userPassword) return false;
+    if (!db || !userEmail || !userPassword || !date) return null;
     const emailExists = await checkIfEmailAlreadyExists(db, userEmail);
     if (emailExists) {
       const user = await db.collection('Users').findOne({ email: userEmail });
-      if (user && await (bcrypt.compare(userPassword, user.password))) {
-        return true;
+      if (user) {
+        if (date > user.lockoutDate) {
+          if (await (bcrypt.compare(userPassword, user.password))) {
+            await db.collection('Users').updateOne({ email: userEmail }, { lockoutAttempts: 0 });
+          } else if (user.lockoutAttempts < 3) {
+            await db.collection('Users').updateOne({ email: userEmail }, { lockoutAttempts: user.lockoutAttempts + 1 });
+          } else {
+            await db.collection('Users').updateOne({ email: userEmail }, { lockoutDate: date + lockoutInterval });
+          }
+        }
+        return await db.collection('Users').findOne({ email: userEmail });
       }
     }
-    return false;
+    return null;
   } catch (err) {
     console.error(err);
     throw new Error('unable to verify login infomation');
@@ -150,35 +160,6 @@ const getUserClubs = async (db, userEmail) => {
   }
 };
 
-const getLockoutStatus = async (db, userEmail) => {
-  try {
-    if (!db || !userEmail) return null;
-    const user = await db.collection('Users').findOne({ email: userEmail });
-    if (user) {
-      return user.lockoutStatus;
-    }
-    console.log('user not found');
-    return null;
-  } catch (err) {
-    console.error(err);
-    throw new Error('unable to get user clubs');
-  }
-};
-
-const setLockoutStatus = async (db, userEmail, lockout) => {
-  try {
-    const user = await db.collection('Users').updateOne({ email: userEmail }, { $set: { lockoutStatus: lockout } });
-    if (user) {
-      return true;
-    }
-    console.log('user not found');
-    return false;
-  } catch (err) {
-    console.error(err);
-    throw new Error('unable to get user clubs');
-  }
-};
-
 /**
  * Chat Methods
  */
@@ -216,14 +197,6 @@ const getClubChat = async (db, clubName) => {
     if (chat) {
       return chat.messages;
     }
-    // generate the chat
-    // const foundClubId = await db.collection('Clubs').findOne({ clubName: givenClubName }, { _id: 1 });
-    // const chatValues = {
-    //   clubId: foundClubId,
-    //   clubName: givenClubName,
-    //   messages: [],
-    // };
-    // await db.collection('Chats').insertOne({ chatValues });
     return null;
   } catch (err) {
     console.error(err);
@@ -252,7 +225,7 @@ const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId
  */
 
 // creates a new club
-const createClub = async (db, newClubName, masterId) => {
+const createClub = async (db, newClubName, masterId, clubPassword) => {
   try {
     if (!newClubName || !masterId) return false;
     const club = await db.collection('Clubs').findOne({ clubName: `${newClubName}` });
@@ -269,10 +242,12 @@ const createClub = async (db, newClubName, masterId) => {
         projects: [],
         // list of member user emails associated with this club
         members: [user.email],
+        password: clubPassword,
       };
       const clubResult = await db.collection('Clubs').insertOne(clubValues);
       const chatResult = await createClubChat(db, newClubName);
-      const userResult = await db.collection('Users').updateOne({ _id: ObjectId(masterId) }, { $push: { clubs: newClubName } });
+      const newClubUserObject = { clubName: newClubName, role: 'master' };
+      const userResult = await db.collection('Users').updateOne({ _id: ObjectId(masterId) }, { $push: { clubs: newClubUserObject } });
       if (!clubResult.acknowledged || !userResult.acknowledged || !chatResult) {
         console.log('create club not acknowledged');
         throw new Error();
@@ -305,12 +280,12 @@ const getClub = async (db, clubName) => {
 };
 
 // add a user to an existing club
-const joinClub = async (db, userEmail, clubName, masterEmail) => {
+const joinClub = async (db, userEmail, clubName, password) => {
   try {
-    if (!userEmail || !clubName || !masterEmail) return null;
+    if (!userEmail || !clubName || !password) return null;
     const club = await getClub(db, clubName);
     // master ~~ password -> add user to club
-    if (club && club.masterEmail === masterEmail && !club.members.includes(userEmail)) {
+    if (club && club.password === password && !club.members.includes(userEmail)) {
       // update club side
       const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { members: userEmail } });
       // update user side
@@ -318,7 +293,7 @@ const joinClub = async (db, userEmail, clubName, masterEmail) => {
       if (!clubResult.acknowledged || !userResult.acknowledged) throw new Error('not acknowledged');
       return club;
     }
-    // club not found
+    // club not found or wrong password or member is already in
     console.log('cannot join club (club not found)');
     return null;
   } catch (err) {
@@ -492,8 +467,7 @@ module.exports = {
   createClub,
   getClub,
   getClubChat,
-  getLockoutStatus,
-  setLockoutStatus,
+  sendMessage,
   joinClub,
   removeUserFromClub,
   createProject,

@@ -51,10 +51,10 @@ describe('users endpoint tests', () => {
     await request(webapp).get('/').then((response) => expect(JSON.parse(response.text).message).toBe('Welcome to locus!'));
   });
 
-  test('/login endpoint status code and response 400', async () => {
+  test('/login endpoint status code and response 404', async () => {
     await request(webapp).post('/login')
-      .send({ email: 'test@gmail.com', password: 'testing123' }).expect(400)
-      .then((response) => expect(JSON.parse(response.text).error).toBe('Login unsucessful for test@gmail.com'));
+      .send({ email: 'test@gmail.com', password: 'testing123' }).expect(404)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('User not found'));
   });
 
   test('/register no fields 403', async () => {

@@ -22,8 +22,9 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   const [isInvalidEmail, setIsInvalidEmail] = useState(false);
   const [emailAlreadyExists, setEmailAlreadyExists] = useState(false);
   const [passwordsNoMatch, setPasswordsNoMatch] = useState(false);
-  const [passwordNotAlphanumeric, setPasswordNotAlphanumeric] = useState(false);
   const [passwordNotLong, setPasswordNotLong] = useState(false);
+  const [passwordHasNoUpper, setPasswordHasNoUpper] = useState(false);
+  const [passwordHasNoSpecialCharacter, setPasswordHasNoSpecialCharacter] = useState(false);
 
   const navigate = useNavigate();
 
@@ -68,15 +69,16 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     return re.test(inputEmail);
   };
 
-  const validatePassWord = (inputPassword) => {
-    for (let i = 0; i < inputPassword.length; i += 1) {
-      const currChar = inputPassword.charCodeAt(i);
-      if ((currChar < 48 || currChar > 57) && (currChar < 65 || currChar > 90)
-        && (currChar < 97 || currChar > 122)) {
-        return false;
-      }
-    }
-    return true;
+  // referenced https://stackoverflow.com/questions/35674161/regex-to-check-if-password-contains-at-least-one-capital-letter
+  const hasNoUpper = (inputPassword) => {
+    const re = /^(.*[A-Z].*)$/;
+    return re.test(inputPassword);
+  };
+
+  // referenced https://stackoverflow.com/questions/18812317/javascript-regex-for-special-characters
+  const hasNoSpecialCharacter = (inputPassword) => {
+    const re = /[-!$%^&*()_+|~=`{}\[\]:\/;<>?,.@#]/;
+    return re.test(inputPassword);
   };
 
   // make it better
@@ -91,26 +93,37 @@ const Register = function RegisterComponent({ setJustRegistered }) {
 
   const checkValidPassword = () => {
     if (password !== verifyPassword) {
-      setPasswordNotAlphanumeric(false);
       setPasswordNotLong(false);
       setPasswordsNoMatch(true);
-      return false;
-    }
-    if (!validatePassWord(password)) {
-      setPasswordNotAlphanumeric(true);
-      setPasswordNotLong(false);
-      setPasswordsNoMatch(false);
+      setPasswordHasNoUpper(false);
+      setPasswordHasNoSpecialCharacter(false);
       return false;
     }
     if (password.length < 5) {
-      setPasswordNotAlphanumeric(false);
       setPasswordNotLong(true);
       setPasswordsNoMatch(false);
+      setPasswordHasNoUpper(false);
+      setPasswordHasNoSpecialCharacter(false);
       return false;
     }
-    setPasswordNotAlphanumeric(false);
+    if (!hasNoUpper(password)) {
+      setPasswordNotLong(false);
+      setPasswordsNoMatch(false);
+      setPasswordHasNoUpper(true);
+      setPasswordHasNoSpecialCharacter(false);
+      return false;
+    }
+    if (!hasNoSpecialCharacter(password)) {
+      setPasswordNotLong(false);
+      setPasswordsNoMatch(false);
+      setPasswordHasNoUpper(false);
+      setPasswordHasNoSpecialCharacter(true);
+      return false;
+    }
     setPasswordNotLong(false);
     setPasswordsNoMatch(false);
+    setPasswordHasNoUpper(false);
+    setPasswordHasNoSpecialCharacter(false);
     return true;
   };
 
@@ -143,13 +156,6 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     </Alert>
   ));
 
-  const errorMsgPasswordNotAlphanumeric = (() => (
-    // referenced https://react-bootstrap.github.io/components/alerts/
-    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Password must be alphanumeric.
-    </Alert>
-  ));
-
   const errorMsgPasswordsNotMatch = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
@@ -178,6 +184,20 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     </Alert>
   ));
 
+  const errorMsgPasswordHasNoUpper = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Password must have at least one upper case.
+    </Alert>
+  ));
+
+  const errorMsgPasswordHasNoSpecialCharacter = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Password must have at least one special character.
+    </Alert>
+  ));
+
   return (
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
       <h1 className="text-center">Register</h1>
@@ -185,8 +205,9 @@ const Register = function RegisterComponent({ setJustRegistered }) {
       {emailAlreadyExists && errorMsgEmailAlreadyExists()}
       {passwordNotLong && errorMsgPasswordTooShort()}
       {passwordsNoMatch && errorMsgPasswordsNotMatch()}
-      {passwordNotAlphanumeric && errorMsgPasswordNotAlphanumeric()}
       {isInvalidEmail && errorMsgInvalidEmail()}
+      {passwordHasNoUpper && errorMsgPasswordHasNoUpper()}
+      {passwordHasNoSpecialCharacter && errorMsgPasswordHasNoSpecialCharacter()}
       <Card style={{
         width: '23rem',
         margin: 'auto',
@@ -221,11 +242,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
               <Form.Control
                 style={{ height: '35px' }}
                 type="password"
-                maxLength="20"
+                maxlength="20"
                 onChange={(e) => updatePassword(e)}
               />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="password" maxLength="20" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '35px' }} type="password" maxlength="20" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
