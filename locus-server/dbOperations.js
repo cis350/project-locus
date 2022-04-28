@@ -88,14 +88,19 @@ const verifyLoginInfo = async (db, userEmail, userPassword, date, lockoutInterva
       const user = await db.collection('Users').findOne({ email: userEmail });
       if (user) {
         if (date > user.lockoutDate) {
+          // sucessful login outside lockoutInterval
           if (await (bcrypt.compare(userPassword, user.password))) {
-            await db.collection('Users').updateOne({ email: userEmail }, { lockoutAttempts: 0 });
+            await db.collection('Users').updateOne({ email: userEmail }, { $set: { lockoutAttempts: 0 } });
           } else if (user.lockoutAttempts < 3) {
-            await db.collection('Users').updateOne({ email: userEmail }, { lockoutAttempts: user.lockoutAttempts + 1 });
+            // if not locked out yet and bad password increment attempts by 1
+            const newAttemptsNum = user.lockoutAttempts + 1;
+            await db.collection('Users').updateOne({ email: userEmail }, { $set: { lockoutAttempts: newAttemptsNum } });
           } else {
-            await db.collection('Users').updateOne({ email: userEmail }, { lockoutDate: date + lockoutInterval });
+            // attempts is at least than 3, so set a lockoutTime
+            await db.collection('Users').updateOne({ email: userEmail }, { $set: { lockoutDate: date + lockoutInterval } });
           }
         }
+        // make no changes to object if still within lockoutInterval
         return await db.collection('Users').findOne({ email: userEmail });
       }
     }
