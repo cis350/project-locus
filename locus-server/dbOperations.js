@@ -291,7 +291,7 @@ const getClub = async (db, clubName) => {
 // add a user to an existing club
 const joinClub = async (db, userEmail, clubName, masterEmail) => {
   try {
-    const club = getClub(db, clubName);
+    const club = await getClub(db, clubName);
     // master ~~ password -> add user to club
     if (club && club.masterEmail == masterEmail && !club.members.includes(userEmail)) {
       // update club side
@@ -312,7 +312,7 @@ const joinClub = async (db, userEmail, clubName, masterEmail) => {
 // allow admins to remove a user from club (true for success)
 const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => {
   try {
-    const club = getClub(db, clubName);
+    const club = await getClub(db, clubName);
     if (club && club.admins.includes(requestedEmail) && club.members.includes(targetEmail) && !club.admins.includes(targetEmail)) {
       // remove user from club
       const removeFromClub = await db.collection('Clubs').updateOne({ clubName }, { $pull: { members: targetEmail }});
