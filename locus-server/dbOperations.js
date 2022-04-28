@@ -41,6 +41,7 @@ const registerUser = async (
   userPassword,
   userYear,
   userMajor,
+  lockout,
 ) => {
   try {
     const userValues = {
@@ -50,6 +51,7 @@ const registerUser = async (
       lastName: userLastName,
       year: userYear,
       major: userMajor,
+      lockoutStatus: lockout,
       clubs: [],
     };
 
