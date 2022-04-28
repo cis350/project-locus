@@ -135,6 +135,28 @@ describe('Club endpoint tests', () => {
     await request(webapp).get(`/chats/${testClub.clubName}`).expect(200)
       .then((response) => expect(JSON.parse(response.text).clubObject).toMatchObject([]));
   });
+
+  test('/joinclub/:clubName endpoint 400', async () => {
+    await request(webapp).post('/joinclub/nonexist').expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+    await request(webapp).post('/joinclub/nonexist').send({ userEmail: 'jds' }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+    await request(webapp).post('/joinclub/nonexist').send({ masterEmail: 'dfhg' }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+  });
+
+  test('/joinclub/:clubname endpoint 201', async () => {
+    const user2Exists = await dbLib.checkIfEmailAlreadyExists(db, testUser2.userEmail);
+    if (!user2Exists) {
+      await request(webapp).post('/register').send(testUser2).expect(201)
+        .then((response) => expect(JSON.parse(response.text).message).toBe(`${testUser2.userFirstName} ${testUser2.userLastName} added`));
+    }
+    const userClubs = await dbLib.getUserClubs(db, testUser2.userEmail);
+    if (!userClubs.includes(testClub.clubName)) {
+      await request(webapp).post('/joinclub/nonexist').send({ userEmail: testUser2.userEmail, masterEmail: testUser.userEmail }).expect(400)
+        .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+    }
+  });
 });
 
 describe('Chat endpoint tests', () => {

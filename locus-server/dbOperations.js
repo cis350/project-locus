@@ -24,7 +24,7 @@ const connect = async (url) => {
 // true if email already exists
 const checkIfEmailAlreadyExists = async (db, userEmail) => {
   try {
-    if (!userEmail) return false;
+    if (!db || !userEmail) return false;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) return true;
     return false;
@@ -77,7 +77,7 @@ const registerUser = async (
 // check if login infomation is correct
 const verifyLoginInfo = async (db, userEmail, userPassword) => {
   try {
-    if (!userEmail || !userPassword) return false;
+    if (!db || !userEmail || !userPassword) return false;
     const emailExists = await checkIfEmailAlreadyExists(db, userEmail);
     if (emailExists) {
       const user = await db.collection('Users').findOne({ email: userEmail });
@@ -94,7 +94,7 @@ const verifyLoginInfo = async (db, userEmail, userPassword) => {
 
 const getUserUniqueId = async (db, userEmail) => {
   try {
-    if (!userEmail) return null;
+    if (!db || !userEmail) return null;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
       return user._id.toString();
@@ -132,7 +132,7 @@ const getUserProfile = async (db, userEmail) => {
 
 const getUserClubs = async (db, userEmail) => {
   try {
-    if (!userEmail) return null;
+    if (!db || !userEmail) return null;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
       return user.clubs;
@@ -147,7 +147,7 @@ const getUserClubs = async (db, userEmail) => {
 
 const getLockoutStatus = async (db, userEmail) => {
   try {
-    if (!userEmail) return null;
+    if (!db || !userEmail) return null;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
       return user.lockoutStatus;
@@ -181,6 +181,7 @@ const setLockoutStatus = async (db, userEmail, lockout) => {
 // addClubToChats equivalent create a chat for club
 const createClubChat = async (db, newClubName) => {
   try {
+    if (!db || !newClubName) return false;
     const club = await db.collection('Clubs').findOne({ clubName: newClubName });
     if (club) {
       const chatValues = {
@@ -301,13 +302,15 @@ const getClub = async (db, clubName) => {
 // add a user to an existing club
 const joinClub = async (db, userEmail, clubName, masterEmail) => {
   try {
+    if (!userEmail || !clubName || !masterEmail) return null;
     const club = await getClub(db, clubName);
     // master ~~ password -> add user to club
     if (club && club.masterEmail === masterEmail && !club.members.includes(userEmail)) {
       // update club side
-      db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { members: userEmail } });
+      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { members: userEmail } });
       // update user side
-      db.collection('Users').updateOne({ email: `${userEmail}` }, { $push: { clubs: `${clubName}` } });
+      const userResult = await db.collection('Users').updateOne({ email: `${userEmail}` }, { $push: { clubs: `${clubName}` } });
+      if (!clubResult.acknowledged || !userResult.acknowledged) throw new Error('not acknowledged');
       return club;
     }
     // club not found
