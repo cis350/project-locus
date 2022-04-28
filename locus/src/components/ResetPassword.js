@@ -12,66 +12,76 @@ const ResetPassword = function ResetPasswordComponent() {
   const [email, setEmail] = useState('');
   const [emailFieldEmpty, setEmailFieldEmpty] = useState(false);
   const [serverError, setServerError] = useState(false);
-
-  const navigate = useNavigate();
-
-  // handles redirecting to "/home"
-  function onLogIn(path) {
-    navigate(path);
-  }
+  const [invalidEmail, setInvalidEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
 
   const updateEmail = (e) => {
-    setEmailFieldEmpty(e.target.value);
+    setEmail(e.target.value);
   };
 
   const processUserInput = async () => {
     if (email === '') {
       setEmailFieldEmpty(true);
+      setServerError(false);
+      setInvalidEmail(false);
+      setEmailSuccess(false);
     } else {
       getUserId(email).then((res) => {
         if (res.status === 200) {
           setEmailFieldEmpty(false);
-
+          setServerError(false);
+          setInvalidEmail(false);
+          setEmailSuccess(true);
         } else if (res.status === 404) {
-          setLogInFieldEmpty(false);
-          setLogInInfoInvalid(true);
-          setLockout(false);
+          setEmailFieldEmpty(false);
+          setServerError(false);
+          setInvalidEmail(true);
+          setEmailSuccess(false);
         } else if (res.status === 500) {
-          setLogInFieldEmpty(false);
-          setLogInInfoInvalid(false);
-          setLockout(true);
+          setEmailFieldEmpty(false);
+          setServerError(true);
+          setInvalidEmail(false);
+          setEmailSuccess(false);
         }
       });
     }
   };
 
-  const errorMsgEmptyFields = (() => (
+  const errorMsgEmptyEmail = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Please enter both your email and password.
+      Please enter your email.
     </Alert>
   ));
 
-  const errorMsgLogInInfoInvalid = (() => (
+  const errorMsgInvalidEmail = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Email or/and password invalid.
+      Email does not exist.
     </Alert>
   ));
 
-  const errorMsgUserLockout = (() => (
+  const errorMsgServerError = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Too many failed attempts. Please try again later.
+      Server error.
+    </Alert>
+  ));
+
+  const emailSuccessMsg = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="success" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Email has been sent with a link to reset password.
     </Alert>
   ));
 
   return (
     <div className="container" style={{ position: 'relative', padding: '120px' }}>
       <h1 className="text-center">Reset Password</h1>
-      {logInFieldEmpty && errorMsgEmptyFields()}
-      {logInInfoInvalid && errorMsgLogInInfoInvalid()}
-      {lockout && errorMsgUserLockout()}
+      {emailFieldEmpty && errorMsgEmptyEmail()}
+      {serverError && errorMsgServerError()}
+      {invalidEmail && errorMsgInvalidEmail()}
+      {emailSuccess && emailSuccessMsg()}
       <Card style={{
         width: '23rem',
         margin: 'auto',
@@ -102,7 +112,7 @@ const ResetPassword = function ResetPasswordComponent() {
             color: 'black',
             borderColor: '#6A9B72',
           }}
-          onClick={() => processUserInputs()}
+          onClick={() => processUserInput()}
         >
           Continue
         </Button>

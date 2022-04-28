@@ -34,6 +34,7 @@ async function getUserId(userEmail) {
     headers: { 'Content-Type': 'application/json' },
   });
   const resultJson = await result.json();
+  console.log({ status: result.status, jsonContent: resultJson });
   return { status: result.status, jsonContent: resultJson };
 }
 
