@@ -97,6 +97,7 @@ webapp.post('/register', async (req, res) => {
       req.body.userPassword,
       req.body.userYear,
       req.body.userMajor,
+      req.body.lockoutStatus,
     );
     if (dbRes === null) {
       return res.status(403).json({ error: 'Forbidden POST' });

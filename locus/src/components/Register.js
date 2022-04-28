@@ -14,8 +14,8 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [year, setYear] = useState('');
-  const [major, setMajor] = useState('');
+  const [year, setYear] = useState('2022');
+  const [major, setMajor] = useState('Accounting');
   const [verifyPassword, setVerifyPassword] = useState('');
 
   const [fieldEmpty, setFieldEmpty] = useState(false);

@@ -42,10 +42,10 @@ const registerUser = async (
   userPassword,
   userYear,
   userMajor,
-  lockout,
+  lockoutStatus,
 ) => {
   try {
-    if (!db || !userFirstName || !userLastName || !userEmail || !userPassword || !userYear || !userMajor) {
+    if (!db || !userFirstName || !userLastName || !userEmail || !userPassword || !userYear || !userMajor || !lockoutStatus) {
       return null;
     }
     const userValues = {
@@ -55,10 +55,11 @@ const registerUser = async (
       lastName: userLastName,
       year: userYear,
       major: userMajor,
-      lockoutStatus: lockout,
+      lockoutStatus,
       clubs: [],
     };
-    if (!checkIfEmailAlreadyExists(userEmail)) {
+    const emailExists = await checkIfEmailAlreadyExists(userEmail);
+    if (!emailExists) {
       const result = await db.collection('Users').insertOne(userValues);
       if (result) {
         return result;
@@ -75,7 +76,8 @@ const registerUser = async (
 const verifyLoginInfo = async (db, userEmail, userPassword) => {
   try {
     if (!userEmail || !userPassword) return false;
-    if (checkIfEmailAlreadyExists(userEmail)) {
+    const emailExists = await checkIfEmailAlreadyExists(userEmail);
+    if (emailExists) {
       const user = await db.collection('Users').findOne({ email: userEmail });
       if (user && user.password === userPassword) {
         return true;
