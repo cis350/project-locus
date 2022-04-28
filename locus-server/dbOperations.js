@@ -480,7 +480,6 @@ module.exports = {
   getClubChat,
   getLockoutStatus,
   setLockoutStatus,
-  sendMessage,
   joinClub,
   removeUserFromClub,
   createProject,

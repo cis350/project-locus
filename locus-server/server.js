@@ -140,7 +140,7 @@ webapp.get('/clubs/:email', async (req, res) => {
 });
 
 // createClub endpoint, require clubName in req and :id param
-webapp.post('/createClub/:id/:clubName', async (req, res) => {
+webapp.put('/createClub/:id/:clubName', async (req, res) => {
   try {
     const dbres = await lib.createClub(db, req.body.clubName, req.params.id);
     if (dbres) {
@@ -199,12 +199,130 @@ webapp.get('/chats/:clubName', async (req, res) => {
 //   }
 // });
 
-// Start server; edit the port here if needed
+// join a club using your email and a masterEmail
+webapp.post('/joinclub/:clubname', async (req, res) => {
+  const { userEmail, masterEmail } = req.body;
+  const clubName = req.params.clubname;
+  try {
+    const result = await lib.joinClub(db, userEmail, clubName, masterEmail);
+    if (result === null) {
+      return res.status(400).json({ error: 'clubname or masterEmail incorrect' });
+    }
+    return res.status(201).json({ message: `added ${userEmail} to ${result.clubName}` });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.delete('/removeMember/:clubname', async (req, res) => {
+  const { requestedEmail, targetEmail} = req.body;
+  const clubName = req.params.clubname;
+  try {
+    const result = await lib.removeUserFromClub(db, clubName, requestedEmail, targetEmail);
+    if (result) {
+      return res.status(200).json({ message: `${targetEmail} removed from ${clubName}` });
+    }
+    return res.status(403).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// create a project for a parameter club name, project names must be unique
+webapp.put('/project/:clubname', async (req, res) => {
+  const { projectName, leaderEmail } = req.body;
+  const clubName = req.params.clubname;
+  try {
+    const result = await lib.createProject(db, clubName, projectName, leaderEmail);
+    if (result) {
+      return res.status(201).json({ message: `Created ${projectName} for ${clubName}` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
+  const { clubName, requestedEmail, assigneeEmail } = req.body;
+  const { projectName } = req.params;
+  try {
+    const result = await lib.assignUserToProject(
+      db,
+      clubName,
+      projectName,
+      requestedEmail,
+      assigneeEmail,
+    );
+    if (result) {
+      return res.status(201).json({ message: `${assigneeEmail} added to ${projectName}` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.delete('/removeUsertoProject/:projectName', async (req, res) => {
+  const { clubName, requestedEmail, assigneeEmail } = req.body;
+  const { projectName } = req.params;
+  try {
+    const result = await lib.removeUserFromProject(
+      db,
+      clubName,
+      projectName,
+      requestedEmail,
+      assigneeEmail,
+    );
+    if (result) {
+      return res.status(200).json({ message: `${assigneeEmail} removed from ${projectName}` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.post('/project/:projectName', async (req, res) => {
+  const { projectName } = req.params;
+  const { clubName } = req.body;
+  try {
+    const dbRes = await lib.getProject(db, clubName, projectName);
+    if (dbRes === null) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    return res.status(200).json({ result: dbRes });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.delete('/deleteProject/:projectName', async (req, res) => {
+  const { clubName, requestedEmail } = req.body;
+  const { projectName } = req.params;
+  try {
+    const dbRes = await lib.deleteProject(db, clubName, projectName, requestedEmail);
+    if (dbRes) {
+      return res.status(200).json({ message: `Removed ${projectName} from ${clubName}` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 function changeURL(inputURL) {
   url = inputURL;
 }
 
+// Start server; edit the port here if needed
 const port = process.env.PORT || 3306;
 webapp.listen(port, async () => {
   db = await lib.connect(url);
