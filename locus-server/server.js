@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const lib = require('./dbOperations');
-//const e = require('express');
+// const e = require('express');
 
 let db;
-const url = 'mongodb+srv://cis350:rv1wLHpUDR94Bmmk@locus.cyx90.mongodb.net/Locus?retryWrites=true&w=majority';
+let url = 'mongodb+srv://cis350:rv1wLHpUDR94Bmmk@locus.cyx90.mongodb.net/Locus?retryWrites=true&w=majority';
 
 // intialize web app with json
 const webapp = express();
@@ -199,10 +199,15 @@ webapp.get('/chats/:clubName', async (req, res) => {
 // });
 
 // Start server; edit the port here if needed
+
+function changeURL(inputURL) {
+  url = inputURL;
+}
+
 const port = process.env.PORT || 3306;
 webapp.listen(port, async () => {
   db = await lib.connect(url);
   console.log(`Server running on port:${port}`);
 });
 
-module.exports = webapp;
+module.exports = { changeURL, webapp };

@@ -23,7 +23,8 @@ const connect = async (url) => {
 // true if email already exists
 const checkIfEmailAlreadyExists = async (db, email) => {
   try {
-    const user = await db.collection('Users').findOne({ email: `${email}` });
+    if (!email) return false;
+    const user = await db.collection('Users').findOne({ email });
     if (user) return true;
     return false;
   } catch (err) {
@@ -44,6 +45,9 @@ const registerUser = async (
   lockout,
 ) => {
   try {
+    if (!db || !userFirstName || !userLastName || !userEmail || !userPassword || !userYear || !userMajor) {
+      return null;
+    }
     const userValues = {
       email: userEmail,
       password: userPassword,
@@ -54,10 +58,11 @@ const registerUser = async (
       lockoutStatus: lockout,
       clubs: [],
     };
-
-    const result = await db.collection('Users').insertOne(userValues);
-    if (result) {
-      return result;
+    if (!checkIfEmailAlreadyExists(userEmail)) {
+      const result = await db.collection('Users').insertOne(userValues);
+      if (result) {
+        return result;
+      }
     }
     return null;
   } catch (err) {
@@ -69,9 +74,12 @@ const registerUser = async (
 // check if login infomation is correct
 const verifyLoginInfo = async (db, userEmail, userPassword) => {
   try {
-    const user = await db.collection('Users').findOne({ email: userEmail });
-    if (user && user.password === userPassword) {
-      return true;
+    if (!userEmail || !userPassword) return false;
+    if (checkIfEmailAlreadyExists(userEmail)) {
+      const user = await db.collection('Users').findOne({ email: userEmail });
+      if (user && user.password === userPassword) {
+        return true;
+      }
     }
     return false;
   } catch (err) {
@@ -82,6 +90,7 @@ const verifyLoginInfo = async (db, userEmail, userPassword) => {
 
 const getUserUniqueId = async (db, userEmail) => {
   try {
+    if (!userEmail) return null;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
       return user._id.toString();
@@ -96,6 +105,7 @@ const getUserUniqueId = async (db, userEmail) => {
 
 const getUserProfile = async (db, userEmail) => {
   try {
+    if (!userEmail) return null;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
       const userOnlyData = {
@@ -118,9 +128,10 @@ const getUserProfile = async (db, userEmail) => {
 
 const getUserClubs = async (db, userEmail) => {
   try {
+    if (!userEmail) return null;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
-      return user.lockoutStatus;
+      return user.clubs;
     }
     console.log('user not found');
     return null;
@@ -132,9 +143,10 @@ const getUserClubs = async (db, userEmail) => {
 
 const getLockoutStatus = async (db, userEmail) => {
   try {
+    if (!userEmail) return null;
     const user = await db.collection('Users').findOne({ email: userEmail });
     if (user) {
-      return user.clubs;
+      return user.lockoutStatus;
     }
     console.log('user not found');
     return null;
