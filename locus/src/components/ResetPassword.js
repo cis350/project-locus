@@ -31,7 +31,6 @@ const ResetPassword = function ResetPasswordComponent() {
       getUserId(email).then((res) => {
         if (res.status === 200) {
           setEmailFieldEmpty(false);
-
         } else if (res.status === 404) {
           setLogInFieldEmpty(false);
           setLogInInfoInvalid(true);

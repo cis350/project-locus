@@ -213,7 +213,18 @@ const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId
   try {
     const chat = db.collection('Chats').findOne({ clubName });
     if (chat) {
-      await db.collection('Clubs').updateOne({ clubName }, { $push: { messages: { userEmail, message, timeStamp, uniqueId } } });
+      await db.collection('Clubs').updateOne(
+        { clubName },
+        {
+          $push:
+          {
+            messages:
+            {
+              userEmail, message, timeStamp, uniqueId,
+            },
+          },
+        },
+      );
       return true;
     }
     console.log('chat not found');

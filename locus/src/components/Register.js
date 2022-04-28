@@ -7,7 +7,6 @@ import {
 } from 'react-bootstrap';
 import { register } from '../modules/fetchRequests';
 import majors from '../assets/Majors.json';
-// import { checkIfEmailAlreadyExists, registerUser } from '../modules/storage';
 
 const Register = function RegisterComponent({ setJustRegistered }) {
   const [firstName, setFirstName] = useState('');
@@ -77,7 +76,7 @@ const Register = function RegisterComponent({ setJustRegistered }) {
 
   // referenced https://stackoverflow.com/questions/18812317/javascript-regex-for-special-characters
   const hasNoSpecialCharacter = (inputPassword) => {
-    const re = /[-!$%^&*()_+|~=`{}\[\]:\/;<>?,.@#]/;
+    const re = /[-!$%^&*()_+|~=`{}[\]:/;<>?,.@#]/;
     return re.test(inputPassword);
   };
 

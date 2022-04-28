@@ -81,9 +81,9 @@ function createClub(clubName, master, uniqueId) {
     localStorage.setItem('Clubs', JSON.stringify({}));
   }
   const clubValues = {
-    clubName: clubName,
-    master: master,
-    uniqueId: uniqueId,
+    clubName,
+    master,
+    uniqueId,
     members: [master],
     projects: {},
   };

@@ -5,7 +5,7 @@ import {
 import '../assets/Clubs.css';
 // import api functions instead
 import {
-  getUserId, getUserClubs, createClub, getSpecificClub
+  getUserId, getUserClubs, createClub, getSpecificClub,
 } from '../modules/fetchRequests';
 
 function Clubs({ userEmail }) {
