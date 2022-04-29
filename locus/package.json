@@ -7,7 +7,7 @@
     "setupFiles": [
       "jest-localstorage-mock"
     ],
-    "moduleNameMapper":{
+    "moduleNameMapper": {
       "\\.(css)$": "<rootDir>/cssStub.js"
     }
   },
