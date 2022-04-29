@@ -14,8 +14,8 @@ const Register = function RegisterComponent({ setJustRegistered }) {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [year, setYear] = useState('');
-  const [major, setMajor] = useState('');
+  const [year, setYear] = useState('2022');
+  const [major, setMajor] = useState('Accounting');
   const [verifyPassword, setVerifyPassword] = useState('');
 
   const [fieldEmpty, setFieldEmpty] = useState(false);
@@ -218,9 +218,14 @@ const Register = function RegisterComponent({ setJustRegistered }) {
                 {displayMajorSelections}
               </Form.Select>
               <Form.Label>Password</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="password" onChange={(e) => updatePassword(e)} />
+              <Form.Control
+                style={{ height: '35px' }}
+                type="password"
+                maxLength="20"
+                onChange={(e) => updatePassword(e)}
+              />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="password" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '35px' }} type="password" maxLength="20" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>

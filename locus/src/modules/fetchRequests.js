@@ -9,6 +9,7 @@ async function register(firstName, lastName, email, password, year, major) {
       userPassword: password,
       userYear: year,
       userMajor: major,
+      lockoutStatus: new Date(),
     }),
   });
   const resultJson = await result.json();
@@ -37,4 +38,24 @@ async function getUserId(userEmail) {
   return { status: result.status, jsonContent: resultJson };
 }
 
-module.exports = { register, login, getUserId };
+async function getLockout(userEmail) {
+  const result = await fetch(`/lockout/${userEmail}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const resultJson = await result.json();
+  return { status: result.status, jsonContent: resultJson };
+}
+
+async function updateLockout(userEmail, lockout) {
+  const result = await fetch(`/lockoutupdate/${userEmail}/${lockout}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const resultJson = await result.json();
+  return { status: result.status, jsonContent: resultJson };
+}
+
+module.exports = {
+  register, login, getUserId, getLockout, updateLockout,
+};
