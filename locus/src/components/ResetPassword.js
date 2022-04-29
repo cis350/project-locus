@@ -1,47 +1,63 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card, Form,
   Alert,
 } from 'react-bootstrap';
 import { getUserId } from '../modules/api';
-// import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
 
+// import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
 
 const ResetPassword = function ResetPasswordComponent() {
   const [email, setEmail] = useState('');
   const [emailFieldEmpty, setEmailFieldEmpty] = useState(false);
   const [serverError, setServerError] = useState(false);
-  const [invalidEmail, setInvalidEmail] = useState(false);
+  const [emailNotExist, setEmailNotExist] = useState(false);
   const [emailSuccess, setEmailSuccess] = useState(false);
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
 
   const updateEmail = (e) => {
     setEmail(e.target.value);
   };
 
+  // referenced https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
+  const validateEmail = (inputEmail) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(inputEmail);
+  };
+
   const processUserInput = async () => {
     if (email === '') {
+      setIsInvalidEmail(false);
       setEmailFieldEmpty(true);
       setServerError(false);
-      setInvalidEmail(false);
+      setEmailNotExist(false);
+      setEmailSuccess(false);
+    } else if (!validateEmail(email)) {
+      setIsInvalidEmail(true);
+      setEmailFieldEmpty(false);
+      setServerError(false);
+      setEmailNotExist(false);
       setEmailSuccess(false);
     } else {
       getUserId(email).then((res) => {
         if (res.status === 200) {
+          setIsInvalidEmail(false);
           setEmailFieldEmpty(false);
           setServerError(false);
-          setInvalidEmail(false);
+          setEmailNotExist(false);
           setEmailSuccess(true);
         } else if (res.status === 404) {
+          setIsInvalidEmail(false);
           setEmailFieldEmpty(false);
           setServerError(false);
-          setInvalidEmail(true);
+          setEmailNotExist(true);
           setEmailSuccess(false);
         } else if (res.status === 500) {
+          setIsInvalidEmail(false);
           setEmailFieldEmpty(false);
           setServerError(true);
-          setInvalidEmail(false);
+          setEmailNotExist(false);
           setEmailSuccess(false);
         }
       });
@@ -58,7 +74,7 @@ const ResetPassword = function ResetPasswordComponent() {
   const errorMsgInvalidEmail = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Email does not exist.
+      Please enter a valid email address.
     </Alert>
   ));
 
@@ -66,6 +82,13 @@ const ResetPassword = function ResetPasswordComponent() {
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
       Server error.
+    </Alert>
+  ));
+
+  const errorMsgEmailNotExist = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Email does not exist.
     </Alert>
   ));
 
@@ -81,8 +104,9 @@ const ResetPassword = function ResetPasswordComponent() {
       <h1 className="text-center">Reset Password</h1>
       {emailFieldEmpty && errorMsgEmptyEmail()}
       {serverError && errorMsgServerError()}
-      {invalidEmail && errorMsgInvalidEmail()}
+      {emailNotExist && errorMsgEmailNotExist()}
       {emailSuccess && emailSuccessMsg()}
+      {isInvalidEmail && errorMsgInvalidEmail()}
       <Card style={{
         width: '23rem',
         margin: 'auto',
