@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View, TouchableHighlight, Text, StyleSheet, TextInput, Alert,
 } from 'react-native';
@@ -9,9 +9,13 @@ export default function Login({ navigation }) {
   const [password, setPassword] = useState('');
 
   async function handleLogin() {
-    const loginSuccess = await login(email, password);
-    if (!loginSuccess) {
-      Alert.alert('Invalid Username/Password');
+    const loginStatus = await login(email, password);
+    if (loginStatus === 404) {
+      Alert.alert('Invalid Username');
+    } else if (loginStatus === 400) {
+      Alert.alert('Invalid Password');
+    } else if (loginStatus === 403) {
+      Alert.alert('Account Locked, Try Again Later');
     } else {
       const user = (await getUser(email)).result;
       if (!user) return;

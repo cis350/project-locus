@@ -1,15 +1,15 @@
 const axios = require('axios');
 
-const domain = 'http://localhost:3306';
+const domain = 'https://testbackendforproject.herokuapp.com';
 
 // returns a boolean based on whether or not he login was successful
 export async function login(email, password) {
   try {
     const response = await axios.post(`${domain}/login`, { email, password });
-    if (response.data.message === 'Login successful') return true;
-    return false;
+    if (response.status === 200) return 200;
+    return 400;
   } catch (err) {
-    return 'Server Error';
+    return err.response.status;
   }
 }
 
