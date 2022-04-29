@@ -1,44 +1,55 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Button, Form, Container, Row, Col, Stack,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
 // import api functions instead
 import {
-  getUserFullName, getUserClubs, joinClub, getClub,
-} from '../modules/storage';
+  getUserId, getUserClubs, createClub, getSpecificClub,
+} from '../modules/api';
 
 function Clubs({ userEmail }) {
-  // initial clubs user is in
-  const initState = [];
-  const userClubs = getUserClubs(userEmail);
-  for (let i = 0; i < userClubs.length; i += 1) {
-    const club = getClub(userClubs[i]);
-    const newClub = {
-      clubItemName: userClubs[i],
-      masterItemName: club.master,
-    };
-    initState.push(newClub);
-  }
-  const [clubsArray, addClub] = useState(initState);
+  const [userClubs, setUserClubs] = useState([]);
+  const masterId = useRef(undefined);
+  const [newClubName, setClubName] = useState('');
 
-  const clubName = useRef('');
-  const masterName = useRef('');
-
-  const handleClubs = () => {
-    // update to api's joinClub
-    const clubValues = joinClub(userEmail, clubName.current, masterName.current);
-    if (clubValues) {
-      const newClub = {
-        clubItemName: clubName.current,
-        masterItemName: clubValues.master,
-      };
-      console.log('adding club now!');
-      addClub([...clubsArray, newClub]);
-    } else {
-      alert('Club exists, wrong master');
+  // get the user clubs as soon as the component is rendered
+  useEffect(() => {
+    async function initialize() {
+      masterId.current = await getUserId(userEmail);
+      setUserClubs(await getUserClubs(userEmail));
     }
-  };
+    initialize();
+  }, []);
+
+  // // initial clubs user is in
+  // const initState = [];
+  // const userClubs = getUserClubs(userEmail);
+  // for (let i = 0; i < userClubs.length; i += 1) {
+  //   const club = getClub(userClubs[i]);
+  //   const newClub = {
+  //     clubItemName: userClubs[i],
+  //     masterItemName: club.master,
+  //   };
+  //   initState.push(newClub);
+  // }
+  // const [clubsArray, addClub] = useState(initState);
+  // const clubName = useRef('');
+  // const masterName = useRef('');
+  // const handleClubs = () => {
+  //   // update to api's joinClub
+  //   const clubValues = joinClub(userEmail, clubName.current, masterName.current);
+  //   if (clubValues) {
+  //     const newClub = {
+  //       clubItemName: clubName.current,
+  //       masterItemName: clubValues.master,
+  //     };
+  //     console.log('adding club now!');
+  //     addClub([...clubsArray, newClub]);
+  //   } else {
+  //     alert('Club exists, wrong master');
+  //   }
+  // };
 
   const makeClubName = (e) => {
     clubName.current = e.target.value;
@@ -84,10 +95,7 @@ function Clubs({ userEmail }) {
               <Form className="club-form">
                 <input type="text" onChange={makeClubName} placeholder="Club name" />
               </Form>
-              <Form className="club-form">
-                <input type="text" onChange={makeMasterName} placeholder="Clubmaster name" />
-              </Form>
-              <Button className="add-club-button" onClick={handleClubs}>
+              <Button className="add-club-button" onClick={handleCreateClub}>
                 Add Club
               </Button>
             </Row>

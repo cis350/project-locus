@@ -9,6 +9,7 @@ import Home from './components/Home';
 import ManageProject from './components/ManageProject';
 import SelectProject from './components/SelectProject';
 import Chat from './components/Chat';
+import ResetPassword from './components/ResetPassword';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,6 +25,7 @@ function App() {
         <Route exact path="/" element={<Main justRegistered={justRegistered} setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/home/${uniqueId}`} element={<Home userEmail={userEmail} />} />
         <Route exact path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserEmail={setUserEmail} setUniqueId={setUniqueId} />} />
+        <Route exact path="/reset" element={<ResetPassword />} />
         <Route exact path="/register" element={<Register setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/clubs/${uniqueId}`} element={<Clubs userEmail={userEmail} />} />
         <Route exact path={`/projects/select-projects/${uniqueId}`} element={<SelectProject setProjectId={setProjectId} />} />

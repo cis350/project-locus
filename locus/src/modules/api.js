@@ -1,69 +1,71 @@
-/* eslint-disable import/no-unresolved */
 const axios = require('axios');
 
-const rootURL = 'localhost:3000';
+const domain = 'http://localhost:3306';
 
-async function login(email, password) {
+async function register(firstName, lastName, email, password, year, major) {
   try {
-    const response = await axios.get(`${rootURL}/login`, { email, password });
-    return response.data;
+    const result = await axios.post(`${domain}/register`, {
+      userFirstName: firstName,
+      userLastName: lastName,
+      userEmail: email,
+      userPassword: password,
+      userYear: year,
+      userMajor: major,
+    });
+    return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function register(userEmail, userFirstName, userLastName, userPassword, userUniqueId) {
+async function login(userEmail, userPassword) {
   try {
-    const response = await axios.post(
-      `${rootURL}/register`,
-      {
-        userEmail, userFirstName, userLastName, userPassword, userUniqueId,
-      },
-    );
-    return response.data;
+    const result = await axios.post(`${domain}/login`, { email: userEmail, password: userPassword });
+    return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function home(id) {
+async function getUserId(userEmail) {
   try {
-    const response = await axios.post(`${rootURL}/${id}`, { id });
-    return response.data;
+    const result = await axios.get(`${domain}/id/${userEmail}`);
+    return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-// clubs api
-
-async function getUserClub(id) {
+// create club with given name and master
+async function createClub(clubName, masterId) {
   try {
-    const response = await axios.post(`${rootURL}/club/${id}`, { id });
-    return response.data;
+    const result = await axios.post(`${domain}/club`, { clubName, id: masterId });
+    return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function createClub(id, clubName) {
+// get all the clubs by userEmail and returns an array of [clubname, role]
+async function getUserClubs(userEmail) {
   try {
-    const response = await axios.post(`${rootURL}/createClub/${id}/${clubName}`, { id, clubName });
-    return response.data;
+    const result = await axios.get(`${domain}/club/${userEmail}`);
+    return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function getClub(clubName) {
+// get specific club given the name of the club
+async function getSpecificClub(clubName) {
   try {
-    const response = await axios.get(`${rootURL}/club/${clubName}`, { clubName });
-    return response.data;
+    const result = await axios.get(`/club/${clubName}`);
+    return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
 module.exports = {
-  login, register, home, getUserClub, createClub, getClub,
+  register, login, getUserId, createClub, getSpecificClub, getUserClubs,
 };
