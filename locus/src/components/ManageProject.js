@@ -8,7 +8,9 @@ import {
 } from 'react-bootstrap';
 import { checkIfEmailAlreadyExists, getUserFullName } from '../modules/storage';
 
-const ManageProject = function ManageProjectComponent() {
+const ManageProject = function ManageProjectComponent({ userId }) {
+  const navigate = useNavigate();
+
   const [currMembers, setCurrMembers] = useState([]);
   const [currentMilestones, setCurrMilestones] = useState([]);
   const [currentTasks, setCurrTasks] = useState([]);
@@ -56,7 +58,7 @@ const ManageProject = function ManageProjectComponent() {
   });
 
   const viewAnalytics = (() => {
-    alert('view analytics!');
+    navigate(`/projects/manage-projects/analytics/${userId}`);
   });
 
   const attendenceMembers = (() => (
