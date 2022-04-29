@@ -1,12 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Button, Form, Container, Row, Col, Stack,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
 // import from api functions instead
 import {
-  getUserFullName, getUserClubs, getClubChat, sendMessage,
-} from '../modules/storage';
+  getUserClubs, getClubChat, sendMessage,
+} from '../modules/api';
 import '../assets/Chat.css';
 
 function Chat({ userEmail }) {
@@ -14,16 +14,27 @@ function Chat({ userEmail }) {
   const currentClub = useRef('');
   const message = useRef('');
   // clubs user is in
-  const userClubs = getUserClubs(userEmail);
+  let userClubs = null;
+
+  if (userClubs === null) {
+    getUserClubs(userEmail).then((res) => {
+      if (res.status === 200) {
+        userClubs = res.jsonContent.result;
+      } else {
+        console.log('error');
+      }
+    });
+  }
   // const stackElement = document.getElementsByClassName('chat-stack-scrollable')[0];
   // stackElement.scrollTop = stackElement.scrollHeight;
 
   const switchToChat = (clubName) => {
     currentClub.current = clubName;
+    // update to api getClubChat
     changeChat(getClubChat(clubName));
   };
 
-  const switchToClubs = () => {
+  const switchToClubs = async () => {
     currentClub.current = '';
     changeChat([]);
   };
@@ -37,12 +48,31 @@ function Chat({ userEmail }) {
       // update to api's sendmessage
       sendMessage(currentClub.current, userEmail, message.current, new Date());
     }
+    // update to api's getClubChat
     const updatedChat = getClubChat(currentClub.current);
     message.current = '';
     document.getElementById('input-text').value = '';
     // stackElement.scrollTop = stackElement.scrollHeight;
     changeChat(updatedChat);
   };
+
+  if (currentClub.current !== '') {
+    useEffect(
+      () => {
+        async function fetchmessages() {
+          const mesgs = await getClubChat();
+          // update the state
+          changeChat(mesgs);
+        }
+        // we want to fetch the users frequently (5 s)
+        // we will use server polling with setInterval
+        setInterval(() => {
+          fetchmessages();
+        }, 5000);
+      },
+      [currentChat],
+    );
+  }
 
   const showAllClubs = (() => (
     <div>
@@ -81,7 +111,7 @@ function Chat({ userEmail }) {
                   <p className="from-them">{mess[1]}</p>
                 </div>
                 <p>
-                  {getUserFullName(mess[0])}
+                  {mess[0]}
                   :
                   {mess[2].toString()}
                 </p>
