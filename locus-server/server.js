@@ -3,6 +3,7 @@ const cors = require('cors');
 // const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const lib = require('./dbOperations');
+const uuidv4 = require('uuid');
 // const e = require('express');
 
 let db;
@@ -26,6 +27,10 @@ webapp.use(
 webapp.get('/', (_req, res) => {
   res.json({ message: 'Welcome to locus!' });
 });
+
+/*
+ * Login and Registraition Routes
+ */
 
 // login endpoint, verifies given login using Request body
 webapp.post('/login', async (req, res) => {
@@ -110,9 +115,10 @@ webapp.get('/user/:email', async (req, res) => {
   }
 });
 
-// clubs endpoints
-// getClubs endpoint, get all clubs for a email as a body parameter
-// getClubs needed for the chats endpoint too
+/*
+ * Login and Registraition Routes
+ */
+
 webapp.get('/clubs/:email', async (req, res) => {
   try {
     const dbres = await lib.getUserClubs(db, req.params.email);
@@ -155,6 +161,10 @@ webapp.get('/club/:clubName', async (req, res) => {
   }
 });
 
+/*
+ * Chat Routes
+ */
+
 // chat endpoint, use this to get the chat log of a specific club by Clubname
 webapp.get('/chats/:clubName', async (req, res) => {
   try {
@@ -170,21 +180,22 @@ webapp.get('/chats/:clubName', async (req, res) => {
   }
 });
 
-// TODO: duplicate of clubs enpoint
-// // getUserClubs endpoint, use this to get a set of clubs for a user
-// webapp.get('/userclubs/:id', async (req, res) => {
-//   try {
-//     const dbres = await lib.getClub(db, req.params.clubName);
-//     if (dbres === null) {
-//       return res.status(400).json({ error: 'Club name does not exist' });
-//     }
-//     // this is returned as a large json object
-//     return res.status(200).json({ clubObject: dbres });
-//   } catch (e) {
-//     console.error(e);
-//     return res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
+// send message route
+webapp.post('/chats/:clubName', async (req, res) => {
+  const { clubName } = req.params;
+  const { email, message, time } = req.body;
+  const newUid = uuidv4();
+  try {
+    const dbres = await lib.sendMessage(db, clubName, email, message, time, newUid);
+    if (dbres) {
+      return res.status(201).json({ message: 'Message sent' });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // join a club using your email and a masterEmail
 webapp.post('/joinclub/:clubname', async (req, res) => {
