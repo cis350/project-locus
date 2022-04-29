@@ -30,7 +30,7 @@ function Chat({ userEmail }) {
 
   const switchToChat = (clubName) => {
     currentClub.current = clubName;
-    // update to api getClubChat
+    // // update with thens
     changeChat(getClubChat(clubName));
   };
 
@@ -45,29 +45,27 @@ function Chat({ userEmail }) {
 
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
-      // update to api's sendmessage
+      // // update with thens
       sendMessage(currentClub.current, userEmail, message.current, new Date());
     }
-    // update to api's getClubChat
+    // update with thens
     const updatedChat = getClubChat(currentClub.current);
     message.current = '';
     document.getElementById('input-text').value = '';
-    // stackElement.scrollTop = stackElement.scrollHeight;
     changeChat(updatedChat);
   };
 
   if (currentClub.current !== '') {
     useEffect(
       () => {
-        async function fetchmessages() {
-          const mesgs = await getClubChat();
-          // update the state
+        async function fetchMessages() {
+          // update with thens
+          const mesgs = await getClubChat(currentClub.current);
           changeChat(mesgs);
         }
-        // we want to fetch the users frequently (5 s)
-        // we will use server polling with setInterval
+
         setInterval(() => {
-          fetchmessages();
+          fetchMessages();
         }, 5000);
       },
       [currentChat],

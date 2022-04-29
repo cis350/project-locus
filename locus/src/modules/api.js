@@ -68,15 +68,20 @@ async function getSpecificClub(clubName) {
 
 async function getClubChat(clubName) {
   try {
-    const result = await axios.get(`/chat/${clubName}`);
+    const result = await axios.get(`/chats/${clubName}`);
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function sendMessage(clubName, userEmail, message, date) {
-  console.log(clubName, userEmail, message, date);
+async function sendMessage(clubName, userEmail, msg, date) {
+  try {
+    const result = await axios.post(`/chats/${clubName}`, { email: userEmail, message: msg, time: date });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
 }
 
 module.exports = {
