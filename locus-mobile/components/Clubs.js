@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ProgressBar from 'react-native-progress/Bar';
-import { createClub } from '../modules/api';
+import { createClub, getUserId } from '../modules/api';
 
 const club1 = {
   name: 'Club 1',
@@ -18,11 +18,12 @@ const club2 = {
   progress: 0.2,
 };
 
-export default function Clubs({ navigation }) {
+export default function Clubs({ route, navigation }) {
   // **change this to fetch all clubs that the user is a part of from DB
   const userClubs = [club1, club2, club2, club2];
   const [modalVisible, setModalVisible] = useState(false);
   const [clubName, setClubName] = useState('');
+  const { user } = route.params;
   // set up the view for all the clubs that the user is in
   const displayClubs = [];
   for (let i = 0; i < userClubs.length; i += 1) {
@@ -45,7 +46,8 @@ export default function Clubs({ navigation }) {
   }
 
   async function handleCreateClub() {
-    await createClub(clubName);
+    const masterId = await getUserId(user.email);
+    await createClub(clubName, masterId);
     setClubName('');
     setModalVisible(false);
   }
@@ -54,23 +56,25 @@ export default function Clubs({ navigation }) {
     <ScrollView>
       <View style={styles.container}>
         {/* modal for creating clubs */}
-        <Modal
-          animationType="slide"
-          transparent
-          visible={modalVisible}
-        >
-          <View style={styles.container}>
-            <TextInput
-              style={styles.input}
-              placeholder="Club Name"
-              onChangeText={setClubName}
-              value={clubName}
-            />
-            <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
-              <Text style={{ fontSize: 20 }}>Create</Text>
-            </TouchableHighlight>
-          </View>
-        </Modal>
+        <View style={styles.centeredView}>
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={modalVisible}
+          >
+            <View style={styles.centeredView}>
+              <TextInput
+                style={styles.input}
+                placeholder="Club Name"
+                onChangeText={setClubName}
+                value={clubName}
+              />
+              <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
+                <Text style={{ fontSize: 20 }}>Create</Text>
+              </TouchableHighlight>
+            </View>
+          </Modal>
+        </View>
         <Text style={{ fontSize: 24 }}>Which Club Needs Work?</Text>
         <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setModalVisible(true)}>
           <Text style={{ fontSize: 20 }}>Create Club</Text>
@@ -88,6 +92,12 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     paddingTop: 25,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
   clubContainer: {
     flexDirection: 'column',
@@ -112,6 +122,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 24,
     color: 'white',
+    marginVertical: 5,
+  },
+  input: {
+    backgroundColor: 'white',
+    borderColor: 'gray',
+    width: 250,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
     marginVertical: 5,
   },
   button: {

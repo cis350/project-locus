@@ -22,11 +22,24 @@ export async function getUser(email) {
   }
 }
 
-export async function createClub(clubName) {
+export async function getUserId(email) {
   try {
-    const response = await axios.post(`${domain}/createClub/${clubName}`);
+    const response = await axios.get(`${domain}/id/${email}`);
+    console.log(response.data);
+    return response.data.userId;
+  } catch (err) {
+    return err.response.status;
+  }
+}
+
+export async function createClub(clubName, id) {
+  try {
+    const response = await axios.post(`${domain}/club`, { clubName, id, clubPassword: '123' });
+    console.log(response.status);
+    console.log(response.data);
     return response.data;
   } catch (err) {
+    console.log(err);
     return false;
   }
 }

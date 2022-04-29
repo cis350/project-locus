@@ -7,13 +7,14 @@ import Profile from './Profile';
 
 // navigation for all the pages reachable from the club tab
 const ClubStack = createNativeStackNavigator();
-export default function ClubsNavigation() {
+export default function ClubsNavigation({ route }) {
+  const { user } = route.params;
   return (
     <NavigationContainer independent>
       <ClubStack.Navigator initialRouteName="Clubs">
-        <ClubStack.Screen name="Clubs" component={Clubs} options={{ title: 'Clubs' }} />
-        <ClubStack.Screen name="Club" component={Club} options={{ title: 'Club' }} />
-        <ClubStack.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} />
+        <ClubStack.Screen name="Clubs" component={Clubs} options={{ title: 'Clubs' }} initialParams={{ user }} />
+        <ClubStack.Screen name="Club" component={Club} options={{ title: 'Club' }} initialParams={{ user }} />
+        <ClubStack.Screen name="Profile" component={Profile} options={{ title: 'Profile' }} initialParams={{ user }} />
       </ClubStack.Navigator>
     </NavigationContainer>
   );
