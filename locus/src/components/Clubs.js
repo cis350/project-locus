@@ -5,8 +5,8 @@ import {
 import '../assets/Clubs.css';
 // import api functions instead
 import {
-  getUserId, getUserClubs, createClub, getSpecificClub
-} from '../modules/fetchRequests';
+  getUserId, getUserClubs, createClub, getSpecificClub,
+} from '../modules/api';
 
 function Clubs({ userEmail }) {
   const [userClubs, setUserClubs] = useState([]);

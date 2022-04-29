@@ -152,79 +152,77 @@ const ManageProject = function ManageProjectComponent() {
     }
   });
 
-  const currMilestones = (() =>
-    currentMilestones.map((data) => (
-      <div>
-        <div className="col-6">
-          {data}
-        </div>
-        <div className="col-3">
-          <Button
-            style={{
-              backgroundColor: '#C30000',
-              width: '60px',
-              height: '25px',
-              fontWeight: 'bold',
-              fontSize: '8px',
-              color: 'white',
-              borderColor: '#D9ED92',
-              borderRadius: '20px',
-              marginTop: '5px',
-              marginLeft: '20px',
-            }}
-            onClick={() => closeMilestone()}
-          >
-            Close
-          </Button>
-        </div>
+  const currMilestones = (() => currentMilestones.map((data) => (
+    <div>
+      <div className="col-6">
+        {data}
       </div>
-    ))
+      <div className="col-3">
+        <Button
+          style={{
+            backgroundColor: '#C30000',
+            width: '60px',
+            height: '25px',
+            fontWeight: 'bold',
+            fontSize: '8px',
+            color: 'white',
+            borderColor: '#D9ED92',
+            borderRadius: '20px',
+            marginTop: '5px',
+            marginLeft: '20px',
+          }}
+          onClick={() => closeMilestone()}
+        >
+          Close
+        </Button>
+      </div>
+    </div>
+  ))
   );
 
-  const currTasks = (() =>
-    currentTasks.map((data) => (
-      <div>
-        <div className="col-6">
-          {data}
-        </div>
-        <div className="col-3">
-          <Button
-            style={{
-              backgroundColor: '#34A0A4',
-              width: '60px',
-              height: '25px',
-              fontWeight: 'bold',
-              fontSize: '8px',
-              color: 'white',
-              borderColor: '#D9ED92',
-              borderRadius: '20px',
-              marginTop: '5px',
-              marginLeft: '20px',
-            }}
-            onClick={() => assignTask()}
-          >
-            Assign
-          </Button>
-          <Button
-            style={{
-              backgroundColor: '#C30000',
-              width: '60px',
-              height: '25px',
-              fontWeight: 'bold',
-              fontSize: '8px',
-              color: 'white',
-              borderColor: '#D9ED92',
-              borderRadius: '20px',
-              marginTop: '5px',
-              marginLeft: '20px',
-            }}
-            onClick={() => completeTask()}
-          >
-            Complete
-          </Button>
-        </div>
+  const currTasks = (() => currentTasks.map((data) => (
+    <div>
+      <div className="col-6">
+        {data}
       </div>
-    ))
+      <div className="col-3">
+        <Button
+          style={{
+            backgroundColor: '#34A0A4',
+            width: '60px',
+            height: '25px',
+            fontWeight: 'bold',
+            fontSize: '8px',
+            color: 'white',
+            borderColor: '#D9ED92',
+            borderRadius: '20px',
+            marginTop: '5px',
+            marginLeft: '20px',
+          }}
+          onClick={() => assignTask()}
+        >
+          Assign
+        </Button>
+        <Button
+          style={{
+            backgroundColor: '#C30000',
+            width: '60px',
+            height: '25px',
+            fontWeight: 'bold',
+            fontSize: '8px',
+            color: 'white',
+            borderColor: '#D9ED92',
+            borderRadius: '20px',
+            marginTop: '5px',
+            marginLeft: '20px',
+          }}
+          onClick={() => completeTask()}
+        >
+          Complete
+        </Button>
+      </div>
+    </div>
+  ))
   );
 
   useEffect(() => {

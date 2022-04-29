@@ -5,7 +5,7 @@ import {
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { login } from '../modules/fetchRequests';
+import { login } from '../modules/api';
 // import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
 
 const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId }) {
