@@ -314,7 +314,7 @@ const joinClub = async (db, userEmail, clubName, password) => {
       return club;
     }
     // club not found or wrong password or member is already in
-    console.log('cannot join club (club not found)');
+    console.log('cannot join club, invalid credentials, member already joined');
     return null;
   } catch (err) {
     console.error(err);
@@ -323,6 +323,29 @@ const joinClub = async (db, userEmail, clubName, password) => {
 };
 
 // TODO: add a promote members db operations
+const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => {
+  try {
+    if (!db || !targetEmail || !requestedEmail || !clubName) return null;
+    const club = await getClub(db, clubName);
+    if (club.members.includes(targetEmail) && club.admins.includes(requestedEmail)
+      && !club.admins.includes(targetEmail)) {
+      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { admins: requestedEmail } });
+      // update the role of the target User to admin
+      const updateResult = await db.collectin('Users').updateOne(
+        { email: `${targetEmail}`, 'clubs.clubName': `${clubName}` },
+        { $inc: { 'clubs.$.role': 'admin' } },
+      );
+      if (!clubResult.acknowledged || !updateResult.acknowledged) throw new Error('not acknowledged');
+      // return the club with the promotion
+      return club;
+    }
+    console.log('cannot join promote member, bad request');
+    return null;
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to promote member to admin');
+  }
+};
 
 // allow admins to remove a user from club (true for success)
 const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => {

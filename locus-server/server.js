@@ -195,14 +195,14 @@ webapp.get('/club/:clubName', async (req, res) => {
   }
 });
 
-// join a club using your email and a masterEmail
+// join a club using your email and a password
 webapp.post('/joinclub/:clubname', async (req, res) => {
-  const { userEmail, masterEmail } = req.body;
+  const { userEmail, password } = req.body;
   const clubName = req.params.clubname;
   try {
-    const result = await lib.joinClub(db, userEmail, clubName, masterEmail);
+    const result = await lib.joinClub(db, userEmail, clubName, password);
     if (result === null) {
-      return res.status(400).json({ error: 'clubname or masterEmail incorrect' });
+      return res.status(400).json({ error: 'clubname or password incorrect' });
     }
     return res.status(201).json({ message: `added ${userEmail} to ${result.clubName}` });
   } catch (e) {
