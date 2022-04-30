@@ -1,0 +1,23 @@
+.section-container {
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 100px 50px 100px 50px;
+  background-color: #b5e48c;
+  border-radius: 10px;
+  margin-left: 0px;
+}
+.project-button {
+  font-family: Arial;
+  background-color: #6A9B72;
+  font-Size: 24px;
+  width: 90%;
+  border-Color: #B1DFAD;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.auto-margin {
+  margin: auto;
+};
