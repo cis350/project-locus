@@ -2,6 +2,9 @@ const axios = require('axios');
 
 const domain = 'http://localhost:3306';
 
+/*
+ * Login and Registraition fetches
+ */
 async function register(firstName, lastName, email, password, year, major) {
   try {
     const result = await axios.post(`${domain}/register`, {
@@ -45,6 +48,9 @@ async function getUser(email) {
   }
 }
 
+/*
+ * Club fetches
+ */
 // create club with given name and master
 async function createClub(clubName, id, clubPassword) {
   try {
