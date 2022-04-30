@@ -5,7 +5,7 @@ import {
 import '../assets/Clubs.css';
 // import api functions instead
 import {
-  getUserId, getUserClubs, createClub, getSpecificClub, getUser,
+  getUserId, getUserClubs, createClub, getSpecificClub, getUser, joinClub,
 } from '../modules/api';
 import Club from './Club';
 
@@ -14,8 +14,10 @@ function Clubs({ userEmail }) {
   const user = useRef(undefined);
   const [userClubs, setUserClubs] = useState([]);
   const [selectedClub, setSelectedClub] = useState(undefined);
-  const [newClubName, setClubName] = useState('');
-  const [clubPassword, setClubPassword] = useState('');
+  const [newClubName, setNewClubName] = useState('');
+  const [newClubPassword, setNewClubPassword] = useState('');
+  const [joinClubName, setJoinClubName] = useState('');
+  const [joinClubPassword, setJoinClubPassword] = useState('');
 
   // get the user clubs as soon as the component is rendered
   useEffect(() => {
@@ -27,12 +29,22 @@ function Clubs({ userEmail }) {
     initialize();
   }, []);
 
-  // create club with the fields in clubname and clubpassword
+  // create club with the fields in newClubName and newClubPassword
   async function handleCreateClub() {
-    await createClub(newClubName, masterId.current, clubPassword);
+    const response = await createClub(newClubName, masterId.current, newClubPassword);
     setUserClubs((await getUserClubs(userEmail)).jsonContent);
-    setClubName('');
-    setClubPassword('');
+    setNewClubName('');
+    setNewClubPassword('');
+    if (response.status !== 201) alert('Create Club Failed');
+  }
+
+  // join club with the fields in joinClubName and joinClubPassword
+  async function handleJoinClub() {
+    const response = await joinClub(joinClubName, userEmail, joinClubPassword);
+    setUserClubs((await getUserClubs(userEmail)).jsonContent);
+    setJoinClubName('');
+    setJoinClubPassword('');
+    if (response.status !== 201) alert('Join Club Failed');
   }
 
   // set a specific club which will prompt rerender to load the club page
@@ -63,13 +75,15 @@ function Clubs({ userEmail }) {
     );
   }
 
-  // component to return
+  // intermediate loading screen while states are being fetched
+  if (!user.current) return <div>Loading...</div>;
+
+  // if a club is selected return the view page for that club
   if (selectedClub) {
     return (
       <Club club={selectedClub} setClub={setSelectedClub} userId={masterId.current} user={user} />
     );
   }
-  if (!user.current) return <div>404 User Not Found</div>;
   return (
     <div>
       <Container fluid>
@@ -84,36 +98,79 @@ function Clubs({ userEmail }) {
           <div className="club-table">
             {displayClubs}
           </div>
-          <Card style={{
-            width: '23rem',
-            margin: 'auto',
-            marginTop: '20px',
-            borderRadius: '10px',
-            backgroundColor: '#B5E48C',
-            borderColor: '#B5E48C',
-          }}
-          >
-            <Card.Body>
-              {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
-              <Form>
-                <Form.Group className="mb-3">
-                  <Form.Label>Club Name</Form.Label>
-                  <Form.Control style={{ height: '35px' }} type="name" onChange={(e) => setClubName(e.target.value)} />
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    style={{ height: '35px' }}
-                    type="password"
-                    maxLength="20"
-                    onChange={(e) => setClubPassword(e.target.value)}
-                  />
-                  <br />
-                  <Button className="btn btn-success" onClick={() => handleCreateClub()}>
-                    Add Club
-                  </Button>
-                </Form.Group>
-              </Form>
-            </Card.Body>
-          </Card>
+          <div className="row justify-content-center">
+            {/* Create Clubs Form */}
+            <div className="col-4">
+              <h3 style={{ textAlign: 'center' }}>Create Club</h3>
+              <Card style={{
+                width: '23rem',
+                margin: 'auto',
+                marginTop: '20px',
+                borderRadius: '10px',
+                backgroundColor: '#B5E48C',
+                borderColor: '#B5E48C',
+              }}
+              >
+                <Card.Body>
+                  {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
+                  <Form>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Club Name</Form.Label>
+                      <Form.Control style={{ height: '35px' }} type="name" value={newClubName} onChange={(e) => setNewClubName(e.target.value)} />
+                      <Form.Label>Password</Form.Label>
+                      <Form.Control
+                        style={{ height: '35px' }}
+                        type="password"
+                        maxLength="20"
+                        value={newClubPassword}
+                        onChange={(e) => setNewClubPassword(e.target.value)}
+                      />
+                      <br />
+                      <Button className="btn btn-success" onClick={() => handleCreateClub()}>
+                        Add Club
+                      </Button>
+                    </Form.Group>
+                  </Form>
+                </Card.Body>
+              </Card>
+            </div>
+
+            {/* Join Clubs Form */}
+            <div className="col-4">
+              <h3 style={{ textAlign: 'center' }}>Join Club</h3>
+              <Card style={{
+                width: '23rem',
+                margin: 'auto',
+                marginTop: '20px',
+                borderRadius: '10px',
+                backgroundColor: '#B5E48C',
+                borderColor: '#B5E48C',
+              }}
+              >
+                <Card.Body>
+                  {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
+                  <Form>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Club Name</Form.Label>
+                      <Form.Control style={{ height: '35px' }} type="name" value={joinClubName} onChange={(e) => setJoinClubName(e.target.value)} />
+                      <Form.Label>Password</Form.Label>
+                      <Form.Control
+                        style={{ height: '35px' }}
+                        type="password"
+                        maxLength="20"
+                        value={joinClubPassword}
+                        onChange={(e) => setJoinClubPassword(e.target.value)}
+                      />
+                      <br />
+                      <Button className="btn btn-success" onClick={() => handleJoinClub()}>
+                        Join Club
+                      </Button>
+                    </Form.Group>
+                  </Form>
+                </Card.Body>
+              </Card>
+            </div>
+          </div>
         </Stack>
       </Container>
     </div>

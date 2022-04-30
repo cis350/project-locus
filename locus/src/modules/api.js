@@ -74,7 +74,16 @@ async function getUserClubs(userEmail) {
 // get specific club given the name of the club
 async function getSpecificClub(clubName) {
   try {
-    const result = await axios.get(`/club/${clubName}`);
+    const result = await axios.get(`${domain}/club/${clubName}`);
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function joinClub(clubName, userEmail, password) {
+  try {
+    const result = await axios.post(`${domain}/joinclub/${clubName}`, { userEmail, password });
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
@@ -82,5 +91,5 @@ async function getSpecificClub(clubName) {
 }
 
 module.exports = {
-  register, login, getUserId, createClub, getSpecificClub, getUserClubs, getUser,
+  register, login, getUserId, createClub, getSpecificClub, getUserClubs, getUser, joinClub,
 };

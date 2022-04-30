@@ -13,7 +13,7 @@ export default function Profile({ userEmail }) {
     initialize();
   }, []);
 
-  if (!user) return <div>404 User Not Found</div>;
+  if (!user) return <div>Loading...</div>;
   return (
     <div className="container">
       <h1 className="profile-text">Profile</h1>
