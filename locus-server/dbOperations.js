@@ -309,7 +309,7 @@ const joinClub = async (db, userEmail, clubName, password) => {
       const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { members: userEmail } });
       // update user side
       const newClubRole = { clubName: `${clubName}`, role: 'member' };
-      const userResult = await db.collection('Users').updateOne({ email: `${userEmail}` }, { $push: { newClubRole } });
+      const userResult = await db.collection('Users').updateOne({ email: `${userEmail}` }, { $push: { clubs: newClubRole } });
       if (!clubResult.acknowledged || !userResult.acknowledged) throw new Error('not acknowledged');
       return club;
     }
@@ -322,7 +322,6 @@ const joinClub = async (db, userEmail, clubName, password) => {
   }
 };
 
-// TODO: add a promote members db operations
 const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => {
   try {
     if (!db || !targetEmail || !requestedEmail || !clubName) return null;
@@ -358,7 +357,7 @@ const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => 
       const removeFromClub = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $pull: { members: targetEmail } });
       // remove user from any project
       const projectsOfUser = await db.collectin('Projects').updateMany(
-        { clubName, members: targetEmail },
+        { clubName: `${clubName}`, members: targetEmail },
         { $pull: { members: targetEmail } },
       );
       // update user's club involvement
@@ -736,4 +735,5 @@ module.exports = {
   updateTaskStatus,
   getCompletedTasks,
   getCompletedTasksByUsers,
+  promoteUserToAdmin,
 };
