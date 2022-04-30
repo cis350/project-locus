@@ -322,7 +322,6 @@ const joinClub = async (db, userEmail, clubName, password) => {
   }
 };
 
-// TODO: add a promote members db operations
 const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => {
   try {
     if (!db || !targetEmail || !requestedEmail || !clubName) return null;
@@ -736,4 +735,5 @@ module.exports = {
   updateTaskStatus,
   getCompletedTasks,
   getCompletedTasksByUsers,
+  promoteUserToAdmin,
 };

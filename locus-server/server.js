@@ -226,6 +226,22 @@ webapp.delete('/removeMember/:clubname', async (req, res) => {
   }
 });
 
+// promote user request
+webapp.put('/promotemember/:clubname', async (req, res) => {
+  const { requestedEmail, targetEmail } = req.body;
+  const clubName = req.params.clubname;
+  try {
+    const result = await lib.promoteUserToAdmin(db, clubName, requestedEmail, targetEmail);
+    if (result === null) {
+      return res.status(403).json({ error: 'Invalid request' });
+    }
+    return res.status(200).json({ message: `${targetEmail} promoted in ${clubName}` });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 /*
  * Project Routes
  */
