@@ -309,7 +309,7 @@ const joinClub = async (db, userEmail, clubName, password) => {
       const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { members: userEmail } });
       // update user side
       const newClubRole = { clubName: `${clubName}`, role: 'member' };
-      const userResult = await db.collection('Users').updateOne({ email: `${userEmail}` }, { $push: { newClubRole } });
+      const userResult = await db.collection('Users').updateOne({ email: `${userEmail}` }, { $push: { clubs: newClubRole } });
       if (!clubResult.acknowledged || !userResult.acknowledged) throw new Error('not acknowledged');
       return club;
     }
