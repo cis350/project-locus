@@ -116,7 +116,43 @@ webapp.get('/user/:email', async (req, res) => {
 });
 
 /*
- * Login and Registraition Routes
+ * Chat Routes
+ */
+
+// chat endpoint, use this to get the chat log of a specific club by Clubname
+webapp.get('/chats/:clubName', async (req, res) => {
+  try {
+    const dbres = await lib.getClubChat(db, req.params.clubName);
+    if (dbres === null) {
+      return res.status(400).json({ error: 'Club name does not exist' });
+    }
+    // this is returned as a large json object
+    return res.status(200).json({ clubObject: dbres });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// send message route
+webapp.post('/chats/:clubName', async (req, res) => {
+  const { clubName } = req.params;
+  const { email, message, time } = req.body;
+  const newUid = uuidv4();
+  try {
+    const dbres = await lib.sendMessage(db, clubName, email, message, time, newUid);
+    if (dbres) {
+      return res.status(201).json({ message: 'Message sent' });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/*
+ * Club Routes
  */
 
 webapp.get('/clubs/:email', async (req, res) => {
@@ -161,42 +197,6 @@ webapp.get('/club/:clubName', async (req, res) => {
   }
 });
 
-/*
- * Chat Routes
- */
-
-// chat endpoint, use this to get the chat log of a specific club by Clubname
-webapp.get('/chats/:clubName', async (req, res) => {
-  try {
-    const dbres = await lib.getClubChat(db, req.params.clubName);
-    if (dbres === null) {
-      return res.status(400).json({ error: 'Club name does not exist' });
-    }
-    // this is returned as a large json object
-    return res.status(200).json({ clubObject: dbres });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// send message route
-webapp.post('/chats/:clubName', async (req, res) => {
-  const { clubName } = req.params;
-  const { email, message, time } = req.body;
-  const newUid = uuidv4();
-  try {
-    const dbres = await lib.sendMessage(db, clubName, email, message, time, newUid);
-    if (dbres) {
-      return res.status(201).json({ message: 'Message sent' });
-    }
-    return res.status(400).json({ error: 'Invalid request' });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 // join a club using your email and a masterEmail
 webapp.post('/joinclub/:clubname', async (req, res) => {
   const { userEmail, masterEmail } = req.body;
@@ -227,6 +227,10 @@ webapp.delete('/removeMember/:clubname', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+/*
+ * Project Routes
+ */
 
 // create a project for a parameter club name, project names must be unique
 webapp.put('/project/:clubname', async (req, res) => {
@@ -308,6 +312,36 @@ webapp.delete('/deleteProject/:projectName', async (req, res) => {
     const dbRes = await lib.deleteProject(db, clubName, projectName, requestedEmail);
     if (dbRes) {
       return res.status(200).json({ message: `Removed ${projectName} from ${clubName}` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/*
+ * TODO: Task Routes:
+ */
+
+/*
+ * Analytics Route
+ */
+webapp.post('/projectAnalytics/:projectName', async (req, res) => {
+  const { clubName } = req.body;
+  const { projectName } = req.params;
+  try {
+    const allCompletedTasks = await lib.getCompletedTasks(db, clubName, projectName);
+    if (allCompletedTasks) {
+      const aggregationResult = await lib.getCompletedTasksByUsers(db, clubName, projectName);
+      if (aggregationResult) {
+        const twoArrays = {
+          completedTasks: allCompletedTasks,
+          taskCompletedByPerson: aggregationResult,
+        };
+        return res.status(200).json({ results: twoArrays });
+      }
+      return res.status(400).json({ error: 'Invalid request' });
     }
     return res.status(400).json({ error: 'Invalid request' });
   } catch (e) {
