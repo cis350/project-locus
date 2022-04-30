@@ -81,7 +81,12 @@ function Clubs({ userEmail }) {
   // if a club is selected return the view page for that club
   if (selectedClub) {
     return (
-      <Club club={selectedClub} setClub={setSelectedClub} userId={masterId.current} user={user} />
+      <Club
+        club={selectedClub}
+        setClub={setSelectedClub}
+        userId={masterId.current}
+        user={user.current}
+      />
     );
   }
   return (

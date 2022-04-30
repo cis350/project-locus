@@ -90,6 +90,33 @@ async function joinClub(clubName, userEmail, password) {
   }
 }
 
+async function removeMember(clubName, requesterEmail, targetEmail) {
+  try {
+    const result = await axios.delete(`${domain}/removeMember/${clubName}`, { requestedEmail: requesterEmail, targetEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function promoteMember(clubName, requesterEmail, targetEmail) {
+  try {
+    const result = await axios.put(`${domain}/promotemember/${clubName}`, { requestedEmail: requesterEmail, targetEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 module.exports = {
-  register, login, getUserId, createClub, getSpecificClub, getUserClubs, getUser, joinClub,
+  register,
+  login,
+  getUserId,
+  createClub,
+  getSpecificClub,
+  getUserClubs,
+  getUser,
+  joinClub,
+  removeMember,
+  promoteMember,
 };

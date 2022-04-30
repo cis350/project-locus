@@ -5,25 +5,55 @@ import React, { useState } from 'react';
 import { Button, Form, Container, Row, Col, Stack, Card } from 'react-bootstrap';
 import '../assets/Club.css';
 // import api functions instead
-import {
-  getUserId, getUserClubs, createClub, getSpecificClub, getUser,
-} from '../modules/api';
+import { promoteMember, removeMember } from '../modules/api';
 import Profile from './Profile';
 
 export default function Club({ club, setClub, userId, user }) {
   const [selectedProfile, setSelectedProfile] = useState(undefined);
+
+  // promote member in the club
+  async function handlePromoteMember(memberEmail) {
+    const response = await promoteMember(club.clubName, user.email, memberEmail);
+    if (response.status === 200) alert('Promotion Success');
+    if (response.status !== 200) alert('Promotion Failed');
+  }
+
+  // promote member in the club
+  async function handleRemoveMember(memberEmail) {
+    console.log(club.clubName);
+    console.log(user.email);
+    console.log(memberEmail);
+    const response = await removeMember(club.clubName, user.email, memberEmail);
+    if (response.status === 200) alert('Removal Success');
+    if (response.status !== 200) alert('Removal Failed');
+    setClub(undefined);
+  }
+
   // display all the members within the club by their emails
   const displayMembers = [];
   for (let i = 0; i < club.members.length; i += 1) {
     displayMembers.push(
       <div className="row" key={`member${i}`}>
-        <Button className="project-button" onClick={() => setSelectedProfile(club.members[i])}>
-          {club.members[i]}
-        </Button>
+        <div className="col-6">
+          <button type="button" className="btn member-button" onClick={() => setSelectedProfile(club.members[i])}>
+            {club.members[i]}
+          </button>
+        </div>
+        <div className="col-3">
+          <button type="button" className="btn btn-danger marg-top-10" onClick={() => handleRemoveMember(club.members[i])}>
+            Remove
+          </button>
+        </div>
+        <div className="col-3">
+          <button type="button" className="btn btn-primary marg-top-10" onClick={() => handlePromoteMember(club.members[i])}>
+            Promote
+          </button>
+        </div>
       </div>,
     );
   }
 
+  // setup the display for all the club projects
   const displayProjects = [];
   for (let i = 0; i < club.projects.length; i += 1) {
     displayProjects.push(
@@ -67,7 +97,7 @@ export default function Club({ club, setClub, userId, user }) {
         <div className="col-4">
           <h2>Tasks Assigned</h2>
           <div className="container section-container">
-            {JSON.stringify(club)}
+            idk
           </div>
         </div>
         <div className="col-4">
