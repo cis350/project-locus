@@ -90,9 +90,16 @@ async function joinClub(clubName, userEmail, password) {
   }
 }
 
-async function removeMember(clubName, requesterEmail, targetEmail) {
+async function removeMember(clubName, requestedEmail, targetEmail) {
   try {
-    const result = await axios.delete(`${domain}/removeMember/${clubName}`, { requestedEmail: requesterEmail, targetEmail });
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/removeMember/${clubName}`,
+      data: {
+        requestedEmail,
+        targetEmail,
+      },
+    });
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };

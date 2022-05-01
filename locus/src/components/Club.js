@@ -20,9 +20,6 @@ export default function Club({ club, setClub, userId, user }) {
 
   // promote member in the club
   async function handleRemoveMember(memberEmail) {
-    console.log(club.clubName);
-    console.log(user.email);
-    console.log(memberEmail);
     const response = await removeMember(club.clubName, user.email, memberEmail);
     if (response.status === 200) alert('Removal Success');
     if (response.status !== 200) alert('Removal Failed');
