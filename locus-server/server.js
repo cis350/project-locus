@@ -1,10 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const uuidv4 = require('uuid');
 // const socketio = require('socket.io');
 const jwt = require('jsonwebtoken');
 const lib = require('./dbOperations');
-const uuidv4 = require('uuid');
-// const e = require('express');
 
 let db;
 let url = 'mongodb+srv://cis350:rv1wLHpUDR94Bmmk@locus.cyx90.mongodb.net/Locus?retryWrites=true&w=majority';
@@ -215,13 +214,16 @@ webapp.post('/joinclub/:clubname', async (req, res) => {
 
 webapp.delete('/removeMember/:clubname', async (req, res) => {
   const { requestedEmail, targetEmail } = req.body;
+  if (requestedEmail === targetEmail) {
+    return res.status(403).json({ error: 'Cannot remove self' });
+  }
   const clubName = req.params.clubname;
   try {
     const result = await lib.removeUserFromClub(db, clubName, requestedEmail, targetEmail);
     if (result) {
       return res.status(200).json({ message: `${targetEmail} removed from ${clubName}` });
     }
-    return res.status(403).json({ error: 'Invalid request' });
+    return res.status(400).json({ error: 'Invalid request' });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Internal server error' });
@@ -231,6 +233,9 @@ webapp.delete('/removeMember/:clubname', async (req, res) => {
 // promote user request
 webapp.put('/promotemember/:clubname', async (req, res) => {
   const { requestedEmail, targetEmail } = req.body;
+  if (requestedEmail === targetEmail) {
+    return res.status(403).json({ error: 'Cannot promote self' });
+  }
   const clubName = req.params.clubname;
   try {
     const result = await lib.promoteUserToAdmin(db, clubName, requestedEmail, targetEmail);
@@ -285,7 +290,7 @@ webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
   }
 });
 
-webapp.delete('/removeUsertoProject/:projectName', async (req, res) => {
+webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
   const { clubName, requestedEmail, assigneeEmail } = req.body;
   const { projectName } = req.params;
   try {
@@ -339,6 +344,37 @@ webapp.delete('/deleteProject/:projectName', async (req, res) => {
 /*
  * TODO: Task Routes:
  */
+
+// reassaign tasks route
+webapp.put('/updateTask/:taskid', async (req, res) => {
+  const {
+    clubName,
+    projectName,
+    requestedEmail,
+    targetEmail,
+  } = req.body;
+  const { taskid } = req.params;
+  try {
+    const dbRes = await lib.reassignTask(
+      db,
+      clubName,
+      projectName,
+      taskid,
+      requestedEmail,
+      targetEmail,
+    );
+    if (dbRes) {
+      return res.status(200).json({ message: `Reassigned ${taskid} of ${projectName} to ${targetEmail}` });
+    }
+    if (dbRes === null) {
+      return res.status(404).json({ error: `Task with id:${taskid} not found` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 /*
  * Analytics Route
