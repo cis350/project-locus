@@ -81,9 +81,11 @@ async function getClubChat(clubName) {
   }
 }
 
-async function sendMessage(clubName, userEmail, msg, date) {
+async function sendMessage(clubName, userEmail, msg, link, date) {
   try {
-    const result = await axios.post(`/chats/${clubName}`, { email: userEmail, message: msg, time: date });
+    const result = await axios.post(`/chats/${clubName}`, {
+      email: userEmail, message: msg, content: link, time: date,
+    });
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };

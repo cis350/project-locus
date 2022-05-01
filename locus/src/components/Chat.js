@@ -16,10 +16,11 @@ function Chat({ userEmail }) {
   const [chatsFail, changeChatsFail] = useState(false);
   const currentClub = useRef('');
   const message = useRef('');
+  const content = useRef('');
   // clubs user is in
-  const userClubs = useRef(null);
+  const userClubs = useRef([]);
 
-  if (userClubs.current === null) {
+  if (userClubs.current === []) {
     getUserClubs(userEmail).then((res) => {
       if (res.status === 200) {
         changeClubsFail(false);
@@ -35,7 +36,7 @@ function Chat({ userEmail }) {
     getClubChat(clubName).then((res) => {
       if (res.status === 200) {
         changeChatsFail(false);
-        changeChat(res.jsonContent.clubObject);
+        changeChat(res.jsonContent.clubObject.messages);
       } else {
         changeChatsFail(true);
       }
@@ -51,25 +52,32 @@ function Chat({ userEmail }) {
     message.current = e.target.value;
   };
 
+  const parseContent = (e) => {
+    content.current = e.target.value;
+  };
+
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
-      sendMessage(currentClub.current, userEmail, message.current, new Date()).then((res) => {
-        if (res.status === 200) {
-          changeSendFail(false);
-          getClubChat(currentClub.current).then((resp) => {
-            if (resp.status === 200) {
-              changeChatsFail(false);
-              message.current = '';
-              document.getElementById('input-text').value = '';
-              changeChat(resp.jsonContent.clubObject);
-            } else {
-              changeChatsFail(true);
-            }
-          });
-        } else {
-          changeSendFail(true);
-        }
-      });
+      sendMessage(currentClub.current, userEmail, message.current, content.current, new Date())
+        .then((res) => {
+          if (res.status === 200) {
+            changeSendFail(false);
+            getClubChat(currentClub.current).then((resp) => {
+              if (resp.status === 200) {
+                changeChatsFail(false);
+                message.current = '';
+                content.current = '';
+                document.getElementById('input-text').value = '';
+                document.getElementById('content-text').value = '';
+                changeChat(resp.jsonContent.clubObject.messages);
+              } else {
+                changeChatsFail(true);
+              }
+            });
+          } else {
+            changeSendFail(true);
+          }
+        });
     }
   };
 
@@ -81,7 +89,7 @@ function Chat({ userEmail }) {
           getClubChat(currentClub.current).then((resp) => {
             if (resp.status === 200) {
               changeChatsFail(false);
-              changeChat(resp.jsonContent.clubObject);
+              changeChat(resp.jsonContent.clubObject.messages);
             } else {
               changeChatsFail(true);
             }
@@ -95,6 +103,37 @@ function Chat({ userEmail }) {
       [currentChat],
     );
   }
+
+  const messageSender = (email) => {
+    if (email === userEmail) {
+      return 'from-me';
+    }
+    return 'from-them';
+  };
+
+  const imageSender = (email) => {
+    if (email === userEmail) {
+      return 'rounded float-right';
+    }
+    return 'rounded float-left';
+  };
+
+  const isValidUrl = (url) => {
+    try {
+      URL(url);
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+    return true;
+  };
+
+  const displayContent = (image) => {
+    if (image === '' || !isValidUrl(image)) {
+      return false;
+    }
+    return true;
+  };
 
   const errorSendMessage = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
@@ -117,7 +156,7 @@ function Chat({ userEmail }) {
     </Alert>
   ));
 
-  const showAllClubs = (() => (
+  const showClubs = (() => (
     <div>
       <Stack gap={20}>
         <Row>
@@ -126,7 +165,7 @@ function Chat({ userEmail }) {
           </h1>
         </Row>
         <div className="chat-table">
-          {userClubs.map((clubName) => (
+          {userClubs.current.map((clubName) => (
             <div className="club-item" key={clubName}>
               <Button className="club-button" onClick={() => switchToChat(clubName)}>
                 <Row>
@@ -139,11 +178,16 @@ function Chat({ userEmail }) {
           ))}
         </div>
       </Stack>
-      {clubsFail && errorGetClubs}
     </div>
   ));
 
-  const showAChat = (() => (
+  const showAllClubs = (() => (
+    <Container>
+      {clubsFail ? errorGetClubs() : showClubs()}
+    </Container>
+  ));
+
+  const showChat = (() => (
     <Container>
       <Button onClick={switchToClubs}>Go back</Button>
       <Stack>
@@ -151,14 +195,15 @@ function Chat({ userEmail }) {
         <div className="chat-stack-scrollable">
           {currentChat.map((mess) => (
             <Row>
-              <Col className="chat-item" key={mess[3]}>
+              <Col className="chat-item" key={mess[4]}>
                 <div className="imessage">
-                  <p className="from-them">{mess[1]}</p>
+                  <p className={messageSender(mess[0])}>{mess[1]}</p>
                 </div>
+                {displayContent(mess[2]) ? <img src={mess[2]} className={imageSender(mess[0])} alt="User Content" /> : <div /> }
                 <p>
                   {mess[0]}
                   :
-                  {mess[2].toString()}
+                  {(new Date(mess[3])).toString()}
                 </p>
               </Col>
             </Row>
@@ -170,9 +215,16 @@ function Chat({ userEmail }) {
         <Form.Group className="mb-3" controlId="formMessage">
           <Form.Label>Input Message</Form.Label>
           <Form.Control id="input-text" type="message" placeholder="Send a message!" onChange={parseInput} />
+          <Form.Control id="content-text" type="message" placeholder="Send content link" onChange={parseContent} />
         </Form.Group>
         <Button variant="primary" onClick={submitMessage}> Send </Button>
       </Form>
+    </Container>
+  ));
+
+  const showAChat = (() => (
+    <Container>
+      {chatsFail ? errorGetChats() : showChat()}
     </Container>
   ));
 

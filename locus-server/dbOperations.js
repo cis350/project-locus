@@ -211,9 +211,11 @@ const getClubChat = async (db, clubName) => {
 };
 
 // sends a message to a club chat (true for success, false for failure)
-const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId) => {
+const sendMessage = async (db, clubName, userEmail, message, content, timeStamp, uniqueId) => {
   try {
-    if (!db || !clubName || !userEmail || !message || !timeStamp || !uniqueId) return false;
+    if (!db || !clubName || !userEmail || !message || !content || !timeStamp || !uniqueId) {
+      return false;
+    }
     const chat = db.collection('Chats').findOne({ clubName: `${clubName}` });
     if (chat) {
       await db.collection('Clubs').updateOne(
@@ -223,7 +225,7 @@ const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId
           {
             messages:
             {
-              userEmail, message, timeStamp, uniqueId,
+              userEmail, message, content, timeStamp, uniqueId,
             },
           },
         },
