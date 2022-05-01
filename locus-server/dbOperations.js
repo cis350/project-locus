@@ -293,10 +293,6 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
       return false;
     }
     // no matches found when attempting to write
-    if (taskUpdateResult.matchedCount === 0) {
-      console.log(`No tasks found to update for ${oldAssignee} in ${projectName}`);
-      return false;
-    }
     return true;
   } catch (err) {
     console.error(err);
@@ -313,11 +309,7 @@ const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
       { $set: { 'tasks.$.assignedTo': '$leaderEmail' } },
     );
     if (!taskUpdateResult.acknowledged) {
-      return false;
-    }
-    // no matches found when attempting to write
-    if (taskUpdateResult.matchedCount === 0) {
-      console.log(`No tasks found to update for ${oldAssignee}`);
+      console.log(`DB failed to update tasks for ${clubName}`);
       return false;
     }
     return true;
@@ -418,7 +410,7 @@ const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => 
     const club = await getClub(db, clubName);
     if (club.members.includes(targetEmail) && club.admins.includes(requestedEmail)
       && !club.admins.includes(targetEmail)) {
-      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { admins: requestedEmail } });
+      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { admins: targetEmail } });
       // update the role of the target User to admin
       const updateResult = await db.collection('Users').updateOne(
         { email: `${targetEmail}`, 'clubs.clubName': `${clubName}` },
