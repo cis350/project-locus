@@ -8,14 +8,10 @@ import {
 } from 'react-bootstrap';
 import { checkIfEmailAlreadyExists, getUserFullName } from '../modules/storage';
 
-const ManageProject = function ManageProjectComponent({ userId }) {
+const ManageProject = function ManageProjectComponent({ userId, email }) {
   const navigate = useNavigate();
 
   const [currMembers, setCurrMembers] = useState([]);
-  const [currentMilestones, setCurrMilestones] = useState([]);
-  const [currentTasks, setCurrTasks] = useState([]);
-  const [attendance, checkAttendence] = useState(false);
-  const [milestonesView, changeMilestonesView] = useState(false);
   const [userNotInClub, setUserNotInClub] = useState(false);
   const [userAlreadyInProject, setUserAlreadyInProject] = useState(false);
   const [memberEmail, setMemberEmail] = useState('');
@@ -25,52 +21,17 @@ const ManageProject = function ManageProjectComponent({ userId }) {
     alert('poked!');
   });
 
-  const createMilestone = (() => {
-    alert('milestone created!');
-  });
-
-  const closeMilestone = (() => {
-    alert('milestone closed!');
-  });
-
-  const assignTask = (() => {
-    alert('task assigned!');
-  });
-
-  const completeTask = (() => {
-    alert('task completed!');
-  });
-
-  const createTask = (() => {
-    alert('task created!');
-  });
-
   const deleteUser = (() => {
     alert('deleted!');
   });
 
   const takeAttendance = (() => {
-    checkAttendence(!attendance);
-  });
-
-  const manageMilestonesAndTasks = (() => {
-    changeMilestonesView(!milestonesView);
+    navigate(`/projects/attendance/analytics/${userId}`);
   });
 
   const viewAnalytics = (() => {
     navigate(`/projects/manage-projects/analytics/${userId}`);
   });
-
-  const attendenceMembers = (() => (
-    currMembers.map((data) => (
-      <div className="form-check">
-        <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-        <label className="form-check-label" htmlFor="flexCheckDefault">
-          {getUserFullName(data)}
-        </label>
-      </div>
-    )))
-  );
 
   const usersInTable = (() => (
     currMembers.map((data) => (
@@ -154,78 +115,78 @@ const ManageProject = function ManageProjectComponent({ userId }) {
     }
   });
 
-  const currMilestones = (() => currentMilestones.map((data) => (
-    <div>
-      <div className="col-6">
-        {data}
-      </div>
-      <div className="col-3">
-        <Button
-          style={{
-            backgroundColor: '#C30000',
-            width: '60px',
-            height: '25px',
-            fontWeight: 'bold',
-            fontSize: '8px',
-            color: 'white',
-            borderColor: '#D9ED92',
-            borderRadius: '20px',
-            marginTop: '5px',
-            marginLeft: '20px',
-          }}
-          onClick={() => closeMilestone()}
-        >
-          Close
-        </Button>
-      </div>
-    </div>
-  ))
-  );
+  // const currMilestones = (() => currentMilestones.map((data) => (
+  //   <div>
+  //     <div className="col-6">
+  //       {data}
+  //     </div>
+  //     <div className="col-3">
+  //       <Button
+  //         style={{
+  //           backgroundColor: '#C30000',
+  //           width: '60px',
+  //           height: '25px',
+  //           fontWeight: 'bold',
+  //           fontSize: '8px',
+  //           color: 'white',
+  //           borderColor: '#D9ED92',
+  //           borderRadius: '20px',
+  //           marginTop: '5px',
+  //           marginLeft: '20px',
+  //         }}
+  //         onClick={() => closeMilestone()}
+  //       >
+  //         Close
+  //       </Button>
+  //     </div>
+  //   </div>
+  // ))
+  // );
 
-  const currTasks = (() => currentTasks.map((data) => (
-    <div>
-      <div className="col-6">
-        {data}
-      </div>
-      <div className="col-3">
-        <Button
-          style={{
-            backgroundColor: '#34A0A4',
-            width: '60px',
-            height: '25px',
-            fontWeight: 'bold',
-            fontSize: '8px',
-            color: 'white',
-            borderColor: '#D9ED92',
-            borderRadius: '20px',
-            marginTop: '5px',
-            marginLeft: '20px',
-          }}
-          onClick={() => assignTask()}
-        >
-          Assign
-        </Button>
-        <Button
-          style={{
-            backgroundColor: '#C30000',
-            width: '60px',
-            height: '25px',
-            fontWeight: 'bold',
-            fontSize: '8px',
-            color: 'white',
-            borderColor: '#D9ED92',
-            borderRadius: '20px',
-            marginTop: '5px',
-            marginLeft: '20px',
-          }}
-          onClick={() => completeTask()}
-        >
-          Complete
-        </Button>
-      </div>
-    </div>
-  ))
-  );
+  // const currTasks = (() => currentTasks.map((data) => (
+  //   <div>
+  //     <div className="col-6">
+  //       {data}
+  //     </div>
+  //     <div className="col-3">
+  //       <Button
+  //         style={{
+  //           backgroundColor: '#34A0A4',
+  //           width: '60px',
+  //           height: '25px',
+  //           fontWeight: 'bold',
+  //           fontSize: '8px',
+  //           color: 'white',
+  //           borderColor: '#D9ED92',
+  //           borderRadius: '20px',
+  //           marginTop: '5px',
+  //           marginLeft: '20px',
+  //         }}
+  //         onClick={() => assignTask()}
+  //       >
+  //         Assign
+  //       </Button>
+  //       <Button
+  //         style={{
+  //           backgroundColor: '#C30000',
+  //           width: '60px',
+  //           height: '25px',
+  //           fontWeight: 'bold',
+  //           fontSize: '8px',
+  //           color: 'white',
+  //           borderColor: '#D9ED92',
+  //           borderRadius: '20px',
+  //           marginTop: '5px',
+  //           marginLeft: '20px',
+  //         }}
+  //         onClick={() => completeTask()}
+  //       >
+  //         Complete
+  //       </Button>
+  //     </div>
+  //   </div>
+  // ))
+  // );
 
   useEffect(() => {
     if (memberEmail !== '') {
@@ -235,161 +196,9 @@ const ManageProject = function ManageProjectComponent({ userId }) {
     }
   }, [rerender]);
 
-  if (attendance) {
-    return (
-      <div className="mx-auto" style={{ position: 'relative', padding: '20px' }}>
-        <div>
-          {attendenceMembers()}
-        </div>
-        <Button
-          style={{
-            backgroundColor: '#C30000',
-            width: '300px',
-            height: '35px',
-            fontWeight: 'bold',
-            fontSize: '15px',
-            color: 'black',
-            borderColor: '#52B69A',
-            marginTop: '10px',
-          }}
-          onClick={() => takeAttendance()}
-        >
-          Return
-        </Button>
-        <Button
-          style={{
-            backgroundColor: '#52B69A',
-            width: '300px',
-            height: '35px',
-            fontWeight: 'bold',
-            fontSize: '15px',
-            color: 'black',
-            borderColor: '#52B69A',
-            marginTop: '10px',
-          }}
-          onClick={() => takeAttendance()}
-        >
-          Submit Attendance
-        </Button>
-      </div>
-    );
-  }
-
-  if (milestonesView) {
-    return (
-      <div>
-        <div className="row">
-          <div className="col-sm">
-            <Card style={{
-              width: '23rem',
-              height: '27rem',
-              margin: 'auto',
-              marginTop: '20px',
-              borderRadius: '10px',
-              backgroundColor: '#B5E48C',
-              borderColor: '#B5E48C',
-            }}
-            >
-              <Card.Body>
-                {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
-                <h5 className="text-center">Active Milestones</h5>
-                <div style={{ overflow: 'hidden', overflowY: 'scroll' }}>
-                  <ul style={{ height: '310px' }}>
-                    {currMilestones()}
-                  </ul>
-                </div>
-                <div className="row">
-                  {/* <div className="col-8">
-                    <Form.Control style={{ marginTop: '10px', height: '25px' }} type="name" onChange={(e) => updateMemberEmail(e)} />
-                  </div> */}
-                  <div className="col-4">
-                    <Button
-                      style={{
-                        backgroundColor: '#52B69A',
-                        width: '100px',
-                        height: '25px',
-                        fontWeight: 'bold',
-                        fontSize: '8px',
-                        color: 'black',
-                        borderColor: '#6A9B72',
-                        marginTop: '10px',
-                      }}
-                      onClick={() => createMilestone()}
-                    >
-                      Create Milestone
-                    </Button>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-          <div className="col-sm">
-            <Card style={{
-              width: '23rem',
-              height: '27rem',
-              margin: 'auto',
-              marginTop: '20px',
-              borderRadius: '10px',
-              backgroundColor: '#B5E48C',
-              borderColor: '#B5E48C',
-            }}
-            >
-              <Card.Body>
-                {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
-                <h5 className="text-center">Active Tasks</h5>
-                <div style={{ overflow: 'hidden', overflowY: 'scroll' }}>
-                  <ul style={{ height: '310px' }}>
-                    {currTasks()}
-                  </ul>
-                </div>
-                <div className="row">
-                  {/* <div className="col-8">
-                    <Form.Control style={{ marginTop: '10px', height: '25px' }} type="name" onChange={(e) => updateMemberEmail(e)} />
-                  </div> */}
-                  <div className="col-4">
-                    <Button
-                      style={{
-                        backgroundColor: '#52B69A',
-                        width: '100px',
-                        height: '25px',
-                        fontWeight: 'bold',
-                        fontSize: '8px',
-                        color: 'black',
-                        borderColor: '#6A9B72',
-                        marginTop: '10px',
-                      }}
-                      onClick={() => createTask()}
-                    >
-                      Create Task
-                    </Button>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-        </div>
-        <Button
-          style={{
-            backgroundColor: '#C30000',
-            width: '300px',
-            height: '35px',
-            fontWeight: 'bold',
-            fontSize: '15px',
-            color: 'black',
-            borderColor: '#52B69A',
-            marginTop: '10px',
-          }}
-          onClick={() => manageMilestonesAndTasks()}
-        >
-          Return
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
-      <h1 className="text-center">PROJECT NAME</h1>
+      <h1 className="text-center">Project(s)</h1>
       <div className="row">
         <div className="col-sm">
           <Card style={{
@@ -454,23 +263,6 @@ const ManageProject = function ManageProjectComponent({ userId }) {
               onClick={() => takeAttendance()}
             >
               Attendance
-            </Button>
-          </div>
-          <div style={{ height: '70px', width: '23rem', margin: 'auto' }}>
-            <Button
-              style={{
-                backgroundColor: '#52B69A',
-                width: '300px',
-                height: '35px',
-                fontWeight: 'bold',
-                fontSize: '15px',
-                color: 'black',
-                borderColor: '#52B69A',
-                marginTop: '10px',
-              }}
-              onClick={() => manageMilestonesAndTasks()}
-            >
-              Manange Milestones/Tasks
             </Button>
           </div>
           <div style={{ height: '70px', width: '23rem', margin: 'auto' }}>

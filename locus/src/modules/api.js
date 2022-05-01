@@ -55,7 +55,7 @@ async function createClub(clubName, masterId) {
 // get all the clubs by userEmail and returns an array of [clubname, role]
 async function getUserClubs(userEmail) {
   try {
-    const result = await axios.get(`${domain}/club/${userEmail}`);
+    const result = await axios.get(`${domain}/clubs/${userEmail}`);
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
@@ -65,7 +65,7 @@ async function getUserClubs(userEmail) {
 // get specific club given the name of the club
 async function getSpecificClub(clubName) {
   try {
-    const result = await axios.get(`/club/${clubName}`);
+    const result = await axios.get(`${domain}/club/${clubName}`);
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
