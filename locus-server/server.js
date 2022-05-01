@@ -267,6 +267,21 @@ webapp.put('/project/:clubname', async (req, res) => {
   }
 });
 
+// get all the projects for a given club
+webapp.get('/projects/:clubname', async (req, res) => {
+  const clubName = req.params.clubname;
+  try {
+    const resultArray = await lib.createProject(db, clubName);
+    if (resultArray === null) {
+      return res.status(400).json({ error: 'Invalid request' });
+    }
+    return res.status(200).json({ result: resultArray });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
   const { clubName, requestedEmail, assigneeEmail } = req.body;
   const { projectName } = req.params;
