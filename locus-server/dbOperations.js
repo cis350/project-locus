@@ -293,10 +293,6 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
       return false;
     }
     // no matches found when attempting to write
-    if (taskUpdateResult.matchedCount === 0) {
-      console.log(`No tasks found to update for ${oldAssignee} in ${projectName}`);
-      return false;
-    }
     return true;
   } catch (err) {
     console.error(err);
@@ -313,11 +309,7 @@ const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
       { $set: { 'tasks.$.assignedTo': '$leaderEmail' } },
     );
     if (!taskUpdateResult.acknowledged) {
-      return false;
-    }
-    // no matches found when attempting to write
-    if (taskUpdateResult.matchedCount === 0) {
-      console.log(`No tasks found to update for ${oldAssignee}`);
+      console.log(`DB failed to update tasks for ${clubName}`);
       return false;
     }
     return true;
