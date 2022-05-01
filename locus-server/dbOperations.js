@@ -410,7 +410,7 @@ const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => 
     const club = await getClub(db, clubName);
     if (club.members.includes(targetEmail) && club.admins.includes(requestedEmail)
       && !club.admins.includes(targetEmail)) {
-      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { admins: requestedEmail } });
+      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { admins: targetEmail } });
       // update the role of the target User to admin
       const updateResult = await db.collection('Users').updateOne(
         { email: `${targetEmail}`, 'clubs.clubName': `${clubName}` },
