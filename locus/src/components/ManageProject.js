@@ -6,9 +6,8 @@ import {
   Form,
   Alert,
 } from 'react-bootstrap';
-import { checkIfEmailAlreadyExists, getUserFullName } from '../modules/storage';
 
-const ManageProject = function ManageProjectComponent({ userId, email }) {
+const ManageProject = function ManageProjectComponent({ userId, club, project }) {
   const navigate = useNavigate();
 
   const [currMembers, setCurrMembers] = useState([]);
@@ -115,79 +114,6 @@ const ManageProject = function ManageProjectComponent({ userId, email }) {
     }
   });
 
-  // const currMilestones = (() => currentMilestones.map((data) => (
-  //   <div>
-  //     <div className="col-6">
-  //       {data}
-  //     </div>
-  //     <div className="col-3">
-  //       <Button
-  //         style={{
-  //           backgroundColor: '#C30000',
-  //           width: '60px',
-  //           height: '25px',
-  //           fontWeight: 'bold',
-  //           fontSize: '8px',
-  //           color: 'white',
-  //           borderColor: '#D9ED92',
-  //           borderRadius: '20px',
-  //           marginTop: '5px',
-  //           marginLeft: '20px',
-  //         }}
-  //         onClick={() => closeMilestone()}
-  //       >
-  //         Close
-  //       </Button>
-  //     </div>
-  //   </div>
-  // ))
-  // );
-
-  // const currTasks = (() => currentTasks.map((data) => (
-  //   <div>
-  //     <div className="col-6">
-  //       {data}
-  //     </div>
-  //     <div className="col-3">
-  //       <Button
-  //         style={{
-  //           backgroundColor: '#34A0A4',
-  //           width: '60px',
-  //           height: '25px',
-  //           fontWeight: 'bold',
-  //           fontSize: '8px',
-  //           color: 'white',
-  //           borderColor: '#D9ED92',
-  //           borderRadius: '20px',
-  //           marginTop: '5px',
-  //           marginLeft: '20px',
-  //         }}
-  //         onClick={() => assignTask()}
-  //       >
-  //         Assign
-  //       </Button>
-  //       <Button
-  //         style={{
-  //           backgroundColor: '#C30000',
-  //           width: '60px',
-  //           height: '25px',
-  //           fontWeight: 'bold',
-  //           fontSize: '8px',
-  //           color: 'white',
-  //           borderColor: '#D9ED92',
-  //           borderRadius: '20px',
-  //           marginTop: '5px',
-  //           marginLeft: '20px',
-  //         }}
-  //         onClick={() => completeTask()}
-  //       >
-  //         Complete
-  //       </Button>
-  //     </div>
-  //   </div>
-  // ))
-  // );
-
   useEffect(() => {
     if (memberEmail !== '') {
       const newCurrMembers = currMembers;
@@ -198,7 +124,9 @@ const ManageProject = function ManageProjectComponent({ userId, email }) {
 
   return (
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
-      <h1 className="text-center">Project(s)</h1>
+      <h1 className="text-center">
+        {project}
+      </h1>
       <div className="row">
         <div className="col-sm">
           <Card style={{

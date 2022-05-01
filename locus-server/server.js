@@ -271,7 +271,7 @@ webapp.put('/project/:clubname', async (req, res) => {
 webapp.get('/projects/:clubname', async (req, res) => {
   const clubName = req.params.clubname;
   try {
-    const resultArray = await lib.createProject(db, clubName);
+    const resultArray = await lib.getProjectsForClub(db, clubName);
     if (resultArray === null) {
       return res.status(400).json({ error: 'Invalid request' });
     }
