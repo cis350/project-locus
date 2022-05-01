@@ -356,7 +356,7 @@ const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => 
       // remove user from club
       const removeFromClub = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $pull: { members: targetEmail } });
       // remove user from any project
-      const projectsOfUser = await db.collectin('Projects').updateMany(
+      const projectsOfUser = await db.collection('Projects').updateMany(
         { clubName: `${clubName}`, members: targetEmail },
         { $pull: { members: targetEmail } },
       );
