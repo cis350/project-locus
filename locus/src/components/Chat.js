@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Button, Form, Container, Row, Col, Stack,
+  Button, Form, Container, Row, Col, Stack, Alert,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
 // import from api functions instead
@@ -11,6 +11,9 @@ import '../assets/Chat.css';
 
 function Chat({ userEmail }) {
   const [currentChat, changeChat] = useState([]);
+  const [sendFail, changeSendFail] = useState(false);
+  const [clubsFail, changeClubsFail] = useState(false);
+  const [chatsFail, changeChatsFail] = useState(false);
   const currentClub = useRef('');
   const message = useRef('');
   // clubs user is in
@@ -19,9 +22,10 @@ function Chat({ userEmail }) {
   if (userClubs.current === null) {
     getUserClubs(userEmail).then((res) => {
       if (res.status === 200) {
+        changeClubsFail(false);
         userClubs.current = res.jsonContent.clubsArray;
       } else {
-        console.log('error');
+        changeClubsFail(true);
       }
     });
   }
@@ -30,9 +34,10 @@ function Chat({ userEmail }) {
     currentClub.current = clubName;
     getClubChat(clubName).then((res) => {
       if (res.status === 200) {
+        changeChatsFail(false);
         changeChat(res.jsonContent.clubObject);
       } else {
-        console.log('error');
+        changeChatsFail(true);
       }
     });
   };
@@ -50,17 +55,19 @@ function Chat({ userEmail }) {
     if (/\S/.test(message.current)) {
       sendMessage(currentClub.current, userEmail, message.current, new Date()).then((res) => {
         if (res.status === 200) {
+          changeSendFail(false);
           getClubChat(currentClub.current).then((resp) => {
             if (resp.status === 200) {
+              changeChatsFail(false);
               message.current = '';
               document.getElementById('input-text').value = '';
               changeChat(resp.jsonContent.clubObject);
             } else {
-              console.log('error');
+              changeChatsFail(true);
             }
           });
         } else {
-          console.log('error');
+          changeSendFail(true);
         }
       });
     }
@@ -73,9 +80,10 @@ function Chat({ userEmail }) {
           // update with thens
           getClubChat(currentClub.current).then((resp) => {
             if (resp.status === 200) {
+              changeChatsFail(false);
               changeChat(resp.jsonContent.clubObject);
             } else {
-              console.log('error');
+              changeChatsFail(true);
             }
           });
         }
@@ -87,6 +95,27 @@ function Chat({ userEmail }) {
       [currentChat],
     );
   }
+
+  const errorSendMessage = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Message failed to send.
+    </Alert>
+  ));
+
+  const errorGetClubs = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Failed to get clubs.
+    </Alert>
+  ));
+
+  const errorGetChats = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Failed to get messages.
+    </Alert>
+  ));
 
   const showAllClubs = (() => (
     <div>
@@ -110,6 +139,7 @@ function Chat({ userEmail }) {
           ))}
         </div>
       </Stack>
+      {clubsFail && errorGetClubs}
     </div>
   ));
 
@@ -117,6 +147,7 @@ function Chat({ userEmail }) {
     <Container>
       <Button onClick={switchToClubs}>Go back</Button>
       <Stack>
+        {chatsFail && errorGetChats}
         <div className="chat-stack-scrollable">
           {currentChat.map((mess) => (
             <Row>
@@ -134,6 +165,7 @@ function Chat({ userEmail }) {
           ))}
         </div>
       </Stack>
+      {sendFail && errorSendMessage}
       <Form>
         <Form.Group className="mb-3" controlId="formMessage">
           <Form.Label>Input Message</Form.Label>
