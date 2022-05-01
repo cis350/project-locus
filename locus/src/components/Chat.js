@@ -14,24 +14,27 @@ function Chat({ userEmail }) {
   const currentClub = useRef('');
   const message = useRef('');
   // clubs user is in
-  let userClubs = null;
+  const userClubs = useRef(null);
 
-  if (userClubs === null) {
+  if (userClubs.current === null) {
     getUserClubs(userEmail).then((res) => {
       if (res.status === 200) {
-        userClubs = res.jsonContent.result;
+        userClubs.current = res.jsonContent.clubsArray;
       } else {
         console.log('error');
       }
     });
   }
-  // const stackElement = document.getElementsByClassName('chat-stack-scrollable')[0];
-  // stackElement.scrollTop = stackElement.scrollHeight;
 
   const switchToChat = (clubName) => {
     currentClub.current = clubName;
-    // // update with thens
-    changeChat(getClubChat(clubName));
+    getClubChat(clubName).then((res) => {
+      if (res.status === 200) {
+        changeChat(res.jsonContent.clubObject);
+      } else {
+        console.log('error');
+      }
+    });
   };
 
   const switchToClubs = async () => {
@@ -45,14 +48,22 @@ function Chat({ userEmail }) {
 
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
-      // // update with thens
-      sendMessage(currentClub.current, userEmail, message.current, new Date());
+      sendMessage(currentClub.current, userEmail, message.current, new Date()).then((res) => {
+        if (res.status === 200) {
+          getClubChat(currentClub.current).then((resp) => {
+            if (resp.status === 200) {
+              message.current = '';
+              document.getElementById('input-text').value = '';
+              changeChat(resp.jsonContent.clubObject);
+            } else {
+              console.log('error');
+            }
+          });
+        } else {
+          console.log('error');
+        }
+      });
     }
-    // update with thens
-    const updatedChat = getClubChat(currentClub.current);
-    message.current = '';
-    document.getElementById('input-text').value = '';
-    changeChat(updatedChat);
   };
 
   if (currentClub.current !== '') {
@@ -60,8 +71,13 @@ function Chat({ userEmail }) {
       () => {
         async function fetchMessages() {
           // update with thens
-          const mesgs = await getClubChat(currentClub.current);
-          changeChat(mesgs);
+          getClubChat(currentClub.current).then((resp) => {
+            if (resp.status === 200) {
+              changeChat(resp.jsonContent.clubObject);
+            } else {
+              console.log('error');
+            }
+          });
         }
 
         setInterval(() => {
