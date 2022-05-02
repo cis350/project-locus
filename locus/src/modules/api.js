@@ -48,6 +48,33 @@ async function getUser(email) {
   }
 }
 
+async function getAllProjects(clubname) {
+  try {
+    const response = await axios.get(`${domain}/projects/${clubname}`);
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getProject(clubName, projectName) {
+  try {
+    const response = await axios.post(`${domain}/project/${projectName}`, { clubName });
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function createProject(clubName, projectName, leaderEmail) {
+  try {
+    const response = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail });
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 /*
  * Club fetches
  */
@@ -126,4 +153,7 @@ module.exports = {
   joinClub,
   removeMember,
   promoteMember,
+  getAllProjects,
+  createProject,
+  getProject,
 };

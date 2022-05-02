@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
-  Form,
 } from 'react-bootstrap';
 
 const Analytics = function AnalyticsComponent({ userId }) {
