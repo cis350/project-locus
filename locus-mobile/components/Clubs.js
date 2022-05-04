@@ -4,20 +4,24 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ProgressBar from 'react-native-progress/Bar';
-import { createClub, getUserId, getUserClubs, getSpecificClub } from '../modules/api';
+import {
+  createClub, getUserId, getUserClubs, getSpecificClub, joinClub,
+} from '../modules/api';
 
 export default function Clubs({ route, navigation }) {
   // **change this to fetch all clubs that the user is a part of from DB
   const [userClubs, setUserClubs] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [joinClubModalVisible, setJoinClubModalVisible] = useState(false);
   const [newClubName, setNewClubName] = useState('');
   const [newClubPassword, setNewClubPassword] = useState('');
+  const [joinClubName, setJoinClubName] = useState('');
+  const [joinClubPassword, setJoinClubPassword] = useState('');
   const { user } = route.params;
 
   useEffect(() => {
     async function initialize() {
       setUserClubs((await getUserClubs(user.email)).jsonContent);
-      console.log(userClubs);
     }
     initialize();
   }, []);
@@ -52,6 +56,15 @@ export default function Clubs({ route, navigation }) {
     setModalVisible(false);
   }
 
+  async function handleJoinClub() {
+    const response = await joinClub(joinClubName, user.email, joinClubPassword);
+    setUserClubs((await getUserClubs(user.email)).jsonContent);
+    setJoinClubName('');
+    setJoinClubPassword('');
+    if (response.status !== 201) alert('Join Club Failed');
+    setJoinClubModalVisible(false);
+  }
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -83,9 +96,39 @@ export default function Clubs({ route, navigation }) {
             </View>
           </Modal>
         </View>
+        <View style={styles.centeredView}>
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={joinClubModalVisible}
+          >
+            <View style={styles.centeredView}>
+              <TextInput
+                style={styles.input}
+                placeholder="Club Name"
+                onChangeText={setJoinClubName}
+                value={joinClubName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                onChangeText={setJoinClubPassword}
+                value={joinClubPassword}
+                // eslint-disable-next-line react/jsx-boolean-value
+                secureTextEntry={true}
+              />
+              <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleJoinClub()}>
+                <Text style={{ fontSize: 20 }}>Join</Text>
+              </TouchableHighlight>
+            </View>
+          </Modal>
+        </View>
         <Text style={{ fontSize: 24 }}>Which Club Needs Work?</Text>
         <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setModalVisible(true)}>
           <Text style={{ fontSize: 20 }}>Create Club</Text>
+        </TouchableHighlight>
+        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setJoinClubModalVisible(true)}>
+          <Text style={{ fontSize: 20 }}>Join Club</Text>
         </TouchableHighlight>
         <View style={styles.clubContainer}>
           {displayClubs}
