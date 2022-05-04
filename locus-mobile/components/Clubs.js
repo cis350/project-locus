@@ -1,37 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ProgressBar from 'react-native-progress/Bar';
-import { createClub, getUserId } from '../modules/api';
-
-const club1 = {
-  name: 'Club 1',
-  master: 'James',
-  progress: 0.3,
-};
-
-const club2 = {
-  name: 'Club 2',
-  master: 'Jeffrey',
-  progress: 0.2,
-};
+import { createClub, getUserId, getUserClubs, getSpecificClub } from '../modules/api';
 
 export default function Clubs({ route, navigation }) {
   // **change this to fetch all clubs that the user is a part of from DB
-  const userClubs = [club1, club2, club2, club2];
+  const [userClubs, setUserClubs] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [clubName, setClubName] = useState('');
+  const [newClubName, setNewClubName] = useState('');
+  const [newClubPassword, setNewClubPassword] = useState('');
   const { user } = route.params;
+
+  useEffect(() => {
+    async function initialize() {
+      setUserClubs((await getUserClubs(user.email)).jsonContent);
+      console.log(userClubs);
+    }
+    initialize();
+  }, []);
+
   // set up the view for all the clubs that the user is in
   const displayClubs = [];
   for (let i = 0; i < userClubs.length; i += 1) {
     displayClubs.push(
-      <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => showClub(userClubs[i])}>
-        <Text style={styles.clubText}>{userClubs[i].name}</Text>
-        <Text style={styles.clubText}>Master: {userClubs[i].master}</Text>
-        <ProgressBar progress={userClubs[i].progress} width={200} height={30} color="#8FC7FC" borderRadius={40} />
+      <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => showClub(userClubs[i].clubName)}>
+        <Text style={styles.clubText}>{userClubs[i].clubName}</Text>
+        <Text style={styles.clubText}>Role: {userClubs[i].role}</Text>
+        {/* <ProgressBar progress={userClubs[i].progress} width={200} height={30} color="#8FC7FC" borderRadius={40} /> */}
         <Ionicons
           style={{ color: 'white', textAlign: 'center', paddingVertical: 20 }}
           name="settings"
@@ -41,14 +39,16 @@ export default function Clubs({ route, navigation }) {
     );
   }
 
-  function showClub(club) {
+  async function showClub(clubName) {
+    const club = (await getSpecificClub(clubName)).jsonContent;
     navigation.navigate('Club', { club });
   }
 
   async function handleCreateClub() {
     const masterId = await getUserId(user.email);
-    await createClub(clubName, masterId);
-    setClubName('');
+    await createClub(newClubName, masterId, newClubPassword);
+    setNewClubName('');
+    setNewClubPassword('');
     setModalVisible(false);
   }
 
@@ -66,8 +66,16 @@ export default function Clubs({ route, navigation }) {
               <TextInput
                 style={styles.input}
                 placeholder="Club Name"
-                onChangeText={setClubName}
-                value={clubName}
+                onChangeText={setNewClubName}
+                value={newClubName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                onChangeText={setNewClubPassword}
+                value={newClubPassword}
+                // eslint-disable-next-line react/jsx-boolean-value
+                secureTextEntry={true}
               />
               <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
                 <Text style={{ fontSize: 20 }}>Create</Text>

@@ -4,6 +4,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
 } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
+import { getUser } from '../modules/api';
 
 // mock the users and projects in the club
 const project = {
@@ -11,17 +12,18 @@ const project = {
   lead: 'Jeffrey',
   progress: 0.3,
 };
-const members = ['Bob', 'Tim'];
 
 export default function Club({ route, navigation }) {
   const { club } = route.params;
+
+  console.log(club);
   // setup view for all the users in the club
   const displayMembers = [];
-  for (let i = 0; i < 50; i += 1) {
+  for (let i = 0; i < club.members.length; i += 1) {
     displayMembers.push(
-      <TouchableOpacity style={styles.member} key={`clubMember${i}`} onPress={() => showProfile(members[0])}>
+      <TouchableOpacity style={styles.member} key={`clubMember${i}`} onPress={() => showProfile(club.members[i])}>
         <Image source={require('../assets/default-profile.jpg')} style={{ width: 50, height: 50 }} />
-        <Text style={{ fontSize: 28, marginLeft: 30, color: 'white' }}>{members[0]}</Text>
+        <Text style={{ fontSize: 20, marginLeft: 30, color: 'white' }}>{club.members[i]}</Text>
       </TouchableOpacity>,
     );
   }
@@ -38,7 +40,9 @@ export default function Club({ route, navigation }) {
     );
   }
 
-  function showProfile(member) {
+  async function showProfile(memberEmail) {
+    const member = (await getUser(memberEmail)).result;
+    console.log(member);
     navigation.navigate('Profile', { member });
   }
 
