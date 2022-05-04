@@ -3,7 +3,7 @@ const axios = require('axios');
 const domain = 'https://testbackendforproject.herokuapp.com';
 
 // returns a boolean based on whether or not he login was successful
-export async function login(email, password) {
+async function login(email, password) {
   try {
     const response = await axios.post(`${domain}/login`, { email, password });
     if (response.status === 200) return 200;
@@ -13,7 +13,7 @@ export async function login(email, password) {
   }
 }
 
-export async function getUser(email) {
+async function getUser(email) {
   try {
     const response = await axios.get(`${domain}/user/${email}`);
     return response.data;
@@ -22,7 +22,7 @@ export async function getUser(email) {
   }
 }
 
-export async function getUserId(email) {
+async function getUserId(email) {
   try {
     const response = await axios.get(`${domain}/id/${email}`);
     console.log(response.data);
@@ -32,14 +32,81 @@ export async function getUserId(email) {
   }
 }
 
-export async function createClub(clubName, id) {
+/*
+ * Club fetches
+ */
+// create club with given name and master
+async function createClub(clubName, id, clubPassword) {
   try {
-    const response = await axios.post(`${domain}/club`, { clubName, id, clubPassword: '123' });
-    console.log(response.status);
-    console.log(response.data);
+    const response = await axios.post(`${domain}/club`, { clubName, id, clubPassword });
     return response.data;
   } catch (err) {
-    console.log(err);
-    return false;
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
+
+// get all the clubs by userEmail and returns an array of [clubname, role]
+async function getUserClubs(userEmail) {
+  try {
+    const result = await axios.get(`${domain}/clubs/${userEmail}`);
+    return { status: result.status, jsonContent: result.data.clubsArray };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+// get specific club given the name of the club
+async function getSpecificClub(clubName) {
+  try {
+    const result = await axios.get(`${domain}/club/${clubName}`);
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function joinClub(clubName, userEmail, password) {
+  try {
+    const result = await axios.post(`${domain}/joinclub/${clubName}`, { userEmail, password });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function removeMember(clubName, requestedEmail, targetEmail) {
+  try {
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/removeMember/${clubName}`,
+      data: {
+        requestedEmail,
+        targetEmail,
+      },
+    });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function promoteMember(clubName, requesterEmail, targetEmail) {
+  try {
+    const result = await axios.put(`${domain}/promotemember/${clubName}`, { requestedEmail: requesterEmail, targetEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+module.exports = {
+  login,
+  getUser,
+  getUserId,
+  createClub,
+  getUserClubs,
+  getSpecificClub,
+  joinClub,
+  removeMember,
+  promoteMember,
+};
