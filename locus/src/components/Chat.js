@@ -11,6 +11,7 @@ import '../assets/Chat.css';
 
 function Chat({ userEmail }) {
   const [currentChat, changeChat] = useState([]);
+  const [userClubs, changeUserClubs] = useState([]);
   const [sendFail, changeSendFail] = useState(false);
   const [clubsFail, changeClubsFail] = useState(false);
   const [chatsFail, changeChatsFail] = useState(false);
@@ -18,13 +19,12 @@ function Chat({ userEmail }) {
   const message = useRef('');
   const content = useRef('');
   // clubs user is in
-  const userClubs = useRef([]);
 
-  if (userClubs.current === []) {
+  if (userClubs.length === 0) {
     getUserClubs(userEmail).then((res) => {
       if (res.status === 200) {
         changeClubsFail(false);
-        userClubs.current = res.jsonContent.clubsArray;
+        changeUserClubs(res.jsonContent.clubsArray);
       } else {
         changeClubsFail(true);
       }
@@ -33,11 +33,16 @@ function Chat({ userEmail }) {
 
   const switchToChat = (clubName) => {
     currentClub.current = clubName;
+    console.log(clubName);
     getClubChat(clubName).then((res) => {
       if (res.status === 200) {
+        console.log(res);
+        console.log(res.jsonContent);
+        console.log('ppppppppppjjiubyhiubhbuibuibuibibibiib');
         changeChatsFail(false);
-        changeChat(res.jsonContent.clubObject.messages);
+        changeChat(res.jsonContent);
       } else {
+        console.log('here');
         changeChatsFail(true);
       }
     });
@@ -58,9 +63,11 @@ function Chat({ userEmail }) {
 
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
+      console.log('balls in my face');
       sendMessage(currentClub.current, userEmail, message.current, content.current, new Date())
         .then((res) => {
           if (res.status === 200) {
+            console.log('I like ass');
             changeSendFail(false);
             getClubChat(currentClub.current).then((resp) => {
               if (resp.status === 200) {
@@ -81,28 +88,29 @@ function Chat({ userEmail }) {
     }
   };
 
-  if (currentClub.current !== '') {
-    useEffect(
-      () => {
-        async function fetchMessages() {
-          // update with thens
-          getClubChat(currentClub.current).then((resp) => {
-            if (resp.status === 200) {
-              changeChatsFail(false);
-              changeChat(resp.jsonContent.clubObject.messages);
-            } else {
-              changeChatsFail(true);
-            }
-          });
-        }
-
-        setInterval(() => {
+  useEffect(
+    () => {
+      async function fetchMessages() {
+        // update with thens
+        getClubChat(currentClub.current).then((resp) => {
+          if (resp.status === 200) {
+            changeChatsFail(false);
+            changeChat(resp.jsonContent.clubObject.messages);
+          } else {
+            changeChatsFail(true);
+          }
+        });
+      }
+      const intervalId = setInterval(() => {
+        if (currentClub.current !== '') {
           fetchMessages();
-        }, 5000);
-      },
-      [currentChat],
-    );
-  }
+        }
+      }, 5000);
+
+      clearInterval(intervalId);
+    },
+    [currentChat],
+  );
 
   const messageSender = (email) => {
     if (email === userEmail) {
@@ -165,12 +173,12 @@ function Chat({ userEmail }) {
           </h1>
         </Row>
         <div className="chat-table">
-          {userClubs.current.map((clubName) => (
-            <div className="club-item" key={clubName}>
-              <Button className="club-button" onClick={() => switchToChat(clubName)}>
+          {userClubs.map((club) => (
+            <div className="club-item" key={club.clubName}>
+              <Button className="club-button" onClick={() => switchToChat(club.clubName)}>
                 <Row>
                   <Col className="d-flex justify-content-center">
-                    {clubName}
+                    {club.clubName}
                   </Col>
                 </Row>
               </Button>
