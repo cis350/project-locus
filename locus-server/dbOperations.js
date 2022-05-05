@@ -211,9 +211,11 @@ const getClubChat = async (db, clubName) => {
 };
 
 // sends a message to a club chat (true for success, false for failure)
-const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId) => {
+const sendMessage = async (db, clubName, userEmail, message, content, timeStamp, uniqueId) => {
   try {
-    if (!db || !clubName || !userEmail || !message || !timeStamp || !uniqueId) return false;
+    if (!db || !clubName || !userEmail || !message || !content || !timeStamp || !uniqueId) {
+      return false;
+    }
     const chat = db.collection('Chats').findOne({ clubName: `${clubName}` });
     if (chat) {
       await db.collection('Clubs').updateOne(
@@ -223,7 +225,7 @@ const sendMessage = async (db, clubName, userEmail, message, timeStamp, uniqueId
           {
             messages:
             {
-              userEmail, message, timeStamp, uniqueId,
+              userEmail, message, content, timeStamp, uniqueId,
             },
           },
         },
@@ -293,6 +295,10 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
       return false;
     }
     // no matches found when attempting to write
+    if (taskUpdateResult.matchedCount === 0) {
+      console.log(`No tasks found to update for ${oldAssignee} in ${projectName}`);
+      return false;
+    }
     return true;
   } catch (err) {
     console.error(err);
@@ -309,7 +315,11 @@ const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
       { $set: { 'tasks.$.assignedTo': '$leaderEmail' } },
     );
     if (!taskUpdateResult.acknowledged) {
-      console.log(`DB failed to update tasks for ${clubName}`);
+      return false;
+    }
+    // no matches found when attempting to write
+    if (taskUpdateResult.matchedCount === 0) {
+      console.log(`No tasks found to update for ${oldAssignee}`);
       return false;
     }
     return true;
@@ -410,7 +420,7 @@ const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => 
     const club = await getClub(db, clubName);
     if (club.members.includes(targetEmail) && club.admins.includes(requestedEmail)
       && !club.admins.includes(targetEmail)) {
-      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { admins: targetEmail } });
+      const clubResult = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { admins: requestedEmail } });
       // update the role of the target User to admin
       const updateResult = await db.collection('Users').updateOne(
         { email: `${targetEmail}`, 'clubs.clubName': `${clubName}` },
