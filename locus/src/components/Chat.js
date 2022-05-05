@@ -91,24 +91,21 @@ function Chat({ userEmail }) {
 
   useEffect(
     () => {
-      async function fetchMessages() {
-        // update with thens
-        getClubChat(currentClub.current).then((resp) => {
-          if (resp.status === 200) {
-            changeChatsFail(false);
-            changeChat(resp.jsonContent);
-          } else {
-            changeChatsFail(true);
-          }
-        });
-      }
       const intervalId = setInterval(() => {
         if (currentClub.current !== '') {
-          fetchMessages();
+          getClubChat(currentClub.current).then((resp) => {
+            if (resp.status === 200) {
+              console.log('coconwecinweouciwoicnqwcioweqnc');
+              changeChatsFail(false);
+              changeChat(resp.jsonContent);
+            } else {
+              changeChatsFail(true);
+            }
+          });
         }
       }, 5000);
 
-      clearInterval(intervalId);
+      return () => clearInterval(intervalId);
     },
     [currentChat],
   );
