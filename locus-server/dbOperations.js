@@ -729,6 +729,17 @@ const createProject = async (db, clubName, projectName, leaderEmail) => {
   }
 };
 
+// gets all projects for a given club
+const getProjectsForClub = async (db, clubName) => {
+  try {
+    if (!db || !clubName) return null;
+    return await db.collection('Projects').find({ clubName: `${clubName}` }).toArray();
+  } catch (err) {
+    console.error(err);
+    throw new Error(`unable to get projects for ${clubName}`);
+  }
+};
+
 // assigns assigneeEmail to project if authorized (true for success)
 const assignUserToProject = async (db, clubName, projectName, requestedEmail, assigneeEmail) => {
   try {
@@ -844,6 +855,7 @@ module.exports = {
   joinClub,
   removeUserFromClub,
   createProject,
+  getProjectsForClub,
   assignUserToProject,
   removeUserFromProject,
   getProject,

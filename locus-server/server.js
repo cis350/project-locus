@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const uuidv4 = require('uuid');
-// const socketio = require('socket.io');
-const jwt = require('jsonwebtoken');
 const lib = require('./dbOperations');
 
 let db;
@@ -136,12 +134,10 @@ webapp.get('/chats/:clubName', async (req, res) => {
 // send message route
 webapp.post('/chats/:clubName', async (req, res) => {
   const { clubName } = req.params;
-  const {
-    email, message, content, time,
-  } = req.body;
+  const { email, message, time } = req.body;
   const newUid = uuidv4();
   try {
-    const dbres = await lib.sendMessage(db, clubName, email, message, content, time, newUid);
+    const dbres = await lib.sendMessage(db, clubName, email, message, time, newUid);
     if (dbres) {
       return res.status(201).json({ message: 'Message sent' });
     }
@@ -265,6 +261,21 @@ webapp.put('/project/:clubname', async (req, res) => {
       return res.status(201).json({ message: `Created ${projectName} for ${clubName}` });
     }
     return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// get all the projects for a given club
+webapp.get('/projects/:clubname', async (req, res) => {
+  const clubName = req.params.clubname;
+  try {
+    const resultArray = await lib.getProjectsForClub(db, clubName);
+    if (resultArray === null) {
+      return res.status(400).json({ error: 'Invalid request' });
+    }
+    return res.status(200).json({ result: resultArray });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Internal server error' });
