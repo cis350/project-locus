@@ -208,8 +208,10 @@ function Chat({ userEmail }) {
                   <p className="from-them">{mess.message}</p>
                 </div>
                 <p>
-                  {mess.userEmail}
+                  {mess.fullName}
+                  &nbsp;
                   :
+                  &nbsp;
                   {mess.timeStamp}
                 </p>
               </Col>

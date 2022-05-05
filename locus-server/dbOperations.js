@@ -217,6 +217,8 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
       return false;
     }
     const chat = db.collection('Chats').findOne({ clubName: `${clubName}` });
+    const profile = await getUserProfile(db, userEmail);
+    const fullName = `${profile.firstName} ${profile.lastName}`;
     if (chat) {
       await db.collection('Chats').updateOne(
         { clubName },
@@ -225,7 +227,7 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
           {
             messages:
             {
-              userEmail, message, content: messageStuff, timeStamp, uniqueId,
+              userEmail, fullName, message, content: messageStuff, timeStamp, uniqueId,
             },
           },
         },
