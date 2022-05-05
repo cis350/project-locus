@@ -211,21 +211,21 @@ const getClubChat = async (db, clubName) => {
 };
 
 // sends a message to a club chat (true for success, false for failure)
-const sendMessage = async (db, clubName, userEmail, message, content, timeStamp, uniqueId) => {
+const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeStamp, uniqueId) => {
   try {
-    if (!db || !clubName || !userEmail || !message || !content || !timeStamp || !uniqueId) {
+    if (!db || !clubName || !userEmail || !message || !timeStamp || !uniqueId) {
       return false;
     }
     const chat = db.collection('Chats').findOne({ clubName: `${clubName}` });
     if (chat) {
-      await db.collection('Clubs').updateOne(
+      await db.collection('Chats').updateOne(
         { clubName },
         {
           $push:
           {
             messages:
             {
-              userEmail, message, content, timeStamp, uniqueId,
+              userEmail, message, content: messageStuff, timeStamp, uniqueId,
             },
           },
         },

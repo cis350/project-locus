@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const uuidv4 = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const lib = require('./dbOperations');
 
 let db;
@@ -134,10 +134,12 @@ webapp.get('/chats/:clubName', async (req, res) => {
 // send message route
 webapp.post('/chats/:clubName', async (req, res) => {
   const { clubName } = req.params;
-  const { email, message, time } = req.body;
+  const {
+    email, message, content, time,
+  } = req.body;
   const newUid = uuidv4();
   try {
-    const dbres = await lib.sendMessage(db, clubName, email, message, time, newUid);
+    const dbres = await lib.sendMessage(db, clubName, email, message, content, time, newUid);
     if (dbres) {
       return res.status(201).json({ message: 'Message sent' });
     }

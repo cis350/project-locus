@@ -24,7 +24,7 @@ function Chat({ userEmail }) {
     getUserClubs(userEmail).then((res) => {
       if (res.status === 200) {
         changeClubsFail(false);
-        changeUserClubs(res.jsonContent.clubsArray);
+        changeUserClubs(res.jsonContent);
       } else {
         changeClubsFail(true);
       }
@@ -76,7 +76,7 @@ function Chat({ userEmail }) {
                 content.current = '';
                 document.getElementById('input-text').value = '';
                 document.getElementById('content-text').value = '';
-                changeChat(resp.jsonContent.clubObject.messages);
+                changeChat(resp.jsonContent);
               } else {
                 changeChatsFail(true);
               }
