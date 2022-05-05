@@ -64,9 +64,10 @@ function Chat({ userEmail }) {
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
       console.log('balls in my face');
+      // TODO: pass date as milliseconds
       sendMessage(currentClub.current, userEmail, message.current, content.current, new Date())
         .then((res) => {
-          if (res.status === 200) {
+          if (res.status === 201) {
             console.log('I like ass');
             changeSendFail(false);
             getClubChat(currentClub.current).then((resp) => {
@@ -95,7 +96,7 @@ function Chat({ userEmail }) {
         getClubChat(currentClub.current).then((resp) => {
           if (resp.status === 200) {
             changeChatsFail(false);
-            changeChat(resp.jsonContent.clubObject.messages);
+            changeChat(resp.jsonContent);
           } else {
             changeChatsFail(true);
           }
@@ -112,23 +113,24 @@ function Chat({ userEmail }) {
     [currentChat],
   );
 
-  const messageSender = (email) => {
-    if (email === userEmail) {
-      return 'from-me';
-    }
-    return 'from-them';
-  };
+  // const messageSender = (email) => {
+  //   if (email === userEmail) {
+  //     return 'from-me';
+  //   }
+  //   return 'from-them';
+  // };
 
-  const imageSender = (email) => {
-    if (email === userEmail) {
-      return 'rounded float-right';
-    }
-    return 'rounded float-left';
-  };
+  // const imageSender = (email) => {
+  //   if (email === userEmail) {
+  //     return 'rounded float-right';
+  //   }
+  //   return 'rounded float-left';
+  // };
 
   const isValidUrl = (url) => {
     try {
-      URL(url);
+      const f = new URL(url);
+      console.log(f);
     } catch (e) {
       console.error(e);
       return false;
@@ -203,15 +205,15 @@ function Chat({ userEmail }) {
         <div className="chat-stack-scrollable">
           {currentChat.map((mess) => (
             <Row>
-              <Col className="chat-item" key={mess[4]}>
+              <Col className="chat-item" key={mess.uniqueId}>
+                {displayContent(mess.content) ? <img src={mess.content} className="rounded float-left" width="200px" alt="User Content" /> : <div /> }
                 <div className="imessage">
-                  <p className={messageSender(mess[0])}>{mess[1]}</p>
+                  <p className="from-them">{mess.message}</p>
                 </div>
-                {displayContent(mess[2]) ? <img src={mess[2]} className={imageSender(mess[0])} alt="User Content" /> : <div /> }
                 <p>
-                  {mess[0]}
+                  {mess.userEmail}
                   :
-                  {(new Date(mess[3])).toString()}
+                  {mess.timeStamp}
                 </p>
               </Col>
             </Row>
