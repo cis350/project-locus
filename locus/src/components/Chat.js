@@ -33,16 +33,11 @@ function Chat({ userEmail }) {
 
   const switchToChat = (clubName) => {
     currentClub.current = clubName;
-    console.log(clubName);
     getClubChat(clubName).then((res) => {
       if (res.status === 200) {
-        console.log(res);
-        console.log(res.jsonContent);
-        console.log('ppppppppppjjiubyhiubhbuibuibuibibibiib');
         changeChatsFail(false);
         changeChat(res.jsonContent);
       } else {
-        console.log('here');
         changeChatsFail(true);
       }
     });
@@ -63,12 +58,10 @@ function Chat({ userEmail }) {
 
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
-      console.log('balls in my face');
       // TODO: pass date as milliseconds
       sendMessage(currentClub.current, userEmail, message.current, content.current, new Date())
         .then((res) => {
           if (res.status === 201) {
-            console.log('I like ass');
             changeSendFail(false);
             getClubChat(currentClub.current).then((resp) => {
               if (resp.status === 200) {
@@ -95,7 +88,6 @@ function Chat({ userEmail }) {
         if (currentClub.current !== '') {
           getClubChat(currentClub.current).then((resp) => {
             if (resp.status === 200) {
-              console.log('coconwecinweouciwoicnqwcioweqnc');
               changeChatsFail(false);
               changeChat(resp.jsonContent);
             } else {
@@ -110,26 +102,13 @@ function Chat({ userEmail }) {
     [currentChat],
   );
 
-  // const messageSender = (email) => {
-  //   if (email === userEmail) {
-  //     return 'from-me';
-  //   }
-  //   return 'from-them';
-  // };
-
-  // const imageSender = (email) => {
-  //   if (email === userEmail) {
-  //     return 'rounded float-right';
-  //   }
-  //   return 'rounded float-left';
-  // };
-
   const isValidUrl = (url) => {
     try {
       const f = new URL(url);
-      console.log(f);
+      if (f) {
+        return true;
+      }
     } catch (e) {
-      console.error(e);
       return false;
     }
     return true;
