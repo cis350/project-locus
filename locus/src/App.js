@@ -28,7 +28,7 @@ function App() {
 
   return (
     <div>
-      <Navigation isLoggedIn={isLoggedIn} userId={uniqueId} />
+      <Navigation isLoggedIn={isLoggedIn} userId={uniqueId} userEmail={userEmail} />
       <Routes>
         <Route exact path="/" element={<Main justRegistered={justRegistered} setJustRegistered={setJustRegistered} />} />
         <Route exact path={`/home/${uniqueId}`} element={<Home userEmail={userEmail} />} />
