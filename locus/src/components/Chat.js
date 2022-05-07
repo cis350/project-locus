@@ -37,7 +37,7 @@ function Chat({ userEmail }) {
         changeChatsFail(false);
         changeChat(res.jsonContent);
         /// update in api
-        updateNotifications(userEmail, currentClub.current).then((resp) => {
+        updateNotifications(userEmail, clubName).then((resp) => {
           if (resp.status === 200) {
             console.log('updated notifications');
           }
