@@ -596,7 +596,7 @@ const getOngoingTasksForProject = async (
     }
     if (project.members.includes(requestedEmail)) {
       const { tasks } = project;
-      return tasks.filter((task) => task.status !== 'Done');
+      return tasks.filter((task) => task.status !== 'done');
     }
     return null;
   } catch (err) {
@@ -606,7 +606,7 @@ const getOngoingTasksForProject = async (
 };
 
 // get all ongoing tasks for a given club
-const getAllOngoingTasksForClub = async(db, clubName) => {
+const getAllOngoingTasksForClub = async (db, clubName) => {
   try {
     if (!db || !clubName) {
       return null;
@@ -703,6 +703,35 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
   } catch (err) {
     console.error(err);
     throw new Error('unable to update task status');
+  }
+};
+
+const removeTaskFromProject = async (db, clubName, projectName, taskID, requestedEmail) => {
+  try {
+    if (!db || !clubName || !projectName || !taskID || !requestedEmail) return false;
+    const project = db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    if (!project) {
+      return false;
+    }
+    if (project.leaderEmail !== requestedEmail) {
+      console.log(`${requestedEmail} not authorized to remove task`);
+      return false;
+    }
+    // TODO: Not sure if this deletes a task from the array correctly
+    const dbRes = db.collection('Projects').updateOne(
+      { clubName: `${clubName}`, projectName: `${projectName}` },
+      { $pull: { tasks: { _id: taskID } } },
+      false,
+      true,
+    );
+    if (!dbRes.acknowledged) {
+      console.log('request to remove task not acknowledged');
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to remove task');
   }
 };
 
@@ -948,6 +977,7 @@ module.exports = {
   getAllOngoingTasksForClub,
   getTask,
   updateTaskStatus,
+  removeTaskFromProject,
   getCompletedTasks,
   getCompletedTasksByUsers,
   promoteUserToAdmin,

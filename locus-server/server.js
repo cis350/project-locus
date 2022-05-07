@@ -382,7 +382,7 @@ webapp.delete('/deleteProject/:projectName', async (req, res) => {
 });
 
 /*
- * TODO: Task Routes:
+ * Task Routes:
  */
 
 // reassign tasks route
@@ -512,7 +512,7 @@ webapp.put('/updateTaskStatus/:taskId', async (req, res) => {
   } = req.body;
   const { taskId } = req.params;
   try {
-    const updateSuccess = lib.updateTaskStatus(
+    const updateSuccess = await lib.updateTaskStatus(
       db,
       clubName,
       projectName,
@@ -522,6 +522,27 @@ webapp.put('/updateTaskStatus/:taskId', async (req, res) => {
     );
     if (updateSuccess) {
       return res.status(200).json({ message: `Updated ${taskId} to ${newStatus}` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+webapp.delete('/deleteTask/:taskId', async (req, res) => {
+  const { clubName, projectName, requestedEmail } = req.body;
+  const { taskId } = req.params;
+  try {
+    const dbRes = await lib.removeTaskFromProject(
+      db,
+      clubName,
+      projectName,
+      taskId,
+      requestedEmail,
+    );
+    if (dbRes) {
+      return res.status(200).json({ message: `Removed ${taskId} from ${projectName}` });
     }
     return res.status(400).json({ error: 'Invalid request' });
   } catch (e) {
