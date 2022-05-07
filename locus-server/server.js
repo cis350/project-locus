@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const uuidv4 = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const lib = require('./dbOperations');
 
 let db;
@@ -134,10 +134,12 @@ webapp.get('/chats/:clubName', async (req, res) => {
 // send message route
 webapp.post('/chats/:clubName', async (req, res) => {
   const { clubName } = req.params;
-  const { email, message, time } = req.body;
+  const {
+    email, message, content, time,
+  } = req.body;
   const newUid = uuidv4();
   try {
-    const dbres = await lib.sendMessage(db, clubName, email, message, time, newUid);
+    const dbres = await lib.sendMessage(db, clubName, email, message, content, time, newUid);
     if (dbres) {
       return res.status(201).json({ message: 'Message sent' });
     }
@@ -282,6 +284,7 @@ webapp.get('/projects/:clubname', async (req, res) => {
   }
 });
 
+// assign a user to a project
 webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
   const { clubName, requestedEmail, assigneeEmail } = req.body;
   const { projectName } = req.params;
@@ -303,6 +306,7 @@ webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
   }
 });
 
+// delete a specific project
 webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
   const { clubName, requestedEmail, assigneeEmail } = req.body;
   const { projectName } = req.params;
@@ -324,9 +328,12 @@ webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
   }
 });
 
+// get's a specific project
 webapp.post('/project/:projectName', async (req, res) => {
   const { projectName } = req.params;
   const { clubName } = req.body;
+  console.log(projectName);
+  console.log(clubName);
   try {
     const dbRes = await lib.getProject(db, clubName, projectName);
     if (dbRes === null) {
@@ -358,8 +365,8 @@ webapp.delete('/deleteProject/:projectName', async (req, res) => {
  * TODO: Task Routes:
  */
 
-// reassaign tasks route
-webapp.put('/updateTask/:taskid', async (req, res) => {
+// reassign tasks route
+webapp.put('/reassignTask/:taskid', async (req, res) => {
   const {
     clubName,
     projectName,
@@ -381,6 +388,120 @@ webapp.put('/updateTask/:taskid', async (req, res) => {
     }
     if (dbRes === null) {
       return res.status(404).json({ error: `Task with id:${taskid} not found` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// create task route
+webapp.post('/createTask/:projectName', async (req, res) => {
+  const {
+    clubName, taskName, requestedEmail, targetEmail, status,
+  } = req.body;
+  const { projectName } = req.params;
+  try {
+    const dbRes = await lib.createTask(
+      db,
+      clubName,
+      projectName,
+      taskName,
+      requestedEmail,
+      targetEmail,
+      status,
+    );
+    if (dbRes) {
+      return res.status(201).json({ message: `Created ${taskName} for ${projectName} assigned to ${targetEmail}` });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// get all tasks for a project
+webapp.post('/tasks/:projectName', async (req, res) => {
+  const { clubName, requestedEmail } = req.body;
+  const { projectName } = req.params;
+  try {
+    const tasks = await lib.getAllTasksForProject(db, clubName, projectName, requestedEmail);
+    if (tasks) {
+      return res.status(200).json({ result: tasks });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// get all ongoing tasks for a project
+webapp.post('/ongoingProjectTasks/:projectName', async (req, res) => {
+  const { clubName, requestedEmail } = req.body;
+  const { projectName } = req.params;
+  try {
+    const tasks = await lib.getOngoingTasksForProject(db, clubName, projectName, requestedEmail);
+    if (tasks) {
+      return res.status(200).json({ result: tasks });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// get all ongoing tasks for a club
+webapp.get('/allOngoingTasks/:clubName', async (req, res) => {
+  const { clubName } = req.params;
+  try {
+    const allTasks = await lib.getAllOngoingTasksForClub(db, clubName);
+    if (allTasks) {
+      return res.status(200).json({ result: allTasks });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// get a specific task
+webapp.post('/task/project/:taskId', async (req, res) => {
+  const { clubName, projectName, requestedEmail } = req.body;
+  const { taskId } = req.params;
+  try {
+    const task = await lib.getTask(db, clubName, projectName, requestedEmail, taskId);
+    if (task) {
+      return res.status(200).json({ result: task });
+    }
+    return res.status(400).json({ error: 'Invalid request' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// update status for a specific task
+webapp.put('/updateTaskStatus/:taskId', async (req, res) => {
+  const {
+    clubName, projectName, requestedEmail, newStatus,
+  } = req.body;
+  const { taskId } = req.params;
+  try {
+    const updateSuccess = lib.updateTaskStatus(
+      db,
+      clubName,
+      projectName,
+      taskId,
+      requestedEmail,
+      newStatus,
+    );
+    if (updateSuccess) {
+      return res.status(200).json({ message: `Updated ${taskId} to ${newStatus}` });
     }
     return res.status(400).json({ error: 'Invalid request' });
   } catch (e) {

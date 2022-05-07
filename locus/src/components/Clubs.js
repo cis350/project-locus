@@ -35,7 +35,8 @@ function Clubs({ userEmail }) {
     setUserClubs((await getUserClubs(userEmail)).jsonContent);
     setNewClubName('');
     setNewClubPassword('');
-    if (response.status !== 201) alert('Create Club Failed');
+    console.log(response);
+    if (response.status !== 200) alert('Create Club Failed');
   }
 
   // join club with the fields in joinClubName and joinClubPassword
