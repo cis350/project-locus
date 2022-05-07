@@ -1,16 +1,23 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable object-curly-newline */
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
-import { Button, Form, Container, Row, Col, Stack, Card } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
 import '../assets/Club.css';
 // import api functions instead
-import { promoteMember, removeMember } from '../modules/api';
+import { promoteMember, removeMember, getAllClubTasks } from '../modules/api';
 import Profile from './Profile';
 
 export default function Club({ club, setClub, userId, user }) {
   const [selectedProfile, setSelectedProfile] = useState(undefined);
+  const [tasks, setTasks] = useState([]);
 
+  useEffect(() => {
+    async function initialize() {
+      setTasks((await getAllClubTasks(club.clubName)).jsonContent);
+    }
+    initialize();
+  }, []);
   // promote member in the club
   async function handlePromoteMember(memberEmail) {
     const response = await promoteMember(club.clubName, user.email, memberEmail);
@@ -55,9 +62,16 @@ export default function Club({ club, setClub, userId, user }) {
   for (let i = 0; i < club.projects.length; i += 1) {
     displayProjects.push(
       <div className="row" key={`project${i}`}>
-        <Button className="project-button" onClick={() => console.log('open project')}>
-          {club.projects[i]}
-        </Button>
+        {club.projects[i]}
+      </div>,
+    );
+  }
+
+  const displayTasks = [];
+  for (let i = 0; i < tasks.length; i += 1) {
+    displayProjects.push(
+      <div className="row" key={`task${i}`}>
+        {JSON.stringify(tasks[i].tasks.taskName)}
       </div>,
     );
   }
@@ -94,7 +108,7 @@ export default function Club({ club, setClub, userId, user }) {
         <div className="col-4">
           <h2>Tasks Assigned</h2>
           <div className="container section-container">
-            idk
+            {displayTasks}
           </div>
         </div>
         <div className="col-4">

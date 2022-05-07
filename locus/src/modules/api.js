@@ -195,6 +195,16 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
   }
 }
 
+async function getAllClubTasks(clubName) {
+  try {
+    const result = await axios.get(`${domain}/AllOngoingTasks/${clubName}`);
+    console.log(result.data.result);
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -213,4 +223,5 @@ module.exports = {
   sendMessage,
   addUserToProject,
   removeMemberFromProject,
+  getAllClubTasks,
 };
