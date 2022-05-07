@@ -9,7 +9,6 @@ import '@testing-library/jest-dom/extend-expect';
 import Chat from '../components/Chat';
 
 const dummyEmail = '16fangd@gmail.com';
-
 const dummyChatClubsNames = ['PVG', 'PennLabs', 'WUFC', 'WITG'];
 
 test('Displays chat text', () => {
