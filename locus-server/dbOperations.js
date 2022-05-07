@@ -630,7 +630,7 @@ const getOngoingTasksForProject = async (
     }
     if (project.members.includes(requestedEmail)) {
       const { tasks } = project;
-      return tasks.filter((task) => task.status !== 'Done');
+      return tasks.filter((task) => task.status !== 'done');
     }
     return null;
   } catch (err) {
