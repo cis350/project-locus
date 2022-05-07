@@ -221,11 +221,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>First name</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="name" onChange={(e) => updateFirstName(e)} />
+              <Form.Control data-testid="firstname-input" style={{ height: '35px' }} type="name" onChange={(e) => updateFirstName(e)} />
               <Form.Label>Last name</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="name" onChange={(e) => updateLastName(e)} />
+              <Form.Control data-testid="lastname-input" style={{ height: '35px' }} type="name" onChange={(e) => updateLastName(e)} />
               <Form.Label>Email</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="email" onChange={(e) => updateEmail(e)} />
+              <Form.Control data-testid="email-input" style={{ height: '35px' }} type="email" onChange={(e) => updateEmail(e)} />
               <Form.Label>Year</Form.Label>
               <Form.Select onChange={(e) => setYear(e.target.value)}>
                 <option value="2022">2022</option>
@@ -239,13 +239,14 @@ const Register = function RegisterComponent({ setJustRegistered }) {
               </Form.Select>
               <Form.Label>Password</Form.Label>
               <Form.Control
+                data-testid="password-input"
                 style={{ height: '35px' }}
                 type="password"
                 maxlength="20"
                 onChange={(e) => updatePassword(e)}
               />
               <Form.Label>Verify password</Form.Label>
-              <Form.Control style={{ height: '35px' }} type="password" maxlength="20" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control data-testid="verpassword-input" style={{ height: '35px' }} type="password" maxlength="20" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
