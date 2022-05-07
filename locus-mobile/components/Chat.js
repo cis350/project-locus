@@ -75,10 +75,13 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     } else { // align left if you are not the sender
       displayMessages.push(
         <View style={{ alignItems: 'flex-start' }} key={`message${i}`}>
-          <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
+          {displayContent(chatMessages[i].content)
+            ? <Image source={{ uri: chatMessages[i].content }} style={styles.img} /> : <View /> }
           <View style={styles.textBubble}>
             <Text style={{ fontSize: 15 }}>{chatMessages[i].message}</Text>
           </View>
+          <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
+          <Text style={{ fontSize: 10 }}>{chatMessages[i].timeStamp}</Text>
         </View>,
       );
     }
