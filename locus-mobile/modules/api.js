@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const domain = 'https://testbackendforproject.herokuapp.com';
+const domain = 'https://locus-backend-350.herokuapp.com';
 
 // returns a boolean based on whether or not he login was successful
 async function login(email, password) {

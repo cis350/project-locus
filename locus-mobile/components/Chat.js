@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput,
+  View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput, Image,
 } from 'react-native';
 import { getClubChat, sendMessage } from '../modules/api';
 
@@ -8,6 +8,7 @@ import { getClubChat, sendMessage } from '../modules/api';
 export default function Chat({ currentChat, backToAllChat, user }) {
   const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState('');
+  const [content, setContent] = useState('');
   const scrollViewRef = useRef();
 
   // setup all messages and async calls to get all messages every 2 seconds
@@ -22,17 +23,52 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     return () => clearInterval(interval);
   }, []);
 
+  // handle send message
+  const isValidUrl = (url) => {
+    try {
+      const f = new URL(url);
+      if (f) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return true;
+  };
+
+  const displayContent = (image) => {
+    if (image === '' || !isValidUrl(image)) {
+      return false;
+    }
+    return true;
+  };
+
+  // function that will send the message the user types, update for backend later
+  async function handleSendMessage() {
+    if (message === '') return;
+    if (/\S/.test(message)) {
+      // TODO: pass date as milliseconds, update content to image content
+      await sendMessage(currentChat, user.email, message, content, new Date());
+    }
+    setChatMessages((await getClubChat(currentChat)).jsonContent);
+    setMessage('');
+    setContent('');
+  }
+
   // setup messages view for specific chat
   const displayMessages = [];
   for (let i = 0; i < chatMessages.length; i += 1) {
-    // align right if you are the sender, have to switch logic later
-    if (chatMessages[i].sender === 'Me') {
+    // align right if you are the sender
+    if (chatMessages[i].userEmail === user.email) {
       displayMessages.push(
         <View style={{ alignItems: 'flex-end' }} key={`message${i}`}>
-          <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
+          {displayContent(chatMessages[i].content)
+            ? <Image source={chatMessages[i].content} style={styles.img} /> : <View style={{ backgroundColor: 'red', height: 10 }} /> }
           <View style={styles.textBubble}>
             <Text style={{ fontSize: 15 }}>{chatMessages[i].message}</Text>
           </View>
+          <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
+          <Text style={{ fontSize: 10 }}>{chatMessages[i].timeStamp}</Text>
         </View>,
       );
     } else { // align left if you are not the sender
@@ -47,31 +83,6 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     }
   }
   displayMessages.push(<View style={{ marginBottom: 25 }} key="spacefiller" />);
-
-  // handle send message
-  const isValidUrl = (url) => {
-    try {
-      const f = new URL(url);
-      if (f) {
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
-    return true;
-  };
-
-  // function that will send the message the user types, update for backend later
-  async function handleSendMessage() {
-    if (message === '') return;
-    if (/\S/.test(message)) {
-      // TODO: pass date as milliseconds, update content to image content
-      const response = await sendMessage(currentChat, user.email, message, '', new Date());
-      console.log(response);
-    }
-    setChatMessages((await getClubChat(currentChat)).jsonContent);
-    setMessage('');
-  }
 
   return (
     <View style={styles.container}>
@@ -91,6 +102,13 @@ export default function Chat({ currentChat, backToAllChat, user }) {
           onChangeText={setMessage}
           onSubmitEditing={() => handleSendMessage()}
           value={message}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Image Link"
+          onChangeText={setContent}
+          onSubmitEditing={() => handleSendMessage()}
+          value={content}
         />
         <TouchableHighlight style={styles.sendButton} underlayColor="#33E86F" onPress={() => handleSendMessage()}>
           <Text style={{ textAlign: 'center' }}>Send</Text>
@@ -140,8 +158,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   input: {
     backgroundColor: 'white',
@@ -151,5 +168,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginVertical: 5,
+  },
+  img: {
+    width: 100,
+    height: 100,
   },
 });
