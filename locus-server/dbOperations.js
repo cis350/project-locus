@@ -491,8 +491,8 @@ const createTask = async (
     if (!db || !clubName || !projectName || !taskName
       || !requestedEmail || !targetEmail || !status) return null;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
-      return null;
+    if (!project) {
+      return false;
     }
     if (project.leaderEmail === requestedEmail && project.members.includes(targetEmail)) {
       const taskValues = {
@@ -501,13 +501,16 @@ const createTask = async (
         assignedTo: targetEmail,
         status,
       };
-      const projectResult = await db.collection('Projects').updateOne({ projectName: `${projectName}` }, { $push: { tasks: taskValues } });
+      const projectResult = await db.collection('Projects').updateOne(
+        { clubName: `${clubName}`, projectName: `${projectName}` },
+        { $push: { tasks: taskValues } },
+      );
       if (!projectResult.acknowledged) {
-        return null;
+        return false;
       }
-      return projectResult._id;
+      return true;
     }
-    return null;
+    return false;
   } catch (err) {
     console.error(err);
     throw new Error('unable to create tasks');
@@ -524,7 +527,7 @@ const getAllTasksForProject = async (
   try {
     if (!db || !clubName || !projectName || !requestedEmail) return null;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
+    if (!project) {
       return null;
     }
     if (project.members.includes(requestedEmail)) {
