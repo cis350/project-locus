@@ -16,7 +16,6 @@ const testUser = {
   userPassword: 'abc123',
   userYear: '2024',
   userMajor: 'Gym',
-  lockoutStatus: new Date(),
 };
 
 const testUser2 = {
@@ -27,7 +26,6 @@ const testUser2 = {
   userPassword: 'abc123',
   userYear: '2024',
   userMajor: 'Gym',
-  lockoutStatus: new Date(),
 };
 
 const testClub = {
@@ -38,6 +36,7 @@ const testClub = {
   admins: [testUser.userEmail],
   projects: [],
   members: [testUser.userEmail],
+  clubPassword: 'abc',
 };
 
 beforeAll(async () => {
@@ -73,7 +72,7 @@ describe('users endpoint tests', () => {
           .toBe(`${testUser.userFirstName} ${testUser.userLastName} added`));
     }
     await request(webapp).post('/login').send({ email: testUser.userEmail, password: testUser.userPassword }).expect(200)
-      .then((response) => expect(JSON.parse(response.text).message).toBe('Login successful'));
+      .then((response) => expect(JSON.parse(response.text).message).toBe(`Login successful for ${testUser.userEmail}`));
   });
 
   test('/user/:email endpoint 400', async () => {
@@ -112,16 +111,16 @@ describe('Club endpoint tests', () => {
       .then((response) => expect(JSON.parse(response.text).error).toBe('Club name does not exist'));
   });
 
-  test('/createClub/:id/:clubName endpoint', async () => {
+  test('/club endpoint', async () => {
     const clubRes = await request(webapp).get(`/club/${testClub.clubName}`);
     const testId = await dbLib.getUserUniqueId(db, testUser.userEmail);
     if (clubRes.status === 400) {
-      await request(webapp).put(`/createClub/${testId}/${testClub.clubName}`)
-        .send({ id: `${testId}`, clubName: testClub.clubName }).expect(200)
+      await request(webapp).post('/club')
+        .send({ id: `${testId}`, clubName: testClub.clubName, clubPassword: testClub.clubPassword }).expect(200)
         .then((response) => expect(JSON.parse(response.text).message).toBe(`Club created with name ${testClub.clubName}`));
     } else {
-      await request(webapp).put(`/createClub/${testId}/${testClub.clubName}`)
-        .send({ id: `${testId}`, clubName: testClub.clubName }).expect(400)
+      await request(webapp).post('/club')
+        .send({ id: `${testId}`, clubName: testClub.clubName, clubPassword: testClub.clubPassword }).expect(400)
         .then((response) => expect(JSON.parse(response.text).error).toBe('Club name already exists'));
     }
   });
@@ -138,11 +137,11 @@ describe('Club endpoint tests', () => {
 
   test('/joinclub/:clubName endpoint 400', async () => {
     await request(webapp).post('/joinclub/nonexist').expect(400)
-      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or password incorrect'));
     await request(webapp).post('/joinclub/nonexist').send({ userEmail: 'jds' }).expect(400)
-      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or password incorrect'));
     await request(webapp).post('/joinclub/nonexist').send({ masterEmail: 'dfhg' }).expect(400)
-      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or password incorrect'));
   });
 
   test('/joinclub/:clubname endpoint 201', async () => {
@@ -154,11 +153,23 @@ describe('Club endpoint tests', () => {
     const userClubs = await dbLib.getUserClubs(db, testUser2.userEmail);
     if (!userClubs.includes(testClub.clubName)) {
       await request(webapp).post('/joinclub/nonexist').send({ userEmail: testUser2.userEmail, masterEmail: testUser.userEmail }).expect(400)
-        .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or masterEmail incorrect'));
+        .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or password incorrect'));
     }
   });
 });
 
 describe('Chat endpoint tests', () => {
+
+});
+
+describe('Projects endpoint tests', () => {
+
+});
+
+describe('Tasks endpoint tests', () => {
+
+});
+
+describe('Analytics endpoints tests', () => {
 
 });
