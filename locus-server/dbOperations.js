@@ -239,7 +239,7 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
       );
       // push this notifications to all users for that club
       const notificationObject = {
-        id: uuidv4(),
+        _id: uuidv4(),
         clubName,
         sender: userEmail,
         readStatus: false,
