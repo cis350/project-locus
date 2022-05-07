@@ -25,7 +25,6 @@ async function getUser(email) {
 async function getUserId(email) {
   try {
     const response = await axios.get(`${domain}/id/${email}`);
-    console.log(response.data);
     return response.data.userId;
   } catch (err) {
     return err.response.status;
@@ -39,7 +38,7 @@ async function getUserId(email) {
 async function createClub(clubName, id, clubPassword) {
   try {
     const response = await axios.post(`${domain}/club`, { clubName, id, clubPassword });
-    return response.data;
+    return { status: response.status, jsonContent: response.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
   }

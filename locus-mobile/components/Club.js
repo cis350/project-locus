@@ -1,10 +1,11 @@
 /* eslint-disable global-require */
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TouchableHighlight,
 } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
 import { getUser } from '../modules/api';
+import Profile from './Profile';
 
 // mock the users and projects in the club
 const project = {
@@ -13,17 +14,16 @@ const project = {
   progress: 0.3,
 };
 
-export default function Club({ route, navigation }) {
+export default function Club({ route }) {
+  const [profile, setProfile] = useState(undefined);
   const { club } = route.params;
 
-  console.log(club);
   // setup view for all the users in the club
   const displayMembers = [];
   for (let i = 0; i < club.members.length; i += 1) {
     displayMembers.push(
       <TouchableOpacity style={styles.member} key={`clubMember${i}`} onPress={() => showProfile(club.members[i])}>
-        <Image source={require('../assets/default-profile.jpg')} style={{ width: 50, height: 50 }} />
-        <Text style={{ fontSize: 20, marginLeft: 30, color: 'white' }}>{club.members[i]}</Text>
+        <Text style={{ fontSize: 15, marginLeft: 10, color: 'white' }}>{club.members[i]}</Text>
       </TouchableOpacity>,
     );
   }
@@ -42,10 +42,19 @@ export default function Club({ route, navigation }) {
 
   async function showProfile(memberEmail) {
     const member = (await getUser(memberEmail)).result;
-    console.log(member);
-    navigation.navigate('Profile', { member });
+    setProfile(member);
   }
 
+  if (profile) {
+    return (
+      <View style={styles.container}>
+        <Profile user={profile} />
+        <TouchableHighlight style={styles.button} onPress={() => setProfile(undefined)} underlayColor="#b00017">
+          <Text style={{ textAlign: 'center', fontSize: 30 }}>Return</Text>
+        </TouchableHighlight>
+      </View>
+    );
+  }
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -62,6 +71,15 @@ export default function Club({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#6A9B72',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
   container: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -105,7 +123,9 @@ const styles = StyleSheet.create({
   },
   member: {
     flexDirection: 'row',
+    backgroundColor: '#6A9B72',
+    borderRadius: 10,
     marginVertical: 5,
-    paddingVertical: 10,
+    paddingVertical: 15,
   },
 });

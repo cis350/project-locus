@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ProgressBar from 'react-native-progress/Bar';
 import {
   createClub, getUserId, getUserClubs, getSpecificClub, joinClub,
 } from '../modules/api';
@@ -33,7 +32,6 @@ export default function Clubs({ route, navigation }) {
       <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => showClub(userClubs[i].clubName)}>
         <Text style={styles.clubText}>{userClubs[i].clubName}</Text>
         <Text style={styles.clubText}>Role: {userClubs[i].role}</Text>
-        {/* <ProgressBar progress={userClubs[i].progress} width={200} height={30} color="#8FC7FC" borderRadius={40} /> */}
         <Ionicons
           style={{ color: 'white', textAlign: 'center', paddingVertical: 20 }}
           name="settings"
@@ -61,7 +59,7 @@ export default function Clubs({ route, navigation }) {
     setUserClubs((await getUserClubs(user.email)).jsonContent);
     setJoinClubName('');
     setJoinClubPassword('');
-    if (response.status !== 201) alert('Join Club Failed');
+    if (response.status !== 200) Alert.alert('Join Club Failed');
     setJoinClubModalVisible(false);
   }
 
