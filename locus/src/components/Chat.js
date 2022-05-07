@@ -59,7 +59,13 @@ function Chat({ userEmail }) {
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
       // TODO: pass date as milliseconds
-      sendMessage(currentClub.current, userEmail, message.current, content.current, new Date())
+      sendMessage(
+        currentClub.current,
+        userEmail,
+        message.current,
+        content.current,
+        (new Date()).getTime(),
+      )
         .then((res) => {
           if (res.status === 201) {
             changeSendFail(false);
@@ -120,6 +126,14 @@ function Chat({ userEmail }) {
     }
     return true;
   };
+
+  const getDate = ((dateMilli) => {
+    const date = new Date(dateMilli);
+    const year = date.getFullYear();
+    const month = ((date.getMonth() + 1)).slice(-2);
+    const day = (date.getDate()).slice(-2);
+    return `${month}-${day}-${year}`;
+  });
 
   const errorSendMessage = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
@@ -191,7 +205,7 @@ function Chat({ userEmail }) {
                   &nbsp;
                   :
                   &nbsp;
-                  {mess.timeStamp}
+                  {getDate(mess.timeStamp)}
                 </p>
               </Col>
             </Row>

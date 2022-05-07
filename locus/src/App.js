@@ -13,6 +13,7 @@ import ResetPassword from './components/ResetPassword';
 import Analytics from './components/Analytics';
 import ProjectClubList from './components/ProjectClubList';
 import ManageProject from './components/ManageProject';
+import ManageTasks from './components/ManageTasks';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,9 +39,10 @@ function App() {
         <Route exact path={`/projects/select-projects/${uniqueId}`} element={<SelectProject setProjectId={setProjectId} />} />
         <Route exact path={`/projects/allprojects/${currClubWithoutSpace}/${uniqueId}`} element={<Project projectId={projectId} userId={uniqueId} email={userEmail} club={currClub} role={currClubRole} setCurrProject={setCurrProject} />} />
         <Route exact path={`/chats/${uniqueId}`} element={<Chat userEmail={userEmail} />} />
-        <Route exact path={`/projects/manage-projects/analytics/${uniqueId}`} element={<Analytics userId={uniqueId} />} />
+        <Route exact path={`/projects/manage-projects/${currProject}/analytics/${uniqueId}`} element={<Analytics userId={uniqueId} />} />
         <Route exact path={`/projects/clubs/${uniqueId}`} element={<ProjectClubList userId={uniqueId} email={userEmail} setCurrClubWithoutSpace={setCurrClubWithoutSpace} setCurrClub={setCurrClub} setCurrClubRole={setCurrClubRole} />} />
-        <Route exact path={`/projects/manage-projects/${currProject}/${uniqueId}`} element={<ManageProject userId={uniqueId} club={currClub} project={currProject} />} />
+        <Route exact path={`/projects/manage-projects/${currProject}/${uniqueId}`} element={<ManageProject email={userEmail} userId={uniqueId} club={currClub} project={currProject} role={currClubRole} />} />
+        <Route exact path={`/projects/manage-projects/${currProject}/managetasks/${uniqueId}`} element={<ManageTasks project={currProject} />} />
       </Routes>
     </div>
   );

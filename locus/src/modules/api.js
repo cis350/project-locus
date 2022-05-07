@@ -75,6 +75,15 @@ async function createProject(clubName, projectName, leaderEmail) {
   }
 }
 
+async function addUserToProject(clubName, requestedEmail, assigneeEmail, projectName) {
+  try {
+    const response = await axios.post(`${domain}/assignUsertoProject/${projectName}`, { clubName, requestedEmail, assigneeEmail });
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 /*
  * Club fetches
  */
@@ -82,7 +91,7 @@ async function createProject(clubName, projectName, leaderEmail) {
 async function createClub(clubName, id, clubPassword) {
   try {
     const response = await axios.post(`${domain}/club`, { clubName, id, clubPassword });
-    return response.data;
+    return { status: response.status, jsonContent: response.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
   }
@@ -160,6 +169,23 @@ async function removeMember(clubName, requestedEmail, targetEmail) {
   }
 }
 
+async function removeMemberFromProject(projectName, clubName, requestedEmail, assigneeEmail) {
+  try {
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/removeUserFromProject/${projectName}`,
+      data: {
+        clubName,
+        requestedEmail,
+        assigneeEmail,
+      },
+    });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 async function promoteMember(clubName, requesterEmail, targetEmail) {
   try {
     const result = await axios.put(`${domain}/promotemember/${clubName}`, { requestedEmail: requesterEmail, targetEmail });
@@ -185,4 +211,6 @@ module.exports = {
   getProject,
   getClubChat,
   sendMessage,
+  addUserToProject,
+  removeMemberFromProject,
 };
