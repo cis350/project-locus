@@ -69,9 +69,9 @@ export default function Club({ club, setClub, userId, user }) {
 
   const displayTasks = [];
   for (let i = 0; i < tasks.length; i += 1) {
-    displayProjects.push(
+    displayTasks.push(
       <div className="row" key={`task${i}`}>
-        {JSON.stringify(tasks[i].tasks.taskName)}
+        {tasks[i].tasks.taskName}
       </div>,
     );
   }
