@@ -1,15 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput,
 } from 'react-native';
-
-const testMessages = [{ sender: 'Bobby', message: 'hello' }, { sender: 'Mom', message: 'Bye' }];
+import { getClubChat } from '../modules/api';
 
 // get messages from currentChat once backend is available
-export default function Chat({ currentChat, backToAllChat }) {
-  const [chatMessages, setChatMessages] = useState(testMessages);
+export default function Chat({ currentChat, backToAllChat, user }) {
+  const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef();
+
+  useEffect(() => {
+    async function initialize() {
+      setChatMessages((await getClubChat(currentChat)).jsonContent);
+    }
+    initialize();
+  }, []);
 
   // setup messages view for specific chat
   const displayMessages = [];

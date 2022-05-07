@@ -101,6 +101,34 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
   }
 }
 
+// get all chat for a club
+async function getClubChat(clubName) {
+  try {
+    const result = await axios.get(`${domain}/chats/${clubName}`);
+    return { status: result.status, jsonContent: result.data.clubObject };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+// sends a message through the backend
+async function sendMessage(clubName, email, message, content, time) {
+  try {
+    const result = await axios.post(
+      `${domain}/chats/${clubName}`,
+      {
+        email,
+        message,
+        content,
+        time,
+      },
+    );
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 module.exports = {
   login,
   getUser,
@@ -111,4 +139,6 @@ module.exports = {
   joinClub,
   removeMember,
   promoteMember,
+  sendMessage,
+  getClubChat,
 };
