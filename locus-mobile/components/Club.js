@@ -1,7 +1,7 @@
 /* eslint-disable global-require */
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Alert
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Alert,
 } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
 import { Ionicons } from '@expo/vector-icons';
