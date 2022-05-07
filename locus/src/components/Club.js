@@ -2,6 +2,7 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Form, Container, Row, Col, Stack, Card } from 'react-bootstrap';
 import '../assets/Club.css';
 // import api functions instead
@@ -10,6 +11,7 @@ import Profile from './Profile';
 
 export default function Club({ club, setClub, userId, user }) {
   const [selectedProfile, setSelectedProfile] = useState(undefined);
+  const navigate = useNavigate();
 
   // promote member in the club
   async function handlePromoteMember(memberEmail) {
@@ -24,6 +26,10 @@ export default function Club({ club, setClub, userId, user }) {
     if (response.status === 200) alert('Removal Success');
     if (response.status !== 200) alert('Removal Failed');
     setClub(undefined);
+  }
+
+  async function handleViewProject(project) {
+    navigate(`/projects/manage-projects/${project}/${userId}`);
   }
 
   // display all the members within the club by their emails
@@ -55,7 +61,7 @@ export default function Club({ club, setClub, userId, user }) {
   for (let i = 0; i < club.projects.length; i += 1) {
     displayProjects.push(
       <div className="row" key={`project${i}`}>
-        <Button className="project-button" onClick={() => console.log('open project')}>
+        <Button className="project-button" onClick={() => handleViewProject(club.projects[i])}>
           {club.projects[i]}
         </Button>
       </div>,
