@@ -284,6 +284,7 @@ webapp.get('/projects/:clubname', async (req, res) => {
   }
 });
 
+// assign a user to a project
 webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
   const { clubName, requestedEmail, assigneeEmail } = req.body;
   const { projectName } = req.params;
@@ -305,6 +306,7 @@ webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
   }
 });
 
+// delete a specific project
 webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
   const { clubName, requestedEmail, assigneeEmail } = req.body;
   const { projectName } = req.params;
@@ -326,9 +328,12 @@ webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
   }
 });
 
+// get's a specific project
 webapp.post('/project/:projectName', async (req, res) => {
   const { projectName } = req.params;
   const { clubName } = req.body;
+  console.log(projectName);
+  console.log(clubName);
   try {
     const dbRes = await lib.getProject(db, clubName, projectName);
     if (dbRes === null) {

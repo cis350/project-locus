@@ -734,7 +734,9 @@ const createProject = async (db, clubName, projectName, leaderEmail) => {
 // gets all projects for a given club
 const getProjectsForClub = async (db, clubName) => {
   try {
-    if (!db || !clubName) return null;
+    if (!db || !clubName) {
+      return null;
+    }
     return await db.collection('Projects').find({ clubName: `${clubName}` }).toArray();
   } catch (err) {
     console.error(err);
@@ -805,7 +807,7 @@ const removeUserFromProject = async (db, clubName, projectName, requestedEmail, 
 const getProject = async (db, clubName, projectName) => {
   try {
     if (!db || !clubName || !projectName) return null;
-    const project = await db.collection('Project').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     if (project) {
       delete project._id;
       return project;
