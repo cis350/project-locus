@@ -75,7 +75,6 @@ async function joinClub(clubName, userEmail, password) {
 
 async function removeMember(clubName, requestedEmail, targetEmail) {
   try {
-    console.log('hello');
     const result = await axios({
       method: 'DELETE',
       url: `${domain}/removeMember/${clubName}`,
@@ -84,10 +83,8 @@ async function removeMember(clubName, requestedEmail, targetEmail) {
         targetEmail,
       },
     });
-    console.log(result);
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
-    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
