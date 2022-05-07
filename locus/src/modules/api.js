@@ -82,7 +82,7 @@ async function createProject(clubName, projectName, leaderEmail) {
 async function createClub(clubName, id, clubPassword) {
   try {
     const response = await axios.post(`${domain}/club`, { clubName, id, clubPassword });
-    return response.data;
+    return { status: response.status, jsonContent: response.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
   }
