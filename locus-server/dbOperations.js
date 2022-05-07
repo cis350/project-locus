@@ -2,7 +2,7 @@
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectID;
 const bcrypt = require('bcryptjs');
-const uuidv4 = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -525,7 +525,7 @@ const createTask = async (
 };
 
 // get all tasks from a project
-const getAllTasks = async (
+const getAllTasksForProject = async (
   db,
   clubName,
   projectName,
@@ -548,7 +548,7 @@ const getAllTasks = async (
 };
 
 // get all tasks that are not done
-const getOngoingTasks = async (
+const getOngoingTasksForProject = async (
   db,
   clubName,
   projectName,
@@ -568,6 +568,47 @@ const getOngoingTasks = async (
   } catch (err) {
     console.error(err);
     throw new Error('unable to get tasks');
+  }
+};
+
+// get all ongoing tasks for a given club
+const getAllOngoingTasksForClub = async(db, clubName) => {
+  try {
+    if (!db || !clubName) {
+      return null;
+    }
+    const allTasksAsArray = await db.collection('Projects').aggregate([
+      {
+        $match: {
+          // get all projects for the club
+          clubName: `${clubName}`,
+        },
+      },
+      {
+        $unwind: {
+          path: '$tasks',
+        },
+      },
+      {
+        $match: {
+          'tasks.status': { $in: ['incomplete', 'help needed'] },
+        },
+      },
+      {
+        $project: {
+          tasks: 1,
+          _id: 0,
+        },
+      },
+    ]).toArray();
+    if (allTasksAsArray) {
+      return allTasksAsArray;
+    }
+    console.log(`Could not get all tasks for ${clubName}`);
+    return null;
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to get task');
   }
 };
 
@@ -621,7 +662,8 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
       return false;
     }
     task.status = newStatus;
-    const result = db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $push: { tasks } });
+    // does this push all copies again?
+    const result = db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
     if (!result.acknowledged) return false;
     return true;
   } catch (err) {
@@ -647,10 +689,11 @@ const getCompletedTasks = async (db, clubName, projectName) => {
       }
       return completedTasks;
     }
+    console.log(`${projectName} not found!`);
     return null;
   } catch (err) {
     console.log(err);
-    throw new Error('unable to get completed tasks project');
+    throw new Error(`Db failed to get completed tasks for ${projectName}`);
   }
 };
 
@@ -683,9 +726,9 @@ const getCompletedTasksByUsers = async (db, clubName, projectName) => {
       },
     ]).toArray();
     if (aggregationResult) {
-      console.log(aggregationResult);
       return aggregationResult;
     }
+    console.log(`Could not get all completed tasks for ${clubName}`);
     return null;
   } catch (err) {
     console.log(err);
@@ -865,8 +908,9 @@ module.exports = {
   getProject,
   deleteProject,
   createTask,
-  getAllTasks,
-  getOngoingTasks,
+  getAllTasksForProject,
+  getOngoingTasksForProject,
+  getAllOngoingTasksForClub,
   getTask,
   updateTaskStatus,
   getCompletedTasks,
