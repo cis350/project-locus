@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -53,6 +54,7 @@ webapp.post('/login', async (req, res) => {
     const userId = await lib.getUserUniqueId(db, userEmail);
     return res.status(200).json({ message: `Login successful for ${userEmail}`, userId: `${userId}` });
   } catch (e) {
+    console.error(e);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -66,6 +68,24 @@ webapp.get('/id/:useremail', async (req, res) => {
     }
     return res.status(404).json({ error: 'Id not found' });
   } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// reset password route
+webapp.put('/resetPassword/:useremail', async (req, res) => {
+  const { password } = req.body;
+  const { useremail } = req.params;
+  const currTime = Date.now();
+  try {
+    const dbRes = await lib.resetPassword(db, useremail, password, currTime);
+    if (dbRes) {
+      return res.status(201).json({ message: `Password reset for ${useremail}` });
+    }
+    return res.status(404).json({ error: 'Failed to reset password' });
+  } catch (e) {
+    console.error(e);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });

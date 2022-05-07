@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectID;
@@ -77,6 +78,46 @@ const registerUser = async (
   } catch (err) {
     console.error(err);
     throw new Error('unable to register user');
+  }
+};
+
+// reset password db op
+const resetPassword = async (db, userEmail, newPassword, newLockoutDate) => {
+  try {
+    const user = await db.collection('Users').findOne({ email: `${userEmail}` });
+    if (!user) {
+      return false;
+    }
+    // update the user
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const dbRes = await db.collection('Users').updateOne(
+      { email: `${userEmail}` },
+      [
+        {
+          $set: {
+            password: hashedPassword,
+          },
+        },
+        {
+          $set: {
+            lockoutAttempts: 0,
+          },
+        },
+        {
+          $set: {
+            lockoutDate: newLockoutDate,
+          },
+        },
+      ],
+    );
+    if (!dbRes.acknowledged) {
+      console.log('db update was not acknowledged');
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(err);
+    throw new Error(`unable to reset password for ${userEmail}`);
   }
 };
 
@@ -884,6 +925,7 @@ module.exports = {
   connect,
   verifyLoginInfo,
   registerUser,
+  resetPassword,
   getUserProfile,
   checkIfEmailAlreadyExists,
   getUserUniqueId,
