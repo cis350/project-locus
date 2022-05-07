@@ -87,6 +87,7 @@ const Project = function ProjectComponent({
         <Button className="club-button" onClick={() => goToManageProject(data.projectName.replace(/\s+/g, ''), data.projectName)}>
           <Row>
             <Col className="d-flex justify-content-center">
+              {console.log(data)}
               {data.projectName}
             </Col>
           </Row>

@@ -704,7 +704,7 @@ const createProject = async (db, clubName, projectName, leaderEmail) => {
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     if (!project) {
       // update club project lists
-      const club = await db.collection('Club').updateOne({ clubName: `${clubName}` }, { $push: { projects: projectName } });
+      const club = await db.collection('Clubs').updateOne({ clubName: `${clubName}` }, { $push: { projects: projectName } });
       if (!club.acknowledged) {
         console.log('club update not acknowledged');
         return false;
@@ -747,7 +747,7 @@ const assignUserToProject = async (db, clubName, projectName, requestedEmail, as
   try {
     if (!db || !clubName || !projectName || !requestedEmail || !assigneeEmail) return false;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    const club = await db.collection('Clubs').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     // check authorization
     if (club && project && (club.admins.includes(requestedEmail)
       || project.leaderEmail === requestedEmail) && club.members.includes(assigneeEmail)) {
@@ -805,7 +805,7 @@ const removeUserFromProject = async (db, clubName, projectName, requestedEmail, 
 const getProject = async (db, clubName, projectName) => {
   try {
     if (!db || !clubName || !projectName) return null;
-    const project = await db.collection('Project').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     if (project) {
       delete project._id;
       return project;
