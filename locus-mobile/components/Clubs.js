@@ -8,7 +8,6 @@ import {
 } from '../modules/api';
 
 export default function Clubs({ route, navigation }) {
-  // **change this to fetch all clubs that the user is a part of from DB
   const [userClubs, setUserClubs] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [joinClubModalVisible, setJoinClubModalVisible] = useState(false);
@@ -48,7 +47,9 @@ export default function Clubs({ route, navigation }) {
 
   async function handleCreateClub() {
     const masterId = await getUserId(user.email);
-    await createClub(newClubName, masterId, newClubPassword);
+    const response = await createClub(newClubName, masterId, newClubPassword);
+    if (response.status !== 200) Alert.alert('Creation Failed');
+    setUserClubs((await getUserClubs(user.email)).jsonContent);
     setNewClubName('');
     setNewClubPassword('');
     setModalVisible(false);

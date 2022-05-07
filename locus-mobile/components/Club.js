@@ -1,10 +1,13 @@
 /* eslint-disable global-require */
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TouchableHighlight,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Alert
 } from 'react-native';
 import ProgressBar from 'react-native-progress/Bar';
-import { getUser } from '../modules/api';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  getUser, removeMember, promoteMember, getSpecificClub,
+} from '../modules/api';
 import Profile from './Profile';
 
 // mock the users and projects in the club
@@ -15,16 +18,59 @@ const project = {
 };
 
 export default function Club({ route }) {
+  const { club, user } = route.params;
   const [profile, setProfile] = useState(undefined);
-  const { club } = route.params;
+  const [currentClub, setClub] = useState(club);
+
+  async function showProfile(memberEmail) {
+    const member = (await getUser(memberEmail)).result;
+    setProfile(member);
+  }
+
+  async function handleRemoveMember(memberEmail) {
+    const response = await removeMember(currentClub.clubName, user.email, memberEmail);
+    Alert.alert(response.jsonContent);
+    setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+  }
+
+  async function handlePromoteMember(memberEmail) {
+    const response = await promoteMember(currentClub.clubName, user.email, memberEmail);
+    Alert.alert(response.jsonContent);
+    setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+  }
 
   // setup view for all the users in the club
   const displayMembers = [];
-  for (let i = 0; i < club.members.length; i += 1) {
+  for (let i = 0; i < currentClub.members.length; i += 1) {
     displayMembers.push(
-      <TouchableOpacity style={styles.member} key={`clubMember${i}`} onPress={() => showProfile(club.members[i])}>
-        <Text style={{ fontSize: 15, marginLeft: 10, color: 'white' }}>{club.members[i]}</Text>
-      </TouchableOpacity>,
+      <View style={styles.member} key={`clubMember${i}`}>
+        <TouchableOpacity
+          style={styles.profile}
+          onPress={() => showProfile(currentClub.members[i])}
+        >
+          <Text style={{ fontSize: 15, marginLeft: 10, color: 'white' }}>{currentClub.members[i]}</Text>
+        </TouchableOpacity>
+        <TouchableHighlight
+          style={styles.promote}
+          onPress={() => handlePromoteMember(currentClub.members[i])}
+        >
+          <Ionicons
+            style={{ color: 'white', textAlign: 'center' }}
+            name="arrow-up-circle-outline"
+            size={20}
+          />
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.remove}
+          onPress={() => handleRemoveMember(currentClub.members[i])}
+        >
+          <Ionicons
+            style={{ color: 'white', textAlign: 'center' }}
+            name="close-circle-outline"
+            size={20}
+          />
+        </TouchableHighlight>
+      </View>,
     );
   }
 
@@ -40,11 +86,6 @@ export default function Club({ route }) {
     );
   }
 
-  async function showProfile(memberEmail) {
-    const member = (await getUser(memberEmail)).result;
-    setProfile(member);
-  }
-
   if (profile) {
     return (
       <View style={styles.container}>
@@ -58,10 +99,12 @@ export default function Club({ route }) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={{ fontSize: 24 }}>{club.name}</Text>
+        <Text style={{ fontSize: 24 }}>Welcome to {currentClub.clubName}!</Text>
+        <Text style={{ fontSize: 20, marginTop: 20 }}>Members</Text>
         <ScrollView style={styles.memberContainer}>
           {displayMembers}
         </ScrollView>
+        <Text style={{ fontSize: 20 }}>Projects</Text>
         <View style={styles.projectContainer}>
           {displayProjects}
         </View>
@@ -124,8 +167,27 @@ const styles = StyleSheet.create({
   member: {
     flexDirection: 'row',
     backgroundColor: '#6A9B72',
+    justifyContent: 'flex-end',
     borderRadius: 10,
     marginVertical: 5,
     paddingVertical: 15,
+  },
+  promote: {
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 25,
+    width: 50,
+    borderRadius: 5,
+    marginHorizontal: 10,
+  },
+  remove: {
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 25,
+    width: 50,
+    borderRadius: 5,
+    marginHorizontal: 10,
   },
 });
