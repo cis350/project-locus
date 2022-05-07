@@ -293,7 +293,7 @@ const getUnreadNotifcations = async (db, userEmail) => {
 const makeNotificationsRead = async (db, userEmail, clubName) => {
   try {
     if (!db || !clubName || !userEmail) {
-      return null;
+      return false;
     }
     const dbRes = await db.collection('Users').updateMany(
       {
@@ -301,17 +301,19 @@ const makeNotificationsRead = async (db, userEmail, clubName) => {
       },
       {
         $set: {
-          'notifications.$[]'
-        }
+          'notifications.$[elem].readStatus': true,
+        },
       },
       {
-        arrayFilters: [ 
-          {
-            'notifications.clubName': 
-          }
-        ]
-      }
+        arrayFilters: [{ 'elem.clubName': `${clubName}` }],
+        multi: true,
+      },
     );
+    if (!dbRes.acknowledged) {
+      console.log(`Unable to update notifications for ${userEmail} in ${clubName}`)
+      return false;
+    }
+    return true;
   } catch (err) {
     console.error(err);
     throw new Error(`unable to make notifications for ${userEmail} and ${clubName} read`);
