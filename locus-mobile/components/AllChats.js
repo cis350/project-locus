@@ -34,7 +34,7 @@ export default function AllChats({ route }) {
 
   // render the selected chat
   if (currentChat) {
-    return <Chat backToAllChat={backToAllChat} currentChat={currentChat} />;
+    return <Chat backToAllChat={backToAllChat} currentChat={currentChat} user={user} />;
   }
 
   // render all chat if no chat was selected

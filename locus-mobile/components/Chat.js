@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput,
 } from 'react-native';
-import { getClubChat } from '../modules/api';
+import { getClubChat, sendMessage } from '../modules/api';
 
 // get messages from currentChat once backend is available
 export default function Chat({ currentChat, backToAllChat, user }) {
@@ -10,11 +10,16 @@ export default function Chat({ currentChat, backToAllChat, user }) {
   const [message, setMessage] = useState('');
   const scrollViewRef = useRef();
 
+  // setup all messages and async calls to get all messages every 2 seconds
   useEffect(() => {
-    async function initialize() {
+    async function fetchMessages() {
       setChatMessages((await getClubChat(currentChat)).jsonContent);
     }
-    initialize();
+    fetchMessages();
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 2000);
+    return () => clearInterval(interval);
   }, []);
 
   // setup messages view for specific chat
@@ -24,7 +29,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     if (chatMessages[i].sender === 'Me') {
       displayMessages.push(
         <View style={{ alignItems: 'flex-end' }} key={`message${i}`}>
-          <Text style={{ fontSize: 10 }}>{chatMessages[i].sender}</Text>
+          <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
           <View style={styles.textBubble}>
             <Text style={{ fontSize: 15 }}>{chatMessages[i].message}</Text>
           </View>
@@ -33,7 +38,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     } else { // align left if you are not the sender
       displayMessages.push(
         <View style={{ alignItems: 'flex-start' }} key={`message${i}`}>
-          <Text style={{ fontSize: 10 }}>{chatMessages[i].sender}</Text>
+          <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
           <View style={styles.textBubble}>
             <Text style={{ fontSize: 15 }}>{chatMessages[i].message}</Text>
           </View>
@@ -43,10 +48,28 @@ export default function Chat({ currentChat, backToAllChat, user }) {
   }
   displayMessages.push(<View style={{ marginBottom: 25 }} key="spacefiller" />);
 
+  // handle send message
+  const isValidUrl = (url) => {
+    try {
+      const f = new URL(url);
+      if (f) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return true;
+  };
+
   // function that will send the message the user types, update for backend later
-  function handleSendMessage() {
+  async function handleSendMessage() {
     if (message === '') return;
-    setChatMessages([...chatMessages, { sender: 'Me', message }]);
+    if (/\S/.test(message)) {
+      // TODO: pass date as milliseconds, update content to image content
+      const response = await sendMessage(currentChat, user.email, message, '', new Date());
+      console.log(response);
+    }
+    setChatMessages((await getClubChat(currentChat)).jsonContent);
     setMessage('');
   }
 
