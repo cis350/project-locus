@@ -310,7 +310,7 @@ const makeNotificationsRead = async (db, userEmail, clubName) => {
       },
     );
     if (!dbRes.acknowledged) {
-      console.log(`Unable to update notifications for ${userEmail} in ${clubName}`)
+      console.log(`Unable to update notifications for ${userEmail} in ${clubName}`);
       return false;
     }
     return true;
@@ -640,7 +640,7 @@ const getOngoingTasksForProject = async (
 };
 
 // get all ongoing tasks for a given club
-const getAllOngoingTasksForClub = async(db, clubName) => {
+const getAllOngoingTasksForClub = async (db, clubName) => {
   try {
     if (!db || !clubName) {
       return null;
@@ -967,6 +967,8 @@ module.exports = {
   getClub,
   getClubChat,
   sendMessage,
+  getUnreadNotifcations,
+  makeNotificationsRead,
   joinClub,
   removeUserFromClub,
   createProject,
