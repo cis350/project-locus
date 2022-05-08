@@ -53,7 +53,16 @@ export default function ClubProjects({ clubName, user, changeClub }) {
     );
   }
 
-  if (selectedProject) return <ManageProject changeProject={setSelectedProject} />;
+  if (selectedProject) {
+    return (
+      <ManageProject
+        project={selectedProject}
+        changeProject={setSelectedProject}
+        user={user}
+        club={club}
+      />
+    );
+  }
   // render all chat if no chat was selected
   return (
     <ScrollView>

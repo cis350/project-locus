@@ -26,7 +26,7 @@ export default function Navigation({ route }) {
         }}
       />
       <Tab.Screen
-        name="Chat"
+        name="Chats"
         component={AllChats}
         initialParams={{ user }}
         options={{

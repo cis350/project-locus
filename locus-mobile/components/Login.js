@@ -30,12 +30,14 @@ export default function Login({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Email"
+          placeholderTextColor="grey"
           onChangeText={setEmail}
           value={email}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
+          placeholderTextColor="grey"
           onChangeText={setPassword}
           value={password}
           // eslint-disable-next-line react/jsx-boolean-value

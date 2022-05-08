@@ -105,7 +105,16 @@ export default function Club({ route }) {
       </View>
     );
   }
-  if (selectedProject) return <ManageProject changeProject={setSelectedProject} />;
+  if (selectedProject) {
+    return (
+      <ManageProject
+        project={selectedProject}
+        changeProject={setSelectedProject}
+        user={user}
+        club={currentClub}
+      />
+    );
+  }
   return (
     <ScrollView>
       <View style={styles.container}>

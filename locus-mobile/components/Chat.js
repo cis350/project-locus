@@ -107,6 +107,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
           <TextInput
             style={styles.input}
             placeholder="Message"
+            placeholderTextColor="grey"
             onChangeText={setMessage}
             onSubmitEditing={() => handleSendMessage()}
             value={message}
@@ -114,6 +115,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
           <TextInput
             style={styles.input}
             placeholder="Image Link"
+            placeholderTextColor="grey"
             onChangeText={setContent}
             onSubmitEditing={() => handleSendMessage()}
             value={content}
