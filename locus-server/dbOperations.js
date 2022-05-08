@@ -90,6 +90,7 @@ const resetPassword = async (db, userEmail, newPassword, newLockoutDate) => {
     }
     // update the user
     const hashedPassword = await bcrypt.hash(newPassword, salt);
+
     const dbRes = await db.collection('Users').updateOne(
       { email: `${userEmail}` },
       [
@@ -692,7 +693,7 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
       }
     }
 
-    if (!taskIndex) return false;
+    if (!taskIndex && taskIndex !== 0) return false;
     const task = tasks[taskIndex];
 
     task.status = newStatus;
