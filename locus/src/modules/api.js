@@ -202,7 +202,7 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
 async function getUserNotifications(userEmail) {
   try {
     const result = await axios.get(`${domain}/notifications/${userEmail}`);
-    return { status: result.status, jsonContent: result.data.messages };
+    return { status: result.status, jsonContent: result.data.notifications };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
   }

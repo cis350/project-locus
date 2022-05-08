@@ -150,6 +150,36 @@ webapp.post('/chats/:clubName', async (req, res) => {
   }
 });
 
+// get user notifications
+webapp.get('/notifications/:userEmail', async (req, res) => {
+  try {
+    const dbres = await lib.getUnreadNotifcations(db, req.params.userEmail);
+    if (dbres === null) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+    // this is returned as a large json object
+    return res.status(200).json({ notifications: dbres });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// set notifications as read
+webapp.put('/notifications/:clubName', async (req, res) => {
+  const { requestedEmail } = req.body;
+  try {
+    const result = await lib.makeNotificationsRead(db, requestedEmail, req.params.clubName);
+    if (result === null) {
+      return res.status(403).json({ error: 'Invalid request' });
+    }
+    return res.status(200).json({ message: `Notifications for ${requestedEmail} updated for in ${req.params.clubName}` });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 /*
  * Club Routes
  */
