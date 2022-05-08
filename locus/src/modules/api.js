@@ -66,9 +66,9 @@ async function getProject(clubName, projectName) {
   }
 }
 
-async function createProject(clubName, projectName, leaderEmail) {
+async function createProject(clubName, projectName, leaderEmail, requestedEmail) {
   try {
-    const response = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail });
+    const response = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail, requestedEmail });
     return { status: response.status, jsonContent: response.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };

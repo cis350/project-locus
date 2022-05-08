@@ -45,7 +45,7 @@ const Project = function ProjectComponent({
   };
 
   const addProject = (() => {
-    createProject(club, projectName, email).then((res) => {
+    createProject(club, projectName, email, email).then((res) => {
       if (res.status === 201) {
         setProjectAdded(!projectAdded);
       } else {

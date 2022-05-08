@@ -393,13 +393,14 @@ const reassignTask = async (
 const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee) => {
   if (!db || !clubName || !projectName || !oldAssignee) return false;
   try {
-    const project = await db.collection('Projects').find({ clubName: `${clubName}`, projectName: `${projectName}` });
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     if (!project) {
       return false;
     }
-    console.log(project);
+    console.log('project=', project);
     // modify all the task assignedTo's
     const tasksArray = project.tasks;
+    console.log('taskarray=', tasksArray);
     for (let i = 0; i < tasksArray.length; i += 1) {
       const task = tasksArray[i];
       if (task.assignedTo === oldAssignee) {
@@ -420,7 +421,7 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
 const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
   if (!db || !clubName || !oldAssignee) return false;
   try {
-    var projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` }).toArray();
+    var projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` });
     const bulkUpdateOps = [];
 
     projectCursor.forEach((doc) => {
@@ -589,12 +590,12 @@ const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => 
       }
       const allTaskUpdateResult = await reassignAllTasksForClub(db, clubName, targetEmail);
       if (!allTaskUpdateResult) {
-        console.log('project removal error');
+        console.log('task reassignment error');
         return false;
       }
       // remove user from any projects
       const updateProjectMembership = await db.collection('Projects').updateMany(
-        { clubName: `${clubName}`, members: targetEmail },
+        { clubName: `${clubName}`, members: `${targetEmail}` },
         { $pull: { members: targetEmail } },
       );
       if (!updateProjectMembership.acknowledged) {
