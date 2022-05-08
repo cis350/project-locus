@@ -45,8 +45,8 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
     console.log(tasks[i]);
     displayTasks.push(
       <View style={styles.task} key={`task${i}`}>
-        <Text style={styles.taskTitle}>sdaoifjaosdfjoasdjfosjdfoiasjdfoaiojsfd</Text>
-        <TouchableHighlight style={styles.viewButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
+        <Text style={styles.taskTitle}>{tasks[i].taskName}</Text>
+        <TouchableHighlight style={styles.viewButton} onPress={() => setSelectedTask(tasks[i])} underlayColor="#b00017">
           <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>View</Text>
         </TouchableHighlight>
       </View>,

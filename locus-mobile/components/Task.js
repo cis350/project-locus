@@ -3,102 +3,23 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, Alert, TextInput, Modal,
 } from 'react-native';
-import { getAllTasksForProject, createTask } from '../modules/api';
+import { deleteTask, reassignTask, getSpecificTask, updateTaskStatus } from '../modules/api';
 
-export default function Task({ project, setSelectedTask, user, club }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [jawn, rerender] = useState(false);
-  const [tasks, setTasks] = useState(project.tasks);
-  const [newTaskName, setNewTaskName] = useState('');
-  const [newTaskAssignee, setNewTaskAssignee] = useState('');
-
-  useEffect(() => {
-    async function getTasks() {
-      setTasks((await getAllTasksForProject(club.clubName, project.projectName, user.email))
-        .jsonContent);
-    }
-    getTasks();
-  }, [jawn]);
-  console.log(tasks);
-
-  async function handleCreateTask() {
-    const response = await (
-      createTask(
-        club.clubName,
-        project.projectName,
-        newTaskName,
-        user.email,
-        newTaskAssignee,
-        'incomplete',
-      ));
-    setNewTaskName('');
-    setNewTaskAssignee('');
-    setModalVisible(false);
-    if (response.status === 200) Alert.alert('Task Successfully Created');
-    else Alert.alert('Task Creation Failed');
-    rerender(!jawn);
-  }
-
-  const displayTasks = [];
-  for (let i = 0; i < tasks.length; i += 1) {
-    console.log(tasks[i]);
-    displayTasks.push(
-      <View style={styles.task} key={`task${i}`}>
-        <Text style={styles.taskTitle}>sdaoifjaosdfjoasdjfosjdfoiasjdfoaiojsfd</Text>
-        <TouchableHighlight style={styles.removeButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
-          <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>Assign</Text>
-        </TouchableHighlight>
-        <TouchableHighlight style={styles.removeButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
-          <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>Remove</Text>
-        </TouchableHighlight>
-      </View>,
-    );
-  }
-
+export default function Task({ project, task, setSelectedTask, user, club }) {
   return (
     <View style={styles.container}>
-      <View style={styles.centeredView}>
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={modalVisible}
-        >
-          <View style={styles.centeredView}>
-            <Text style={{ fontSize: 40, marginBottom: 30 }}>Create Task</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Task Name"
-              placeholderTextColor="grey"
-              onChangeText={setNewTaskName}
-              value={newTaskName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Assignee Email"
-              placeholderTextColor="grey"
-              onChangeText={setNewTaskAssignee}
-              value={newTaskAssignee}
-            />
-            <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateTask()}>
-              <Text style={{ fontSize: 20 }}>Create</Text>
-            </TouchableHighlight>
-            <TouchableHighlight style={styles.cancelButton} underlayColor="#33E86F" onPress={() => setModalVisible(false)}>
-              <Text style={{ fontSize: 20 }}>Cancel</Text>
-            </TouchableHighlight>
-          </View>
-        </Modal>
-      </View>
-      <Text style={styles.projectTitle}>Tasks</Text>
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.memberContainer}>
-          {displayTasks}
-        </View>
-      </ScrollView>
-      <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
+      <Text style={styles.taskTitle}>{task.taskName}</Text>
+      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
+        <Text>Reassign</Text>
       </TouchableHighlight>
-      <TouchableHighlight style={styles.backButton} onPress={() => setManagingTask(false)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Back</Text>
+      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
+        <Text>Delete</Text>
+      </TouchableHighlight>
+      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
+        <Text>Update Status</Text>
+      </TouchableHighlight>
+      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
+        <Text>Return</Text>
       </TouchableHighlight>
     </View>
   );
