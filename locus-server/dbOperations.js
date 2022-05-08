@@ -323,7 +323,7 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
   try {
     const taskUpdateResult = await db.collection('Projects').updateMany(
       { clubName: `${clubName}`, projectName: `${projectName}`, 'tasks.assignedTo': oldAssignee },
-      { $set: { 'tasks.$.assignedTo': '$leaderEmail' } },
+      { $set: { 'tasks.$.assignedTo': { $getField: 'leaderEmail' } } },
     );
     if (!taskUpdateResult.acknowledged) {
       console.log(`DB failed to update tasks for ${projectName}`);
@@ -342,7 +342,7 @@ const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
   try {
     const taskUpdateResult = await db.collection('Projects').updateMany(
       { clubName: `${clubName}`, 'tasks.assignedTo': oldAssignee },
-      { $set: { 'tasks.$.assignedTo': '$leaderEmail' } },
+      { $set: { 'tasks.$.assignedTo': { $getField: 'leaderEmail' } } },
     );
     if (!taskUpdateResult.acknowledged) {
       return false;
