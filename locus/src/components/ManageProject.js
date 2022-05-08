@@ -77,11 +77,14 @@ const ManageProject = function ManageProjectComponent({
 
   const deleteUser = ((data) => {
     if (data === email) {
-      alert('You are the owner of the project.');
+      alert('You cannot remove yourself from the project!');
     } else {
       removeMemberFromProject(project, club, email, data).then((res) => {
-        console.log(res);
-        setRerender(!rerender);
+        if (res.status === 200) {
+          setRerender(!rerender);
+        } else {
+          alert('You cannot remove the master!');
+        }
       });
     }
   });
@@ -350,9 +353,9 @@ const ManageProject = function ManageProjectComponent({
       <h1 className="text-center">
         {project}
       </h1>
-      {role === 'master' && masterView()}
-      {role !== 'master' && hasAtLeastOneProjectAssigned() && displayTasksForNonMaster()}
-      {role !== 'master' && !hasAtLeastOneProjectAssigned() && msgNoTasks()}
+      {(role === 'master' || role === 'admin') && masterView()}
+      {(role !== 'master' && role !== 'admin') && hasAtLeastOneProjectAssigned() && displayTasksForNonMaster()}
+      {(role !== 'master' && role !== 'admin') && !hasAtLeastOneProjectAssigned() && msgNoTasks()}
       {modalClickTask && taskModal()}
     </div>
   );

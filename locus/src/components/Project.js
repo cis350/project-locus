@@ -146,7 +146,7 @@ const Project = function ProjectComponent({
   return (
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
       {allProjects.length === 0 && msgNoProjects()}
-      {role === 'master' && createNewProjectButton()}
+      {(role === 'master' || role === 'admin') && createNewProjectButton()}
       {allProjects.length !== 0 && displayProjects()}
       {!hasAtLeastOneProjectAssigned() && msgNoProjectsAssigned()}
       {modalClick && (modal())}
