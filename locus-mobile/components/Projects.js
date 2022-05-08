@@ -3,49 +3,41 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import Chat from './Chat';
 import { getUserClubs } from '../modules/api';
+import ClubProjects from './ClubProjects';
 
-export default function AllChats({ route }) {
-  // use state to switch between different chats
-  const { user } = route.params;
-  const [allChats, setAllChats] = useState([]);
-  const [currentChat, changeChat] = useState(null);
-
-  // load all the user chats on focus
+export default function Projects({ route }) {
+  // use state to switch between different projects
+  const [currentClub, changeClub] = useState(undefined);
+  const [userClubs, setUserClubs] = useState([]);
   const isFocused = useIsFocused();
+  const { user } = route.params;
+
   useEffect(() => {
-    async function getChats() {
-      setAllChats((await getUserClubs(user.email)).jsonContent);
+    async function getClubs() {
+      setUserClubs((await getUserClubs(user.email)).jsonContent);
     }
-    getChats();
+    getClubs();
   }, [isFocused]);
 
   // setup view for all chats
-  const displayAllChats = [];
-  for (let i = 0; i < allChats.length; i += 1) {
-    displayAllChats.push(
-      <TouchableOpacity style={styles.allChats} key={`chat${i}`} onPress={() => changeChat(allChats[i].clubName)}>
-        <Text style={{ fontSize: 28, color: 'white' }}>Message: {allChats[i].clubName}</Text>
+  const displayClubs = [];
+  for (let i = 0; i < userClubs.length; i += 1) {
+    displayClubs.push(
+      <TouchableOpacity style={styles.allChats} key={`club${i}`} onPress={() => changeClub(userClubs[i])}>
+        <Text style={{ fontSize: 28, color: 'white' }}>{userClubs[i].clubName}</Text>
       </TouchableOpacity>,
     );
   }
 
-  // helper function that lets user come back to all chat view
-  const backToAllChat = () => changeChat(null);
-
-  // render the selected chat
-  if (currentChat) {
-    return <Chat backToAllChat={backToAllChat} currentChat={currentChat} user={user} />;
-  }
-
+  if (currentClub) return <ClubProjects club={currentClub} user={user} changeClub={changeClub} />;
   // render all chat if no chat was selected
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={{ fontSize: 24 }}>Message Your Clubs</Text>
+        <Text style={{ fontSize: 24 }}>Projects</Text>
         <View style={styles.allChatContainer}>
-          {displayAllChats}
+          {displayClubs}
         </View>
       </View>
     </ScrollView>

@@ -35,7 +35,8 @@ export default function Club({ route }) {
 
   async function handlePromoteMember(memberEmail) {
     const response = await promoteMember(currentClub.clubName, user.email, memberEmail);
-    Alert.alert(response.jsonContent);
+    if (response.status === 200) Alert.alert('Promotion Success!');
+    else Alert.alert(response.jsonContent.error);
     setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
   }
 

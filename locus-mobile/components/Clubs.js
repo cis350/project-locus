@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import {
   createClub, getUserId, getUserClubs, getSpecificClub, joinClub,
 } from '../modules/api';
@@ -17,12 +18,13 @@ export default function Clubs({ route, navigation }) {
   const [joinClubPassword, setJoinClubPassword] = useState('');
   const { user } = route.params;
 
+  const isFocused = useIsFocused();
   useEffect(() => {
     async function initialize() {
       setUserClubs((await getUserClubs(user.email)).jsonContent);
     }
     initialize();
-  }, []);
+  }, [isFocused]);
 
   // set up the view for all the clubs that the user is in
   const displayClubs = [];
@@ -73,17 +75,24 @@ export default function Clubs({ route, navigation }) {
             animationType="slide"
             transparent={false}
             visible={modalVisible}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+              setModalVisible(!modalVisible);
+            }}
           >
             <View style={styles.centeredView}>
+              <Text style={{ fontSize: 40, marginBottom: 30 }}>Create Your Club</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Club Name"
+                placeholderTextColor="grey"
                 onChangeText={setNewClubName}
                 value={newClubName}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Password"
+                placeholderTextColor="grey"
                 onChangeText={setNewClubPassword}
                 value={newClubPassword}
                 // eslint-disable-next-line react/jsx-boolean-value
@@ -91,6 +100,9 @@ export default function Clubs({ route, navigation }) {
               />
               <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
                 <Text style={{ fontSize: 20 }}>Create</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={styles.cancelButton} underlayColor="#33E86F" onPress={() => setModalVisible(false)}>
+                <Text style={{ fontSize: 20 }}>Cancel</Text>
               </TouchableHighlight>
             </View>
           </Modal>
@@ -102,15 +114,18 @@ export default function Clubs({ route, navigation }) {
             visible={joinClubModalVisible}
           >
             <View style={styles.centeredView}>
+              <Text style={{ fontSize: 40, marginBottom: 30 }}>Join Club</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Club Name"
+                placeholderTextColor="grey"
                 onChangeText={setJoinClubName}
                 value={joinClubName}
               />
               <TextInput
                 style={styles.input}
                 placeholder="Password"
+                placeholderTextColor="grey"
                 onChangeText={setJoinClubPassword}
                 value={joinClubPassword}
                 // eslint-disable-next-line react/jsx-boolean-value
@@ -118,6 +133,9 @@ export default function Clubs({ route, navigation }) {
               />
               <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleJoinClub()}>
                 <Text style={{ fontSize: 20 }}>Join</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={styles.cancelButton} underlayColor="#33E86F" onPress={() => setJoinClubModalVisible(false)}>
+                <Text style={{ fontSize: 20 }}>Cancel</Text>
               </TouchableHighlight>
             </View>
           </Modal>
@@ -185,6 +203,16 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#6A9B72',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+    paddingHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: 'red',
     borderRadius: 10,
     paddingVertical: 10,
     width: 150,

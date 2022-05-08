@@ -126,6 +126,67 @@ async function sendMessage(clubName, email, message, content, time) {
   }
 }
 
+async function getClubProjects(clubName) {
+  try {
+    const result = await axios.get(`${domain}/project/${clubName}`);
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function createClubProject(clubName, projectName, leaderEmail) {
+  try {
+    const result = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function assignUserToProject(clubName, projectName, requestedEmail, assigneeEmail) {
+  try {
+    const result = await axios.post(`${domain}/assignUsertoProject/${projectName}`, { clubName, requestedEmail, assigneeEmail });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function removeUserFromProject(clubName, projectName, requestedEmail, assigneeEmail) {
+  try {
+    const result = await axios.post(`${domain}/assignUsertoProject/${projectName}`, { clubName, requestedEmail, assigneeEmail });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getSpecificProject(clubName, projectName) {
+  try {
+    const result = await axios.post(`${domain}/project/${projectName}`, { clubName });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function deleteProject(clubName, projectName, requestedEmail) {
+  try {
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/deleteProject/${projectName}`,
+      data: {
+        clubName,
+        requestedEmail,
+      },
+    });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 module.exports = {
   login,
   getUser,
@@ -138,4 +199,10 @@ module.exports = {
   promoteMember,
   sendMessage,
   getClubChat,
+  getClubProjects,
+  createClubProject,
+  assignUserToProject,
+  removeUserFromProject,
+  getSpecificProject,
+  deleteProject,
 };
