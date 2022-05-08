@@ -308,7 +308,7 @@ webapp.put('/project/:clubname', async (req, res) => {
   const { projectName, leaderEmail, requestedEmail } = req.body;
   const clubName = req.params.clubname;
   try {
-    if (lib.userIsClubAdmin(requestedEmail)) {
+    if (await lib.userIsClubAdmin(db, clubName, requestedEmail)) {
       const result = await lib.createProject(db, clubName, projectName, leaderEmail);
       if (result) {
         return res.status(201).json({ message: `Created ${projectName} for ${clubName}` });

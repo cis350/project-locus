@@ -28,6 +28,16 @@ const testUser2 = {
   userMajor: 'Gym',
 };
 
+const testUser3 = {
+  db,
+  userFirstName: 'Ronnie',
+  userLastName: 'Coleman',
+  userEmail: 'coleman@gmail.com',
+  userPassword: 'abc123',
+  userYear: '2024',
+  userMajor: 'Gym',
+};
+
 const lockoutUser = {
   db,
   userFirstName: 'Greg',
@@ -374,6 +384,39 @@ describe('Projects endpoint tests', () => {
     await request(webapp).put('/project/nonexistant').expect(400)
       .then((response) => expect(JSON.parse(response.text).error)
         .toBe('Invalid request'));
+  });
+
+  test('/project/:clubname 400 request not admin', async () => {
+    await request(webapp).post('/register').send(testUser3).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`${testUser3.userFirstName} ${testUser3.userLastName} added`));
+    await request(webapp).post(`/joinclub/${testClub.clubName}`).send({
+      userEmail: testUser3.userEmail,
+      password: testClub.password,
+      clubname: testClub.clubName,
+    }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message).toBe(`added ${testUser3.userEmail} to ${testClub.clubName}`));
+    await request(webapp).put(`/project/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'proj',
+        leaderEmail: testUser3.userEmail,
+        requestedEmail: testUser3.userEmail,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+
+  test('/project/:clubname 201', async () => {
+    await request(webapp).put(`/project/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'Test Project',
+        leaderEmail: testUser2.userEmail,
+        requestedEmail: testUser.userEmail,
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Created Test Project for ${testClub.clubName}`));
   });
 });
 
