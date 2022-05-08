@@ -271,12 +271,6 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
         },
       );
       // push this notifications to all users for that club
-      const notificationObject = {
-        _id: uuidv4(),
-        clubName,
-        sender: userEmail,
-        readStatus: false,
-      };
       await db.collection('Users').updateMany(
         {
           email: { $in: Object.values(membersToNotify) },
@@ -285,7 +279,7 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
           $push:
           {
             notifications: {
-              notificationObject,
+              _id: uuidv4(), clubName, sender: userEmail, readStatus: false,
             },
           },
         },
@@ -302,7 +296,7 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
 };
 
 // get all unreadNotifications
-const getUnreadNotifcations = async (db, userEmail) => {
+const getUnreadNotifications = async (db, userEmail) => {
   try {
     if (!db || !userEmail) {
       return null;
@@ -312,8 +306,7 @@ const getUnreadNotifcations = async (db, userEmail) => {
       console.log('user not found');
       return null;
     }
-    const unfilteredNotifcations = user.notifications;
-    // TODO: test if the filtering works
+    const unfilteredNotifcations = user.notifications;  
     const unreadNotifications = unfilteredNotifcations.filter((item) => !item.readStatus);
     return unreadNotifications;
   } catch (err) {
@@ -324,12 +317,11 @@ const getUnreadNotifcations = async (db, userEmail) => {
 
 // set all the notifications for a specific club and user to read
 const makeNotificationsRead = async (db, userEmail, clubName) => {
-  console.log('got into updateNotifs DBOP');
   try {
     if (!db || !clubName || !userEmail) {
       return false;
     }
-    const dbRes = await db.collection('Users').updateMany(
+    const dbRes = await db.collection('Users').updateOne(
       {
         email: `${userEmail}`,
       },
@@ -340,7 +332,6 @@ const makeNotificationsRead = async (db, userEmail, clubName) => {
       },
       {
         arrayFilters: [{ 'elem.clubName': `${clubName}` }],
-        multi: true,
       },
     );
     if (!dbRes.acknowledged) {
@@ -1061,7 +1052,7 @@ module.exports = {
   getClub,
   getClubChat,
   sendMessage,
-  getUnreadNotifcations,
+  getUnreadNotifications,
   makeNotificationsRead,
   joinClub,
   removeUserFromClub,

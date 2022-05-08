@@ -173,7 +173,7 @@ webapp.post('/chats/:clubName', async (req, res) => {
 // get user notifications
 webapp.get('/notifications/:userEmail', async (req, res) => {
   try {
-    const dbres = await lib.getUnreadNotifcations(db, req.params.userEmail);
+    const dbres = await lib.getUnreadNotifications(db, req.params.userEmail);
     if (dbres === null) {
       return res.status(400).json({ error: 'User not found' });
     }
@@ -189,7 +189,6 @@ webapp.get('/notifications/:userEmail', async (req, res) => {
 webapp.put('/notifications/:clubName', async (req, res) => {
   const { requestedEmail } = req.body;
   try {
-    console.log('got into updateNotifs Route');
     const result = await lib.makeNotificationsRead(db, requestedEmail, req.params.clubName);
     if (result === null) {
       return res.status(403).json({ error: 'Invalid request' });
