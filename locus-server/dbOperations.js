@@ -702,6 +702,7 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
 };
 
 const removeTaskFromProject = async (db, clubName, projectName, taskID, requestedEmail) => {
+  console.log(clubName, projectName, taskID, requestedEmail);
   try {
     if (!db || !clubName || !projectName || !taskID || !requestedEmail) return false;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
