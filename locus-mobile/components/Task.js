@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   taskTitle: {
     width: 100,
-    fontSize: 10,
+    fontSize: 30,
   },
   memberContainer: {
     justifyContent: 'space-between',

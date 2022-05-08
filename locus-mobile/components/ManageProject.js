@@ -92,7 +92,7 @@ export default function ManageProject({ project, changeProject, user, club }) {
           <Text style={{ textAlign: 'center', fontSize: 20 }}>Manage Tasks</Text>
         </TouchableHighlight>
         <TouchableHighlight style={styles.backButton} onPress={() => changeProject(undefined)} underlayColor="#b00017">
-          <Text style={{ textAlign: 'center', fontSize: 20 }}>Back</Text>
+          <Text style={{ textAlign: 'center', fontSize: 20 }}>Return</Text>
         </TouchableHighlight>
         <TouchableHighlight style={styles.deleteButton} onPress={() => handleDeleteProject()} underlayColor="#b00017">
           <Text style={{ textAlign: 'center', fontSize: 20 }}>Delete Project</Text>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: 350,
-    height: 400,
+    height: 350,
     backgroundColor: '#B5E48C',
     borderRadius: 10,
   },

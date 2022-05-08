@@ -42,7 +42,6 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
 
   const displayTasks = [];
   for (let i = 0; i < tasks.length; i += 1) {
-    console.log(tasks[i]);
     displayTasks.push(
       <View style={styles.task} key={`task${i}`}>
         <Text style={styles.taskTitle}>{tasks[i].taskName}</Text>
@@ -106,7 +105,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
         <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
       </TouchableHighlight>
       <TouchableHighlight style={styles.backButton} onPress={() => setManagingTask(false)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Back</Text>
+        <Text style={{ textAlign: 'center', fontSize: 20 }}>Return</Text>
       </TouchableHighlight>
     </View>
   );
