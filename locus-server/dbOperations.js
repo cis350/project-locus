@@ -679,7 +679,7 @@ const getTask = async (
 const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmail, newStatus) => {
   try {
     if (!db || !clubName || !projectName || !taskID || !requestedEmail || !newStatus) return false;
-    const project = db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     if (!project.acknowledged) {
       return false;
     }
@@ -697,7 +697,7 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
     }
     task.status = newStatus;
     // does this push all copies again?
-    const result = db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
+    const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
     if (!result.acknowledged) return false;
     return true;
   } catch (err) {
@@ -709,7 +709,7 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
 const removeTaskFromProject = async (db, clubName, projectName, taskID, requestedEmail) => {
   try {
     if (!db || !clubName || !projectName || !taskID || !requestedEmail) return false;
-    const project = db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     if (!project) {
       return false;
     }
@@ -718,7 +718,7 @@ const removeTaskFromProject = async (db, clubName, projectName, taskID, requeste
       return false;
     }
     // TODO: Not sure if this deletes a task from the array correctly
-    const dbRes = db.collection('Projects').updateOne(
+    const dbRes = await db.collection('Projects').updateOne(
       { clubName: `${clubName}`, projectName: `${projectName}` },
       { $pull: { tasks: { _id: taskID } } },
       false,
