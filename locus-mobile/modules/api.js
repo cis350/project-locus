@@ -212,15 +212,13 @@ async function createTask(clubName, projectName, taskName, requestedEmail, targe
 }
 
 async function getAllTasksForProject(clubName, projectName, requestedEmail) {
+  console.log(clubName);
+  console.log(projectName);
+  console.log(requestedEmail);
   try {
-    console.log(clubName);
-    console.log(projectName);
-    console.log(requestedEmail);
     const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
-    console.log(result);
-    return { status: result.status, jsonContent: result.data };
+    return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
-    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }

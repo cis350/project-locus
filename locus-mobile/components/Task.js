@@ -4,15 +4,13 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, Alert, TextInput, Modal,
 } from 'react-native';
 import { getAllTasksForProject, createTask } from '../modules/api';
-import Task from './Task';
 
-export default function ManageTasks({ project, setManagingTask, user, club }) {
+export default function Task({ project, setSelectedTask, user, club }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [jawn, rerender] = useState(false);
   const [tasks, setTasks] = useState(project.tasks);
   const [newTaskName, setNewTaskName] = useState('');
   const [newTaskAssignee, setNewTaskAssignee] = useState('');
-  const [selectedTask, setSelectedTask] = useState(undefined);
 
   useEffect(() => {
     async function getTasks() {
@@ -21,6 +19,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
     }
     getTasks();
   }, [jawn]);
+  console.log(tasks);
 
   async function handleCreateTask() {
     const response = await (
@@ -46,23 +45,16 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
     displayTasks.push(
       <View style={styles.task} key={`task${i}`}>
         <Text style={styles.taskTitle}>sdaoifjaosdfjoasdjfosjdfoiasjdfoaiojsfd</Text>
-        <TouchableHighlight style={styles.viewButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
-          <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>View</Text>
+        <TouchableHighlight style={styles.removeButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
+          <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>Assign</Text>
+        </TouchableHighlight>
+        <TouchableHighlight style={styles.removeButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
+          <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>Remove</Text>
         </TouchableHighlight>
       </View>,
     );
   }
 
-  if (selectedTask) {
-    return (
-      <Task
-        task={selectedTask}
-        setSelectedTask={setSelectedTask}
-        user={user}
-        project={project}
-      />
-    );
-  }
   return (
     <View style={styles.container}>
       <View style={styles.centeredView}>
@@ -149,8 +141,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   taskTitle: {
-    width: 200,
-    fontSize: 15,
+    width: 100,
+    fontSize: 10,
   },
   memberContainer: {
     justifyContent: 'space-between',
@@ -199,8 +191,8 @@ const styles = StyleSheet.create({
     margin: 10,
     paddingHorizontal: 5,
   },
-  viewButton: {
-    backgroundColor: '#52B69A',
+  removeButton: {
+    backgroundColor: 'red',
     borderRadius: 10,
     width: 100,
     justifyContent: 'center',
