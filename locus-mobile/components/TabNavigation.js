@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Home from './Home';
 import AllChats from './AllChats';
 import ClubsNavigation from './ClubsNavigation';
-import Projects from './Projects';
+import ProjectClubsList from './ProjectClubsList';
 
 const Tab = createBottomTabNavigator();
 export default function Navigation({ route }) {
@@ -56,7 +56,7 @@ export default function Navigation({ route }) {
       />
       <Tab.Screen
         name="Projects"
-        component={Projects}
+        component={ProjectClubsList}
         initialParams={{ user }}
         options={{
           tabBarIcon: (tabInfo) => (

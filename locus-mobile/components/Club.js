@@ -1,26 +1,30 @@
 /* eslint-disable global-require */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Alert,
 } from 'react-native';
-import ProgressBar from 'react-native-progress/Bar';
+import { useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  getUser, removeMember, promoteMember, getSpecificClub,
+  getUser, removeMember, promoteMember, getSpecificClub, getClubProjects,
 } from '../modules/api';
 import Profile from './Profile';
-
-// mock the users and projects in the club
-const project = {
-  name: 'Project 1',
-  lead: 'Jeffrey',
-  progress: 0.3,
-};
+import ManageProject from './ManageProject';
 
 export default function Club({ route }) {
   const { club, user } = route.params;
   const [profile, setProfile] = useState(undefined);
   const [currentClub, setClub] = useState(club);
+  const [clubProjects, setClubProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(undefined);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    async function setProjects() {
+      setClubProjects((await getClubProjects(currentClub.clubName)).jsonContent);
+    }
+    setProjects();
+  }, [isFocused]);
 
   async function showProfile(memberEmail) {
     const member = (await getUser(memberEmail)).result;
@@ -77,12 +81,16 @@ export default function Club({ route }) {
 
   // setup view for active projects in the club
   const displayProjects = [];
-  for (let i = 0; i < 5; i += 1) {
+  for (let i = 0; i < clubProjects.length; i += 1) {
     displayProjects.push(
-      <TouchableOpacity style={styles.project} key={`userProject${i}`}>
-        <Text style={styles.projectText}>{project.name}</Text>
-        <Text style={styles.projectText}>Lead: {project.lead}</Text>
-        <ProgressBar progress={project.progress} width={200} height={30} color="#8FC7FC" borderRadius={40} marginBottom={20} />
+      <TouchableOpacity style={styles.project} key={`userProject${i}`} onPress={() => setSelectedProject(clubProjects[i])}>
+        <Text style={styles.projectText}>{clubProjects[i].projectName}</Text>
+        <Text style={styles.projectText}>Lead: {clubProjects[i].leaderEmail}</Text>
+        <Ionicons
+          style={{ color: 'white', textAlign: 'center', paddingVertical: 20 }}
+          name="settings"
+          size={24}
+        />
       </TouchableOpacity>,
     );
   }
@@ -97,6 +105,7 @@ export default function Club({ route }) {
       </View>
     );
   }
+  if (selectedProject) return <ManageProject changeProject={setSelectedProject} />;
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -106,9 +115,13 @@ export default function Club({ route }) {
           {displayMembers}
         </ScrollView>
         <Text style={{ fontSize: 20 }}>Projects</Text>
-        <View style={styles.projectContainer}>
-          {displayProjects}
-        </View>
+        {(clubProjects.length === 0) ? (
+          <Text style={{ fontSize: 15, marginTop: 20 }}>No Projects Available</Text>)
+          : (
+            <View style={styles.projectContainer}>
+              {displayProjects}
+            </View>
+          )}
       </View>
     </ScrollView>
   );

@@ -128,8 +128,8 @@ async function sendMessage(clubName, email, message, content, time) {
 
 async function getClubProjects(clubName) {
   try {
-    const result = await axios.get(`${domain}/project/${clubName}`);
-    return { status: result.status, jsonContent: result.data };
+    const result = await axios.get(`${domain}/projects/${clubName}`);
+    return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
   }
