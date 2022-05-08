@@ -308,15 +308,39 @@ describe('Club endpoint tests', () => {
 });
 
 describe('Chat endpoint tests', () => {
-  test('/chats/:clubName endpoint 400', async () => {
+  test('/chats/:clubName get 400', async () => {
     await request(webapp).get('/chats/nonexist')
       .send({ clubname: 'nonexistant' }).expect(400)
       .then((response) => expect(JSON.parse(response.text).error).toBe('Club name does not exist'));
   });
 
-  test('/chats/:clubname endpoint 200', async () => {
+  test('/chats/:clubName get 200', async () => {
     await request(webapp).get(`/chats/${testClub.clubName}`).expect(200)
       .then((response) => expect(JSON.parse(response.text).clubObject).toMatchObject([]));
+  });
+
+  test('/chats/:clubName post 400 nonexistant club', async () => {
+    await request(webapp).post('/chats/nonexistant')
+      .send({
+        clubName: 'nonexistant', email: 't', message: 'e', content: 'e', time: 0,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/chats/:clubName post 400 sender not in club', async () => {
+    await request(webapp).post(`/chats/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName, email: lockoutUser.userEmail, message: 'e', content: 'e', time: 0,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/chats/:clubName post 200', async () => {
+    await request(webapp).post(`/chats/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName, email: testUser.userEmail, message: 'first', content: '', time: 0,
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message).toBe('Message sent'));
   });
 });
 
