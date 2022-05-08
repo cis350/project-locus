@@ -411,12 +411,12 @@ describe('Projects endpoint tests', () => {
     await request(webapp).put(`/project/${testClub.clubName}`)
       .send({
         clubName: testClub.clubName,
-        projectName: 'Test Project',
+        projectName: 'TestProject',
         leaderEmail: testUser2.userEmail,
         requestedEmail: testUser.userEmail,
       }).expect(201)
       .then((response) => expect(JSON.parse(response.text).message)
-        .toBe(`Created Test Project for ${testClub.clubName}`));
+        .toBe(`Created TestProject for ${testClub.clubName}`));
   });
 
   test('/assignUsertoProject/:projectName 400', async () => {
@@ -432,10 +432,9 @@ describe('Projects endpoint tests', () => {
   });
 
   test('/assignUsertoProject/:projectName 400 no privilege', async () => {
-    await request(webapp).post(`/assignUsertoProject/${testClub.clubName}`)
+    await request(webapp).post('/assignUsertoProject/TestProject')
       .send({
         clubName: testClub.clubName,
-        projectName: 'Test Project',
         requestedEmail: testUser3.userEmail,
         assigneeEmail: testUser3.userEmail,
       }).expect(400)
@@ -444,15 +443,84 @@ describe('Projects endpoint tests', () => {
   });
 
   test('/assignUsertoProject/:projectName 201', async () => {
-    await request(webapp).post(`/assignUsertoProject/${testClub.clubName}`)
+    await request(webapp).post('/assignUsertoProject/TestProject')
       .send({
         clubName: testClub.clubName,
-        projectName: 'Test Project',
         requestedEmail: testUser.userEmail,
         assigneeEmail: testUser3.userEmail,
       }).expect(201)
       .then((response) => expect(JSON.parse(response.text).message)
-        .toBe(`${testUser3.userEmail} added to Test Project`));
+        .toBe(`${testUser3.userEmail} added to TestProject`));
+  });
+
+  test('/removeUserFromProject/:projectName 400', async () => {
+    await request(webapp).delete('/removeUserFromProject/nonexistant').expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+
+  test('/removeUserFromProject/:projectName 400 no privilege', async () => {
+    await request(webapp).delete('/removeUserFromProject/TestProject')
+      .send({
+        clubName: testClub.clubName,
+        requestedEmail: testUser3.userEmail,
+        assigneeEmail: testUser.userEmail,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+
+  test('/removeUserFromProject/:projectName 200', async () => {
+    await request(webapp).delete('/removeUserFromProject/TestProject')
+      .send({
+        clubName: testClub.clubName,
+        requestedEmail: testUser.userEmail,
+        assigneeEmail: testUser3.userEmail,
+      }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`${testUser3.userEmail} removed from TestProject`));
+  });
+
+  test('/project/:projectName 404', async () => {
+    await request(webapp).post('/project/nonexistant')
+      .send({ clubName: testClub.clubName }).expect(404)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Project not found'));
+  });
+
+  test('/project/:projectName 200', async () => {
+    const project = await dbLib.getProject(db, testClub.clubName, 'TestProject');
+    await request(webapp).post('/project/TestProject')
+      .send({ clubName: testClub.clubName }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).result)
+        .toMatchObject(project));
+  });
+
+  test('/deleteProject/:projectName 400', async () => {
+    await request(webapp).delete('/deleteProject/nonexistant')
+      .send({ clubName: testClub.clubName, requestedEmail: testUser.userEmail }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/deleteProject/:projectName 400 no privilege', async () => {
+    await request(webapp).post('/assignUsertoProject/TestProject')
+      .send({
+        clubName: testClub.clubName,
+        requestedEmail: testUser.userEmail,
+        assigneeEmail: testUser3.userEmail,
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`${testUser3.userEmail} added to TestProject`));
+    await request(webapp).delete('/deleteProject/TestProject')
+      .send({ clubName: testClub.clubName, requestedEmail: testUser3.userEmail }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/deleteProject/:projectName 200', async () => {
+    await request(webapp).delete('/deleteProject/TestProject')
+      .send({ clubName: testClub.clubName, requestedEmail: testUser.userEmail }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Removed TestProject from ${testClub.clubName}`));
   });
 });
 

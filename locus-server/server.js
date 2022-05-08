@@ -358,7 +358,7 @@ webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
   }
 });
 
-// delete a specific project
+// delete a user from a specific project
 webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
   const { clubName, requestedEmail, assigneeEmail } = req.body;
   const { projectName } = req.params;

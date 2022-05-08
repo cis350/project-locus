@@ -961,7 +961,6 @@ const getProjectsForClub = async (db, clubName) => {
 const assignUserToProject = async (db, clubName, projectName, requestedEmail, assigneeEmail) => {
   try {
     if (!db || !clubName || !projectName || !requestedEmail || !assigneeEmail) return false;
-    console.log('HA');
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     // check authorization
