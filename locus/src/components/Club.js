@@ -1,16 +1,23 @@
+/* eslint-disable no-alert */
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable object-curly-newline */
-/* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
-import { Button, Form, Container, Row, Col, Stack, Card } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
 import '../assets/Club.css';
 // import api functions instead
-import { promoteMember, removeMember } from '../modules/api';
+import { promoteMember, removeMember, getAllClubTasks } from '../modules/api';
 import Profile from './Profile';
 
-export default function Club({ club, setClub, userId, user }) {
+export default function Club({ club, setClub, user }) {
   const [selectedProfile, setSelectedProfile] = useState(undefined);
+  const [tasks, setTasks] = useState([]);
 
+  useEffect(() => {
+    async function initialize() {
+      setTasks((await getAllClubTasks(club.clubName)).jsonContent);
+    }
+    initialize();
+  }, []);
   // promote member in the club
   async function handlePromoteMember(memberEmail) {
     const response = await promoteMember(club.clubName, user.email, memberEmail);
@@ -18,7 +25,7 @@ export default function Club({ club, setClub, userId, user }) {
     if (response.status !== 200) alert('Promotion Failed');
   }
 
-  // promote member in the club
+  // remove member in the club
   async function handleRemoveMember(memberEmail) {
     const response = await removeMember(club.clubName, user.email, memberEmail);
     if (response.status === 200) alert('Removal Success');
@@ -31,7 +38,7 @@ export default function Club({ club, setClub, userId, user }) {
   for (let i = 0; i < club.members.length; i += 1) {
     displayMembers.push(
       <div className="row" key={`member${i}`}>
-        <div className="col-6">
+        <div className="col-sm-6">
           <button type="button" className="btn member-button" onClick={() => setSelectedProfile(club.members[i])}>
             {club.members[i]}
           </button>
@@ -54,10 +61,22 @@ export default function Club({ club, setClub, userId, user }) {
   const displayProjects = [];
   for (let i = 0; i < club.projects.length; i += 1) {
     displayProjects.push(
-      <div className="row" key={`project${i}`}>
-        <Button className="project-button" onClick={() => console.log('open project')}>
-          {club.projects[i]}
-        </Button>
+      <div className="row project-title justify-content-center align-items-center" style={{ fontSize: 24 }} key={`project${i}`}>
+        {club.projects[i]}
+      </div>,
+    );
+  }
+
+  const displayTasks = [];
+  for (let i = 0; i < tasks.length; i += 1) {
+    displayTasks.push(
+      <div className="row project-title" key={`task${i}`}>
+        <div className="col-4">
+          <strong>Task:</strong> {tasks[i].tasks.taskName}
+        </div>
+        <div className="col-8">
+          <strong>Assigned:</strong> {tasks[i].tasks.assignedTo}
+        </div>
       </div>,
     );
   }
@@ -79,25 +98,27 @@ export default function Club({ club, setClub, userId, user }) {
   // return main club view
   return (
     <div className="container">
-      <Button className="btn btn-success" onClick={() => setClub(undefined)}>
-        View All Clubs
-      </Button>
+      <div className="d-flex justify-content-center">
+        <Button className="btn btn-success" onClick={() => setClub(undefined)}>
+          View All Clubs
+        </Button>
+      </div>
       <br />
-      <h1>Welcome to {club.clubName}!</h1>
+      <h1 style={{ textAlign: 'center' }}>Welcome to {club.clubName}!</h1>
       <div className="row">
-        <div className="col-4">
+        <div className="col">
           <h2>Members</h2>
           <div className="container section-container">
             {displayMembers}
           </div>
         </div>
-        <div className="col-4">
-          <h2>Tasks Assigned</h2>
+        <div className="col">
+          <h2>Ongoing Tasks</h2>
           <div className="container section-container">
-            idk
+            {displayTasks}
           </div>
         </div>
-        <div className="col-4">
+        <div className="col">
           <h2>Projects</h2>
           <div className="container section-container">
             {displayProjects}
