@@ -391,30 +391,22 @@ const reassignTask = async (
 const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee) => {
   if (!db || !clubName || !projectName || !oldAssignee) return false;
   try {
-    const cursor = await db.collection('Projects').find({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!cursor) {
+    const project = await db.collection('Projects').find({ clubName: `${clubName}`, projectName: `${projectName}` });
+    if (!project) {
       return false;
     }
 
-    // cursor.forEach(function (doc) {
-    
-    // })
+    // modify all the task assignedTo's
+    const tasksArray = project.tasks;
+    for (let i = 0; i < tasksArray.length; i += 1) {
+      const task = tasksArray[i];
+      if (task.assignedTo === oldAssignee) {
+        task.assignedTo = project.leaderEmail;
+      }
+    }
 
-    // })
-    //   {
-    //     $set: {
-    //       'tasks.$[elem].assignedTo': '',
-    //     },
-    //   },
-    //   {
-    //     arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
-    //     multi: true,
-    //   },
-    // );
-    // if (!taskUpdateResult.acknowledged) {
-    //   console.log(`DB failed to update tasks for ${projectName}`);
-    //   return false;
-    // }
+    const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks: tasksArray } });
+    if (!result) return false;
     return true;
   } catch (err) {
     console.error(err);
@@ -442,6 +434,27 @@ const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
       return false;
     }
     return true;
+
+    // cursor.forEach((doc) => {
+    // });
+
+    // })
+    //   {
+    //     $set: {
+    //       'tasks.$[elem].assignedTo': '',
+    //     },
+    //   },
+    //   {
+    //     arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
+    //     multi: true,
+    //   },
+    // );
+    // if (!taskUpdateResult.acknowledged) {
+    //   console.log(`DB failed to update tasks for ${projectName}`);
+    //   return false;
+    // }
+    return true;
+
   } catch (err) {
     console.error(err);
     throw new Error('unable to send message');
