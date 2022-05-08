@@ -5,7 +5,7 @@ import {
 import '../assets/Clubs.css';
 // import from api functions instead
 import {
-  getUserClubs, getClubChat, sendMessage,
+  getUserClubs, getClubChat, sendMessage, updateNotifications,
 } from '../modules/api';
 import '../assets/Chat.css';
 
@@ -18,7 +18,6 @@ function Chat({ userEmail }) {
   const currentClub = useRef('');
   const message = useRef('');
   const content = useRef('');
-  // clubs user is in
 
   if (userClubs.length === 0) {
     getUserClubs(userEmail).then((res) => {
@@ -37,6 +36,12 @@ function Chat({ userEmail }) {
       if (res.status === 200) {
         changeChatsFail(false);
         changeChat(res.jsonContent);
+        /// update in api
+        updateNotifications(userEmail, clubName).then((resp) => {
+          if (resp.status === 200) {
+            console.log('updated notifications');
+          }
+        });
       } else {
         changeChatsFail(true);
       }
@@ -58,7 +63,6 @@ function Chat({ userEmail }) {
 
   const submitMessage = () => {
     if (/\S/.test(message.current)) {
-      // TODO: pass date as milliseconds
       sendMessage(
         currentClub.current,
         userEmail,
@@ -130,8 +134,8 @@ function Chat({ userEmail }) {
   const getDate = ((dateMilli) => {
     const date = new Date(dateMilli);
     const year = date.getFullYear();
-    const month = ((date.getMonth() + 1)).slice(-2);
-    const day = (date.getDate()).slice(-2);
+    const month = ((date.getMonth() + 1).toString()).slice(-2);
+    const day = (date.getDate().toString()).slice(-2);
     return `${month}-${day}-${year}`;
   });
 

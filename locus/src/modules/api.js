@@ -196,8 +196,31 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
 }
 
 /*
+ * Notifications fetches
+ */
+
+async function getUserNotifications(userEmail) {
+  try {
+    const result = await axios.get(`${domain}/notifications/${userEmail}`);
+    return { status: result.status, jsonContent: result.data.notifications };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function updateNotifications(userEmail, club) {
+  try {
+    const result = await axios.put(`${domain}/notifications/${club}`, { requestedEmail: userEmail });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+/*
  * Tasks fetches
  */
+
 async function createTask(projectName, clubName, taskName, requestedEmail, targetEmail, status) {
   try {
     const result = await axios.post(`${domain}/createTask/${projectName}`, {
@@ -271,10 +294,14 @@ async function getAllTasks(projectName, clubName, requestedEmail) {
   }
 }
 
-// async function getAllClubTasks(clubName) {
-//   try {
-//     const result = await axios.get(`${domain}/AllOngoingTasks/${clubName}`);
-//     console.log(result.data.result);
+async function getAllClubTasks(clubName) {
+  try {
+    const result = await axios.get(`${domain}/AllOngoingTasks/${clubName}`);
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
 
 module.exports = {
   register,
@@ -294,11 +321,13 @@ module.exports = {
   sendMessage,
   addUserToProject,
   removeMemberFromProject,
-  // getAllClubTasks,
+  getAllClubTasks,
   createTask,
   getTasksForProject,
   updateStatusForCurrTask,
   resetPassword,
   deleteTask,
   getAllTasks,
+  getUserNotifications,
+  updateNotifications,
 };

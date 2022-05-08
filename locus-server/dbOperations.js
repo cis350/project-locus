@@ -66,6 +66,7 @@ const registerUser = async (
       lockoutAttempts: 0,
       lockoutDate: registerDate,
       clubs: [],
+      notifications: [],
     };
     const emailExists = await checkIfEmailAlreadyExists(userEmail);
     if (!emailExists) {
@@ -249,7 +250,11 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
     if (!db || !clubName || !userEmail || !message || !timeStamp || !uniqueId) {
       return false;
     }
-    const chat = db.collection('Chats').findOne({ clubName: `${clubName}` });
+    const chat = await db.collection('Chats').findOne({ clubName: `${clubName}` });
+    const clubObject = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
+    const membersOfClub = clubObject.members;
+    // filter out the user email
+    const membersToNotify = membersOfClub.filter((item) => item !== userEmail);
     const profile = await getUserProfile(db, userEmail);
     const fullName = `${profile.firstName} ${profile.lastName}`;
     if (chat) {
@@ -265,6 +270,27 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
           },
         },
       );
+      // push this notifications to all users for that club
+      const notificationObject = {
+        _id: uuidv4(),
+        clubName,
+        sender: userEmail,
+        readStatus: false,
+      };
+      await db.collection('Users').updateMany(
+        {
+          email: { $in: Object.values(membersToNotify) },
+        },
+        {
+          $push:
+          {
+            notifications: {
+              notificationObject,
+            },
+          },
+        },
+      );
+      // add a notifcation for each user in that club
       return true;
     }
     console.log('chat not found');
@@ -272,6 +298,59 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
   } catch (err) {
     console.error(err);
     throw new Error('unable to send message');
+  }
+};
+
+// get all unreadNotifications
+const getUnreadNotifcations = async (db, userEmail) => {
+  try {
+    if (!db || !userEmail) {
+      return null;
+    }
+    const user = await db.collection('Users').findOne({ email: `${userEmail}` });
+    if (!user) {
+      console.log('user not found');
+      return null;
+    }
+    const unfilteredNotifcations = user.notifications;
+    // TODO: test if the filtering works
+    const unreadNotifications = unfilteredNotifcations.filter((item) => !item.readStatus);
+    return unreadNotifications;
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to get unread notifcations');
+  }
+};
+
+// set all the notifications for a specific club and user to read
+const makeNotificationsRead = async (db, userEmail, clubName) => {
+  console.log('got into updateNotifs DBOP');
+  try {
+    if (!db || !clubName || !userEmail) {
+      return false;
+    }
+    const dbRes = await db.collection('Users').updateMany(
+      {
+        email: `${userEmail}`,
+      },
+      {
+        $set: {
+          'notifications.$[elem].readStatus': true,
+        },
+      },
+      {
+        arrayFilters: [{ 'elem.clubName': `${clubName}` }],
+        multi: true,
+      },
+    );
+    if (!dbRes.acknowledged) {
+      console.log(`Unable to update notifications for ${userEmail} in ${clubName}`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(err);
+    throw new Error(`unable to make notifications for ${userEmail} and ${clubName} read`);
   }
 };
 
@@ -982,6 +1061,8 @@ module.exports = {
   getClub,
   getClubChat,
   sendMessage,
+  getUnreadNotifcations,
+  makeNotificationsRead,
   joinClub,
   removeUserFromClub,
   createProject,
