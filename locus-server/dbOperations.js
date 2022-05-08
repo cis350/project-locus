@@ -524,6 +524,19 @@ const joinClub = async (db, userEmail, clubName, password) => {
   }
 };
 
+// checks if a user is admin in a club (true for admin)
+const userIsClubAdmin = async (db, clubName, userEmail) => {
+  try {
+    if (!db || !clubName || !userEmail) return false;
+    const club = await getClub(db, clubName);
+    if (club && club.admins.includes(userEmail)) return true;
+    return false;
+  } catch (err) {
+    console.error(err);
+    throw new Error('problem checking user admin');
+  }
+};
+
 // promote a user to an admin for a given club, must be done by a current admin
 const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => {
   try {
@@ -1077,6 +1090,7 @@ module.exports = {
   removeTaskFromProject,
   getCompletedTasks,
   getCompletedTasksByUsers,
+  userIsClubAdmin,
   promoteUserToAdmin,
   reassignTask,
 };

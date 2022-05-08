@@ -342,11 +342,40 @@ describe('Chat endpoint tests', () => {
       }).expect(201)
       .then((response) => expect(JSON.parse(response.text).message).toBe('Message sent'));
   });
+
+  test('/notifications/:userEmail 400', async () => {
+    await request(webapp).get('/notifications/nonexistant')
+      .send({ userEmail: 'nonexistant' }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('User not found'));
+  });
+
+  test('/notifications/:userEmail 200', async () => {
+    const notifs = await dbLib.getUnreadNotifications(db, testUser.userEmail);
+    await request(webapp).get(`/notifications/${testUser.userEmail}`)
+      .send({ userEmail: testUser.userEmail }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).notifications).toMatchObject(notifs));
+  });
+
+  test('/notifications/:clubName 403', async () => {
+    await request(webapp).put('/notifications/nonexistant').expect(403)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/notifications/:clubName 200', async () => {
+    await request(webapp).put(`/notifications/${testClub.clubName}`)
+      .send({ requestedEmail: testUser.userEmail, clubName: testClub.clubName }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Notifications for ${testUser.userEmail} updated for in ${testClub.clubName}`));
+  });
 });
 
-// describe('Projects endpoint tests', () => {
-
-// });
+describe('Projects endpoint tests', () => {
+  test('/project/:clubname 400', async () => {
+    await request(webapp).put('/project/nonexistant').expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+});
 
 // describe('Tasks endpoint tests', () => {
 

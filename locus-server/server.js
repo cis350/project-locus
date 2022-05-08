@@ -305,12 +305,14 @@ webapp.put('/promotemember/:clubname', async (req, res) => {
 
 // create a project for a parameter club name, project names must be unique
 webapp.put('/project/:clubname', async (req, res) => {
-  const { projectName, leaderEmail } = req.body;
+  const { projectName, leaderEmail, requestedEmail } = req.body;
   const clubName = req.params.clubname;
   try {
-    const result = await lib.createProject(db, clubName, projectName, leaderEmail);
-    if (result) {
-      return res.status(201).json({ message: `Created ${projectName} for ${clubName}` });
+    if (lib.userIsClubAdmin(requestedEmail)) {
+      const result = await lib.createProject(db, clubName, projectName, leaderEmail);
+      if (result) {
+        return res.status(201).json({ message: `Created ${projectName} for ${clubName}` });
+      }
     }
     return res.status(400).json({ error: 'Invalid request' });
   } catch (e) {
