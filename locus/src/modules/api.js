@@ -201,8 +201,8 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
 
 async function getUserNotifications(userEmail) {
   try {
-    const result = await axios.get(`${domain}/notification/${userEmail}`);
-    return { status: result.status, jsonContent: result.data.result };
+    const result = await axios.get(`${domain}/notifications/${userEmail}`);
+    return { status: result.status, jsonContent: result.data.messages };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
   }
@@ -210,7 +210,7 @@ async function getUserNotifications(userEmail) {
 
 async function updateNotifications(userEmail, club) {
   try {
-    const result = await axios.put(`${domain}/notification/${club}`, { requestedEmail: userEmail });
+    const result = await axios.put(`${domain}/notifications/${club}`, { requestedEmail: userEmail });
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };

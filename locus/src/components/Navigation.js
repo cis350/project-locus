@@ -8,7 +8,6 @@ import '../assets/Navigation.css';
 
 const Navigation = function NavigationComponent({ isLoggedIn, userId, userEmail }) {
   const [notifs, setNotifications] = useState([]);
-  // link to home if the user is logged in
 
   useEffect(
     () => {
