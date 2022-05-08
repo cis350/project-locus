@@ -563,7 +563,7 @@ const getOngoingTasksForProject = async (
 };
 
 // get all ongoing tasks for a given club
-const getAllOngoingTasksForClub = async(db, clubName) => {
+const getAllOngoingTasksForClub = async (db, clubName) => {
   try {
     if (!db || !clubName) {
       return null;
