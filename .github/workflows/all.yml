@@ -1,0 +1,44 @@
+name: Node.js Web and Backend CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  web-frontend-job:
+    name: Node.js Web CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: locus
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npm run lint --if-present
+      - run: npm test
+      - run: npm run build --if-present
+
+  backend-server-job:
+    name: Node.js Server CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: locus-server
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npm run lint --if-present
+      - run: npm test
+      - run: npm run build --if-present

@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import Main from './components/Main';
 import Login from './components/Login';
-import Navigation from './components/Navigation';
+import Navigation from './components/TabNavigation';
 
 // create a navigation stack
 const Stack = createNativeStackNavigator();
@@ -15,7 +15,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Main">
         <Stack.Screen name="Main" component={Main} options={{ title: 'LOCUS' }} />
         <Stack.Screen name="Login" component={Login} options={{ title: 'Login' }} />
-        <Stack.Screen name="AppNavigation" component={Navigation} options={{ title: 'LOCUS', headerShown: false }} />
+        <Stack.Screen name="TabNavigation" component={Navigation} options={{ title: 'LOCUS', headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

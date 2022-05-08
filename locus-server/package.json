@@ -11,15 +11,21 @@
   "author": "dustin, heng, james, soham, jefrrey",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "jest": "^27.5.1",
-    "mongodb": "^4.5.0"
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.5.0",
+    "realm-web": "^1.7.0",
+    "socket.io": "^4.5.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "cors": "^2.8.5",
-    "eslint": "^8.13.0",
+    "eslint": "^8.14.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-mongodb": "^1.0.0",

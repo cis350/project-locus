@@ -1,69 +1,216 @@
-/* eslint-disable import/no-unresolved */
 const axios = require('axios');
 
-const rootURL = 'localhost:3000';
+const domain = 'http://localhost:3306';
 
-async function login(email, password) {
+/*
+ * Login and Registraition fetches
+ */
+async function register(firstName, lastName, email, password, year, major) {
   try {
-    const response = await axios.get(`${rootURL}/login`, { email, password });
-    return response.data;
+    const result = await axios.post(`${domain}/register`, {
+      userFirstName: firstName,
+      userLastName: lastName,
+      userEmail: email,
+      userPassword: password,
+      userYear: year,
+      userMajor: major,
+    });
+    return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function register(userEmail, userFirstName, userLastName, userPassword, userUniqueId) {
+async function login(userEmail, userPassword) {
   try {
-    const response = await axios.post(
-      `${rootURL}/register`,
+    const result = await axios.post(`${domain}/login`, { email: userEmail, password: userPassword });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getUserId(userEmail) {
+  try {
+    const result = await axios.get(`${domain}/id/${userEmail}`);
+    return { status: result.status, jsonContent: result.data.userId };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getUser(email) {
+  try {
+    const response = await axios.get(`${domain}/user/${email}`);
+    return response.data.result;
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getAllProjects(clubname) {
+  try {
+    const response = await axios.get(`${domain}/projects/${clubname}`);
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getProject(clubName, projectName) {
+  try {
+    const response = await axios.post(`${domain}/project/${projectName}`, { clubName });
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function createProject(clubName, projectName, leaderEmail) {
+  try {
+    const response = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail });
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function addUserToProject(clubName, requestedEmail, assigneeEmail, projectName) {
+  try {
+    const response = await axios.post(`${domain}/assignUsertoProject/${projectName}`, { clubName, requestedEmail, assigneeEmail });
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+/*
+ * Club fetches
+ */
+// create club with given name and master
+async function createClub(clubName, id, clubPassword) {
+  try {
+    const response = await axios.post(`${domain}/club`, { clubName, id, clubPassword });
+    return { status: response.status, jsonContent: response.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+// get all the clubs by userEmail and returns an array of [clubname, role]
+async function getUserClubs(userEmail) {
+  try {
+    const result = await axios.get(`${domain}/clubs/${userEmail}`);
+    return { status: result.status, jsonContent: result.data.clubsArray };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+// get all chat for a club
+async function getClubChat(clubName) {
+  try {
+    const result = await axios.get(`${domain}/chats/${clubName}`);
+    return { status: result.status, jsonContent: result.data.clubObject };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+// sends a message through the backend
+async function sendMessage(clubName, email, message, content, time) {
+  try {
+    const result = await axios.post(
+      `${domain}/chats/${clubName}`,
       {
-        userEmail, userFirstName, userLastName, userPassword, userUniqueId,
+        email,
+        message,
+        content,
+        time,
       },
     );
-    return response.data;
+    return { status: result.status, jsonContent: result.data.message };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function home(id) {
+// get specific club given the name of the club
+async function getSpecificClub(clubName) {
   try {
-    const response = await axios.post(`${rootURL}/${id}`, { id });
-    return response.data;
+    const result = await axios.get(`${domain}/club/${clubName}`);
+    return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-// clubs api
-
-async function getUserClub(id) {
+async function joinClub(clubName, userEmail, password) {
   try {
-    const response = await axios.post(`${rootURL}/club/${id}`, { id });
-    return response.data;
+    const result = await axios.post(`${domain}/joinclub/${clubName}`, { userEmail, password });
+    return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function createClub(id, clubName) {
+async function removeMember(clubName, requestedEmail, targetEmail) {
   try {
-    const response = await axios.post(`${rootURL}/createClub/${id}/${clubName}`, { id, clubName });
-    return response.data;
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/removeMember/${clubName}`,
+      data: {
+        requestedEmail,
+        targetEmail,
+      },
+    });
+    return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
-async function getClub(clubName) {
+async function removeMemberFromProject(projectName, clubName, requestedEmail, assigneeEmail) {
   try {
-    const response = await axios.get(`${rootURL}/club/${clubName}`, { clubName });
-    return response.data;
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/removeUserFromProject/${projectName}`,
+      data: {
+        clubName,
+        requestedEmail,
+        assigneeEmail,
+      },
+    });
+    return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
-    return { status: 500, error: 'Internal server error' };
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function promoteMember(clubName, requesterEmail, targetEmail) {
+  try {
+    const result = await axios.put(`${domain}/promotemember/${clubName}`, { requestedEmail: requesterEmail, targetEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
 module.exports = {
-  login, register, home, getUserClub, createClub, getClub,
+  register,
+  login,
+  getUserId,
+  createClub,
+  getSpecificClub,
+  getUserClubs,
+  getUser,
+  joinClub,
+  removeMember,
+  promoteMember,
+  getAllProjects,
+  createProject,
+  getProject,
+  getClubChat,
+  sendMessage,
+  addUserToProject,
+  removeMemberFromProject,
 };
