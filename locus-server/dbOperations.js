@@ -91,30 +91,21 @@ const resetPassword = async (db, userEmail, newPassword, newLockoutDate) => {
     // update the user
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    const dbRes = await db.collection('Users').updateOne(
+    // Tricky ops; if one fails the state will be messed up
+    await db.collection('Users').updateOne(
       { email: `${userEmail}` },
-      [
-        {
-          $set: {
-            password: hashedPassword,
-          },
-        },
-        {
-          $set: {
-            lockoutAttempts: 0,
-          },
-        },
-        {
-          $set: {
-            lockoutDate: newLockoutDate,
-          },
-        },
-      ],
+      { $set: { password: hashedPassword } },
     );
-    if (!dbRes.acknowledged) {
-      console.log('db update was not acknowledged');
-      return false;
-    }
+    await db.collection('Users').updateOne(
+      { email: `${userEmail}` },
+      { $set: { lockoutAttempts: 0 } },
+    );
+
+    await db.collection('Users').updateOne(
+      { email: `${userEmail}` },
+      { $set: { lockoutDate: newLockoutDate } },
+    );
+
     return true;
   } catch (err) {
     console.error(err);
@@ -476,6 +467,7 @@ const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => 
 const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => {
   try {
     if (!db || !clubName || !requestedEmail || !targetEmail) return false;
+    if (requestedEmail === targetEmail) return false;
     const club = await getClub(db, clubName);
     if (club && club.admins.includes(requestedEmail)
       && club.members.includes(targetEmail) && !club.admins.includes(targetEmail)) {
@@ -862,6 +854,13 @@ const assignUserToProject = async (db, clubName, projectName, requestedEmail, as
     // check authorization
     if (club && project && (club.admins.includes(requestedEmail)
       || project.leaderEmail === requestedEmail) && club.members.includes(assigneeEmail)) {
+      
+      // check if user is already there
+      if (project.members.includes(assigneeEmail)) {
+        return false;
+      }
+
+      // add the user if not already in there
       const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $push: { members: assigneeEmail } });
       if (!result.acknowledged) {
         console.log('project assignment not acknowledged');
@@ -880,6 +879,7 @@ const assignUserToProject = async (db, clubName, projectName, requestedEmail, as
 const removeUserFromProject = async (db, clubName, projectName, requestedEmail, targetEmail) => {
   try {
     if (!db || !clubName || !projectName || !requestedEmail || !targetEmail) return false;
+    if (requestedEmail === targetEmail) return false;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     // check authorization
