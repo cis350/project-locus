@@ -155,7 +155,13 @@ async function assignUserToProject(clubName, projectName, requestedEmail, assign
 
 async function removeUserFromProject(clubName, projectName, requestedEmail, assigneeEmail) {
   try {
-    const result = await axios.post(`${domain}/assignUsertoProject/${projectName}`, { clubName, requestedEmail, assigneeEmail });
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/removeUserFromProject/${projectName}`,
+      data: {
+        clubName, requestedEmail, assigneeEmail,
+      },
+    });
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
