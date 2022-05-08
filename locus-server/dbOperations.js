@@ -397,6 +397,8 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
     }
 
     // cursor.forEach(function (doc) {
+    
+    // })
 
     // })
     //   {
@@ -792,17 +794,11 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
 
     if (!taskIndex && taskIndex !== 0) return false;
     const task = tasks[taskIndex];
-    const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
-    if (!club.admins.includes(requestedEmail) || task.assignedTo !== requestedEmail) {
-      return false;
-    }
 
-    // TODO: Check the task update in place
-    const result = await db.collection('Projects').updateOne(
-      { clubName: `${clubName}`, projectName: `${projectName}` },
-      { $set: { 'tasks.$[elem].status': `${newStatus}` } },
-      { arrayFilters: [{ 'elem._id': taskID }] },
-    );
+    task.status = newStatus;
+
+    // does this push all copies again?
+    const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
     console.log(result);
     if (!result) return false;
     return true;
