@@ -134,8 +134,8 @@ function Chat({ userEmail }) {
   const getDate = ((dateMilli) => {
     const date = new Date(dateMilli);
     const year = date.getFullYear();
-    const month = ((date.getMonth() + 1)).slice(-2);
-    const day = (date.getDate()).slice(-2);
+    const month = ((date.getMonth() + 1).toString()).slice(-2);
+    const day = (date.getDate().toString()).slice(-2);
     return `${month}-${day}-${year}`;
   });
 

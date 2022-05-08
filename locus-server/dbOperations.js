@@ -246,7 +246,7 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
       };
       await db.collection('Users').updateMany(
         {
-          email: { $in: { membersToNotify } },
+          email: { $in: Object.values(membersToNotify) },
         },
         {
           $push:
