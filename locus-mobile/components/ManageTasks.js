@@ -10,7 +10,6 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
   const [jawn, rerender] = useState(false);
   const [tasks, setTasks] = useState(project.tasks);
   const [newTaskName, setNewTaskName] = useState('');
-  const [newTaskStatus, setNewTaskStatus] = useState('');
   const [newTaskAssignee, setNewTaskAssignee] = useState('');
 
   useEffect(() => {
@@ -29,10 +28,9 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
         newTaskName,
         user.email,
         newTaskAssignee,
-        newTaskStatus,
+        'incomplete',
       ));
     setNewTaskName('');
-    setNewTaskStatus('');
     setNewTaskAssignee('');
     setModalVisible(false);
     if (response.status === 200) Alert.alert('Task Successfully Created');
@@ -71,14 +69,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
             />
             <TextInput
               style={styles.input}
-              placeholder="Task Status"
-              placeholderTextColor="grey"
-              onChangeText={setNewTaskStatus}
-              value={newTaskStatus}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Task Assignee"
+              placeholder="Assignee Email"
               placeholderTextColor="grey"
               onChangeText={setNewTaskAssignee}
               value={newTaskAssignee}
@@ -172,7 +163,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   button: {
-    backgroundColor: '#6A9B72',
+    backgroundColor: '#52B69A',
     borderRadius: 10,
     paddingVertical: 10,
     width: 150,
@@ -182,7 +173,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   backButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#52B69A',
     borderRadius: 10,
     paddingVertical: 10,
     width: 150,

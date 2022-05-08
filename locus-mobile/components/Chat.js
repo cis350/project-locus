@@ -44,12 +44,20 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     return true;
   };
 
+  const getDate = ((dateMilli) => {
+    const date = new Date(dateMilli);
+    const year = date.getFullYear();
+    const month = ((date.getMonth() + 1));
+    const day = (date.getDate());
+    return `${month}-${day}-${year}`;
+  });
+
   // function that will send the message the user types, update for backend later
   async function handleSendMessage() {
     if (message === '' && content === '') return;
     if (/\S/.test(message)) {
       // TODO: pass date as milliseconds, update content to image content
-      await sendMessage(currentChat, user.email, message, content, new Date());
+      await sendMessage(currentChat, user.email, message, content, (new Date()).getTime());
     }
     setChatMessages((await getClubChat(currentChat)).jsonContent);
     setMessage('');
@@ -69,7 +77,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
             <Text style={{ fontSize: 15 }}>{chatMessages[i].message}</Text>
           </View>
           <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
-          <Text style={{ fontSize: 10 }}>{chatMessages[i].timeStamp}</Text>
+          <Text style={{ fontSize: 10 }}>{getDate(chatMessages[i].timeStamp)}</Text>
         </View>,
       );
     } else { // align left if you are not the sender

@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const domain = 'https://locus-backend-350.herokuapp.com';
+const domain = 'http://localhost:3306';
 
 // returns a boolean based on whether or not he login was successful
 async function login(email, password) {
@@ -195,17 +195,27 @@ async function deleteProject(clubName, projectName, requestedEmail) {
 
 async function createTask(clubName, projectName, taskName, requestedEmail, targetEmail, status) {
   try {
+    console.log(clubName);
+    console.log(projectName);
+    console.log(taskName);
+    console.log(requestedEmail);
+    console.log(targetEmail);
+    console.log(status);
     const result = await axios.post(`${domain}/createTask/${projectName}`, {
-      clubName, requestedEmail, targetEmail, status, taskName,
+      clubName, taskName, requestedEmail, targetEmail, status,
     });
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
+    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
 async function getAllTasksForProject(clubName, projectName, requestedEmail) {
   try {
+    console.log(clubName);
+    console.log(projectName);
+    console.log(requestedEmail);
     const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
     console.log(result);
     return { status: result.status, jsonContent: result.data };

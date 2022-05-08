@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
-import { removeUserFromProject, getSpecificProject, assignUserToProject } from '../modules/api';
+import { removeUserFromProject, getSpecificProject, assignUserToProject, deleteProject } from '../modules/api';
 import ManageTasks from './ManageTasks';
 
 export default function ManageProject({ project, changeProject, user, club }) {
@@ -35,6 +35,10 @@ export default function ManageProject({ project, changeProject, user, club }) {
     if (response.status !== 200) Alert.alert('Invalid Request');
     rerender(!jawn);
     setMemberEmail('');
+  }
+
+  async function handleDeleteProject() {
+    await deleteProject(club.clubName, project.projectName, user.email);
   }
 
   const displayMembers = [];
@@ -89,6 +93,9 @@ export default function ManageProject({ project, changeProject, user, club }) {
         </TouchableHighlight>
         <TouchableHighlight style={styles.backButton} onPress={() => changeProject(undefined)} underlayColor="#b00017">
           <Text style={{ textAlign: 'center', fontSize: 20 }}>Back</Text>
+        </TouchableHighlight>
+        <TouchableHighlight style={styles.deleteButton} onPress={() => handleDeleteProject()} underlayColor="#b00017">
+          <Text style={{ textAlign: 'center', fontSize: 20 }}>Delete Project</Text>
         </TouchableHighlight>
       </View>
     </KeyboardAwareScrollView>
@@ -153,7 +160,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   button: {
-    backgroundColor: '#6A9B72',
+    backgroundColor: '#52B69A',
     borderRadius: 10,
     paddingVertical: 10,
     width: 150,
@@ -163,6 +170,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   backButton: {
+    backgroundColor: '#52B69A',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+    paddingHorizontal: 5,
+  },
+  deleteButton: {
     backgroundColor: 'red',
     borderRadius: 10,
     paddingVertical: 10,
