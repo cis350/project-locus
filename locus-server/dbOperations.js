@@ -284,7 +284,7 @@ const sendMessage = async (db, clubName, userEmail, message, messageStuff, timeS
           },
         },
       );
-      // add a notifcation for each user in that club
+      // add a notification for each user in that club
       return true;
     }
     console.log('chat not found');
@@ -391,22 +391,28 @@ const reassignTask = async (
 const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee) => {
   if (!db || !clubName || !projectName || !oldAssignee) return false;
   try {
-    const taskUpdateResult = await db.collection('Projects').updateMany(
-      { clubName: `${clubName}`, projectName: `${projectName}` },
-      {
-        $set: {
-          'tasks.$[elem].assignedTo': '$leaderEmail',
-        },
-      },
-      {
-        arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
-        multi: true,
-      },
-    );
-    if (!taskUpdateResult.acknowledged) {
-      console.log(`DB failed to update tasks for ${projectName}`);
+    const cursor = await db.collection('Projects').find({ clubName: `${clubName}`, projectName: `${projectName}` });
+    if (!cursor) {
       return false;
     }
+
+    // cursor.forEach(function (doc) {
+
+    // })
+    //   {
+    //     $set: {
+    //       'tasks.$[elem].assignedTo': '',
+    //     },
+    //   },
+    //   {
+    //     arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
+    //     multi: true,
+    //   },
+    // );
+    // if (!taskUpdateResult.acknowledged) {
+    //   console.log(`DB failed to update tasks for ${projectName}`);
+    //   return false;
+    // }
     return true;
   } catch (err) {
     console.error(err);
@@ -786,17 +792,17 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
 
     if (!taskIndex && taskIndex !== 0) return false;
     const task = tasks[taskIndex];
-    const club = await db.collection('Clubs').findOne({ clubName: `${clubName}`});
+    const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     if (!club.admins.includes(requestedEmail) || task.assignedTo !== requestedEmail) {
       return false;
     }
 
-    // if ()
-
-    // task.status = newStatus;
-
-    // does this push all copies again?
-    const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
+    // TODO: Check the task update in place
+    const result = await db.collection('Projects').updateOne(
+      { clubName: `${clubName}`, projectName: `${projectName}` },
+      { $set: { 'tasks.$[elem].status': `${newStatus}` } },
+      { arrayFilters: [{ 'elem._id': taskID }] },
+    );
     console.log(result);
     if (!result) return false;
     return true;
