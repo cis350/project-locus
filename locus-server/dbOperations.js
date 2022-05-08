@@ -420,7 +420,7 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
 const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
   if (!db || !clubName || !oldAssignee) return false;
   try {
-    var projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` });
+    var projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` }).toArray();
     const bulkUpdateOps = [];
 
     projectCursor.forEach((doc) => {
@@ -960,6 +960,7 @@ const getProjectsForClub = async (db, clubName) => {
 const assignUserToProject = async (db, clubName, projectName, requestedEmail, assigneeEmail) => {
   try {
     if (!db || !clubName || !projectName || !requestedEmail || !assigneeEmail) return false;
+    console.log('HA');
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     // check authorization
