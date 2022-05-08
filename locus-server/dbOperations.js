@@ -679,26 +679,28 @@ const getTask = async (
 const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmail, newStatus) => {
   try {
     if (!db || !clubName || !projectName || !taskID || !requestedEmail || !newStatus) return false;
-    const project = db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    if (!project) {
       return false;
     }
     const { tasks } = project;
+
     let taskIndex;
     for (let i = 0; i < tasks.length; i += 1) {
       if (tasks[i]._id === taskID) {
         taskIndex = i;
       }
     }
+
     if (!taskIndex) return false;
     const task = tasks[taskIndex];
-    if (requestedEmail !== task.assignedTo) {
-      return false;
-    }
+
     task.status = newStatus;
+
     // does this push all copies again?
-    const result = db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
-    if (!result.acknowledged) return false;
+    const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
+    console.log(result);
+    if (!result) return false;
     return true;
   } catch (err) {
     console.error(err);
