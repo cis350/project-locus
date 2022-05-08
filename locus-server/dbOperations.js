@@ -723,7 +723,7 @@ const getAllOngoingTasksForClub = async (db, clubName) => {
       },
       {
         $match: {
-          'tasks.status': { $in: ['incomplete', 'help needed'] },
+          'tasks.status': { $not: { $regex: 'done' } },
         },
       },
       {
