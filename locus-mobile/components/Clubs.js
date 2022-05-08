@@ -1,36 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TouchableHighlight, TextInput, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ProgressBar from 'react-native-progress/Bar';
-import { createClub } from '../modules/api';
+import { useIsFocused } from '@react-navigation/native';
+import {
+  createClub, getUserId, getUserClubs, getSpecificClub, joinClub,
+} from '../modules/api';
 
-const club1 = {
-  name: 'Club 1',
-  master: 'James',
-  progress: 0.3,
-};
-
-const club2 = {
-  name: 'Club 2',
-  master: 'Jeffrey',
-  progress: 0.2,
-};
-
-export default function Clubs({ navigation }) {
-  // **change this to fetch all clubs that the user is a part of from DB
-  const userClubs = [club1, club2, club2, club2];
+export default function Clubs({ route, navigation }) {
+  const [userClubs, setUserClubs] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [clubName, setClubName] = useState('');
+  const [joinClubModalVisible, setJoinClubModalVisible] = useState(false);
+  const [newClubName, setNewClubName] = useState('');
+  const [newClubPassword, setNewClubPassword] = useState('');
+  const [joinClubName, setJoinClubName] = useState('');
+  const [joinClubPassword, setJoinClubPassword] = useState('');
+  const { user } = route.params;
+
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    async function initialize() {
+      setUserClubs((await getUserClubs(user.email)).jsonContent);
+    }
+    initialize();
+  }, [isFocused]);
+
   // set up the view for all the clubs that the user is in
   const displayClubs = [];
   for (let i = 0; i < userClubs.length; i += 1) {
     displayClubs.push(
-      <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => showClub(userClubs[i])}>
-        <Text style={styles.clubText}>{userClubs[i].name}</Text>
-        <Text style={styles.clubText}>Master: {userClubs[i].master}</Text>
-        <ProgressBar progress={userClubs[i].progress} width={200} height={30} color="#8FC7FC" borderRadius={40} />
+      <TouchableOpacity style={styles.club} key={`userClub${i}`} onPress={() => showClub(userClubs[i].clubName)}>
+        <Text style={styles.clubText}>{userClubs[i].clubName}</Text>
+        <Text style={styles.clubText}>Role: {userClubs[i].role}</Text>
         <Ionicons
           style={{ color: 'white', textAlign: 'center', paddingVertical: 20 }}
           name="settings"
@@ -40,40 +42,106 @@ export default function Clubs({ navigation }) {
     );
   }
 
-  function showClub(club) {
+  async function showClub(clubName) {
+    const club = (await getSpecificClub(clubName)).jsonContent;
     navigation.navigate('Club', { club });
   }
 
   async function handleCreateClub() {
-    await createClub(clubName);
-    setClubName('');
+    const masterId = await getUserId(user.email);
+    const response = await createClub(newClubName, masterId, newClubPassword);
+    if (response.status !== 200) Alert.alert('Creation Failed');
+    setUserClubs((await getUserClubs(user.email)).jsonContent);
+    setNewClubName('');
+    setNewClubPassword('');
     setModalVisible(false);
+  }
+
+  async function handleJoinClub() {
+    const response = await joinClub(joinClubName, user.email, joinClubPassword);
+    setUserClubs((await getUserClubs(user.email)).jsonContent);
+    setJoinClubName('');
+    setJoinClubPassword('');
+    if (response.status !== 200) Alert.alert('Join Club Failed');
+    setJoinClubModalVisible(false);
   }
 
   return (
     <ScrollView>
       <View style={styles.container}>
         {/* modal for creating clubs */}
-        <Modal
-          animationType="slide"
-          transparent
-          visible={modalVisible}
-        >
-          <View style={styles.container}>
-            <TextInput
-              style={styles.input}
-              placeholder="Club Name"
-              onChangeText={setClubName}
-              value={clubName}
-            />
-            <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
-              <Text style={{ fontSize: 20 }}>Create</Text>
-            </TouchableHighlight>
-          </View>
-        </Modal>
+        <View style={styles.centeredView}>
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={modalVisible}
+          >
+            <View style={styles.centeredView}>
+              <Text style={{ fontSize: 40, marginBottom: 30 }}>Create Your Club</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Club Name"
+                placeholderTextColor="grey"
+                onChangeText={setNewClubName}
+                value={newClubName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="grey"
+                onChangeText={setNewClubPassword}
+                value={newClubPassword}
+                // eslint-disable-next-line react/jsx-boolean-value
+                secureTextEntry={true}
+              />
+              <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateClub()}>
+                <Text style={{ fontSize: 20 }}>Create</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={styles.cancelButton} underlayColor="#33E86F" onPress={() => setModalVisible(false)}>
+                <Text style={{ fontSize: 20 }}>Cancel</Text>
+              </TouchableHighlight>
+            </View>
+          </Modal>
+        </View>
+        <View style={styles.centeredView}>
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={joinClubModalVisible}
+          >
+            <View style={styles.centeredView}>
+              <Text style={{ fontSize: 40, marginBottom: 30 }}>Join Club</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Club Name"
+                placeholderTextColor="grey"
+                onChangeText={setJoinClubName}
+                value={joinClubName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="grey"
+                onChangeText={setJoinClubPassword}
+                value={joinClubPassword}
+                // eslint-disable-next-line react/jsx-boolean-value
+                secureTextEntry={true}
+              />
+              <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleJoinClub()}>
+                <Text style={{ fontSize: 20 }}>Join</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={styles.cancelButton} underlayColor="#33E86F" onPress={() => setJoinClubModalVisible(false)}>
+                <Text style={{ fontSize: 20 }}>Cancel</Text>
+              </TouchableHighlight>
+            </View>
+          </Modal>
+        </View>
         <Text style={{ fontSize: 24 }}>Which Club Needs Work?</Text>
         <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setModalVisible(true)}>
           <Text style={{ fontSize: 20 }}>Create Club</Text>
+        </TouchableHighlight>
+        <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => setJoinClubModalVisible(true)}>
+          <Text style={{ fontSize: 20 }}>Join Club</Text>
         </TouchableHighlight>
         <View style={styles.clubContainer}>
           {displayClubs}
@@ -87,7 +155,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 25,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
   clubContainer: {
     flexDirection: 'column',
@@ -114,6 +187,15 @@ const styles = StyleSheet.create({
     color: 'white',
     marginVertical: 5,
   },
+  input: {
+    backgroundColor: 'white',
+    borderColor: 'gray',
+    width: 250,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    marginVertical: 5,
+  },
   button: {
     backgroundColor: '#6A9B72',
     borderRadius: 10,
@@ -121,7 +203,17 @@ const styles = StyleSheet.create({
     width: 150,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 10,
+    margin: 10,
+    paddingHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: 'red',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
     paddingHorizontal: 5,
   },
 });

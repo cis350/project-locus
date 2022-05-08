@@ -1,63 +1,151 @@
 /* eslint-disable global-require */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Alert,
 } from 'react-native';
-import ProgressBar from 'react-native-progress/Bar';
+import { useIsFocused } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  getUser, removeMember, promoteMember, getSpecificClub, getClubProjects,
+} from '../modules/api';
+import Profile from './Profile';
+import ManageProject from './ManageProject';
 
-// mock the users and projects in the club
-const project = {
-  name: 'Project 1',
-  lead: 'Jeffrey',
-  progress: 0.3,
-};
-const members = ['Bob', 'Tim'];
+export default function Club({ route }) {
+  const { club, user } = route.params;
+  const [profile, setProfile] = useState(undefined);
+  const [currentClub, setClub] = useState(club);
+  const [clubProjects, setClubProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(undefined);
+  const isFocused = useIsFocused();
 
-export default function Club({ route, navigation }) {
-  const { club } = route.params;
+  useEffect(() => {
+    async function setProjects() {
+      setClubProjects((await getClubProjects(currentClub.clubName)).jsonContent);
+    }
+    setProjects();
+  }, [isFocused]);
+
+  async function showProfile(memberEmail) {
+    const member = (await getUser(memberEmail)).result;
+    setProfile(member);
+  }
+
+  async function handleRemoveMember(memberEmail) {
+    const response = await removeMember(currentClub.clubName, user.email, memberEmail);
+    Alert.alert(response.jsonContent);
+    setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+  }
+
+  async function handlePromoteMember(memberEmail) {
+    const response = await promoteMember(currentClub.clubName, user.email, memberEmail);
+    if (response.status === 200) Alert.alert('Promotion Success!');
+    else Alert.alert(response.jsonContent.error);
+    setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+  }
+
   // setup view for all the users in the club
   const displayMembers = [];
-  for (let i = 0; i < 50; i += 1) {
+  for (let i = 0; i < currentClub.members.length; i += 1) {
     displayMembers.push(
-      <TouchableOpacity style={styles.member} key={`clubMember${i}`} onPress={() => showProfile(members[0])}>
-        <Image source={require('../assets/default-profile.jpg')} style={{ width: 50, height: 50 }} />
-        <Text style={{ fontSize: 28, marginLeft: 30, color: 'white' }}>{members[0]}</Text>
-      </TouchableOpacity>,
+      <View style={styles.member} key={`clubMember${i}`}>
+        <TouchableOpacity
+          style={styles.profile}
+          onPress={() => showProfile(currentClub.members[i])}
+        >
+          <Text style={{ fontSize: 15, marginLeft: 10, color: 'white' }}>{currentClub.members[i]}</Text>
+        </TouchableOpacity>
+        <TouchableHighlight
+          style={styles.promote}
+          onPress={() => handlePromoteMember(currentClub.members[i])}
+        >
+          <Ionicons
+            style={{ color: 'white', textAlign: 'center' }}
+            name="arrow-up-circle-outline"
+            size={20}
+          />
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.remove}
+          onPress={() => handleRemoveMember(currentClub.members[i])}
+        >
+          <Ionicons
+            style={{ color: 'white', textAlign: 'center' }}
+            name="close-circle-outline"
+            size={20}
+          />
+        </TouchableHighlight>
+      </View>,
     );
   }
 
   // setup view for active projects in the club
   const displayProjects = [];
-  for (let i = 0; i < 5; i += 1) {
+  for (let i = 0; i < clubProjects.length; i += 1) {
     displayProjects.push(
-      <TouchableOpacity style={styles.project} key={`userProject${i}`}>
-        <Text style={styles.projectText}>{project.name}</Text>
-        <Text style={styles.projectText}>Lead: {project.lead}</Text>
-        <ProgressBar progress={project.progress} width={200} height={30} color="#8FC7FC" borderRadius={40} marginBottom={20} />
+      <TouchableOpacity style={styles.project} key={`userProject${i}`} onPress={() => setSelectedProject(clubProjects[i])}>
+        <Text style={styles.projectText}>{clubProjects[i].projectName}</Text>
+        <Text style={styles.projectText}>Lead: {clubProjects[i].leaderEmail}</Text>
+        <Ionicons
+          style={{ color: 'white', textAlign: 'center', paddingVertical: 20 }}
+          name="settings"
+          size={24}
+        />
       </TouchableOpacity>,
     );
   }
 
-  function showProfile(member) {
-    navigation.navigate('Profile', { member });
+  if (profile) {
+    return (
+      <View style={styles.container}>
+        <Profile user={profile} />
+        <TouchableHighlight style={styles.button} onPress={() => setProfile(undefined)} underlayColor="#b00017">
+          <Text style={{ textAlign: 'center', fontSize: 30 }}>Return</Text>
+        </TouchableHighlight>
+      </View>
+    );
   }
-
+  if (selectedProject) {
+    return (
+      <ManageProject
+        project={selectedProject}
+        changeProject={setSelectedProject}
+        user={user}
+        club={currentClub}
+      />
+    );
+  }
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={{ fontSize: 24 }}>{club.name}</Text>
+        <Text style={{ fontSize: 24 }}>Welcome to {currentClub.clubName}!</Text>
+        <Text style={{ fontSize: 20, marginTop: 20 }}>Members</Text>
         <ScrollView style={styles.memberContainer}>
           {displayMembers}
         </ScrollView>
-        <View style={styles.projectContainer}>
-          {displayProjects}
-        </View>
+        <Text style={{ fontSize: 20 }}>Projects</Text>
+        {(clubProjects.length === 0) ? (
+          <Text style={{ fontSize: 15, marginTop: 20 }}>No Projects Available</Text>)
+          : (
+            <View style={styles.projectContainer}>
+              {displayProjects}
+            </View>
+          )}
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#6A9B72',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
   container: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -101,7 +189,28 @@ const styles = StyleSheet.create({
   },
   member: {
     flexDirection: 'row',
+    backgroundColor: '#6A9B72',
+    justifyContent: 'flex-end',
+    borderRadius: 10,
     marginVertical: 5,
-    paddingVertical: 10,
+    paddingVertical: 15,
+  },
+  promote: {
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 25,
+    width: 50,
+    borderRadius: 5,
+    marginHorizontal: 10,
+  },
+  remove: {
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 25,
+    width: 50,
+    borderRadius: 5,
+    marginHorizontal: 10,
   },
 });
