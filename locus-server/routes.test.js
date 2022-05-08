@@ -418,6 +418,42 @@ describe('Projects endpoint tests', () => {
       .then((response) => expect(JSON.parse(response.text).message)
         .toBe(`Created Test Project for ${testClub.clubName}`));
   });
+
+  test('/assignUsertoProject/:projectName 400', async () => {
+    await request(webapp).post('/assignUsertoProject/nonexistant')
+      .send({
+        clubName: 'nonexistant',
+        projectName: 'nonexistant',
+        assigneeEmail: 'nonexistant',
+        requestedEmail: 'nonexistant',
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+
+  test('/assignUsertoProject/:projectName 400 no privilege', async () => {
+    await request(webapp).post(`/assignUsertoProject/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'Test Project',
+        requestedEmail: testUser3.userEmail,
+        assigneeEmail: testUser3.userEmail,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+
+  test('/assignUsertoProject/:projectName 201', async () => {
+    await request(webapp).post(`/assignUsertoProject/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'Test Project',
+        requestedEmail: testUser.userEmail,
+        assigneeEmail: testUser3.userEmail,
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`${testUser3.userEmail} added to Test Project`));
+  });
 });
 
 // describe('Tasks endpoint tests', () => {
