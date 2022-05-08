@@ -30,24 +30,28 @@ const Analytics = function AnalyticsComponent({
   });
 
   const tasksCompleted = (() => (
-    allTasks.map((data) => {
-      if (data.status === 'done') {
-        console.log(data);
-        return (
-          <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
-            <div className="row">
-              <div className="col-6">
-                {data.taskName}
-              </div>
+    allTasks.filter((data) => {
+      if (data.status === 'done') return true;
+      return false;
+    }).map((data) => {
+      console.log(data);
+      return (
+        <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
+          <div className="row">
+            <div className="col-6">
+              {data.taskName}
             </div>
-          </li>
-        );
-      }
+          </div>
+        </li>
+      );
     })
   ));
 
   const tasksIncompleted = (() => (
-    allTasks.map((data) => {
+    allTasks.filter((data) => {
+      if (data.status === 'done') return false;
+      return true;
+    }).map((data) => {
       if (data.status === 'incomplete') {
         console.log(data);
         return (
@@ -60,20 +64,19 @@ const Analytics = function AnalyticsComponent({
           </li>
         );
       }
-      if (data.status === 'need help') {
-        console.log(data);
-        return (
-          <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
-            <div className="row">
-              <div className="col-6">
-                {data.taskName}
-                {' '}
-                (need help)
-              </div>
+      // needs help
+      console.log(data);
+      return (
+        <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
+          <div className="row">
+            <div className="col-6">
+              {data.taskName}
+              {' '}
+              (need help)
             </div>
-          </li>
-        );
-      }
+          </div>
+        </li>
+      );
     })
   ));
 

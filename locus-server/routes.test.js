@@ -338,7 +338,7 @@ describe('Chat endpoint tests', () => {
   test('/chats/:clubName post 200', async () => {
     await request(webapp).post(`/chats/${testClub.clubName}`)
       .send({
-        clubName: testClub.clubName, email: testUser.userEmail, message: 'first', content: '', time: 0,
+        clubName: testClub.clubName, email: testUser.userEmail, message: 'first', content: '', time: 1,
       }).expect(201)
       .then((response) => expect(JSON.parse(response.text).message).toBe('Message sent'));
   });
