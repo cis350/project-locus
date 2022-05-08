@@ -854,7 +854,6 @@ const assignUserToProject = async (db, clubName, projectName, requestedEmail, as
     // check authorization
     if (club && project && (club.admins.includes(requestedEmail)
       || project.leaderEmail === requestedEmail) && club.members.includes(assigneeEmail)) {
-      
       // check if user is already there
       if (project.members.includes(assigneeEmail)) {
         return false;
