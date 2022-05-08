@@ -195,6 +195,9 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
   }
 }
 
+/*
+ * Tasks fetches
+ */
 async function createTask(projectName, clubName, taskName, requestedEmail, targetEmail, status) {
   try {
     const result = await axios.post(`${domain}/createTask/${projectName}`, {
