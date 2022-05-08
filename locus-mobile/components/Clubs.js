@@ -75,10 +75,6 @@ export default function Clubs({ route, navigation }) {
             animationType="slide"
             transparent={false}
             visible={modalVisible}
-            onRequestClose={() => {
-              Alert.alert('Modal has been closed.');
-              setModalVisible(!modalVisible);
-            }}
           >
             <View style={styles.centeredView}>
               <Text style={{ fontSize: 40, marginBottom: 30 }}>Create Your Club</Text>

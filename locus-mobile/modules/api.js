@@ -193,6 +193,39 @@ async function deleteProject(clubName, projectName, requestedEmail) {
   }
 }
 
+async function createTask(clubName, projectName, taskName, requestedEmail, targetEmail, status) {
+  try {
+    const result = await axios.post(`${domain}/createTask/${projectName}`, {
+      clubName, requestedEmail, targetEmail, status, taskName,
+    });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getAllTasksForProject(clubName, projectName, requestedEmail) {
+  try {
+    const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
+    console.log(result);
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    console.log(err.response.data);
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function updateTaskStatus(clubName, projectName, requestedEmail, newStatus, taskId) {
+  try {
+    const result = await axios.post(`${domain}//updateTaskStatus//${taskId}`, {
+      clubName, requestedEmail, projectName, newStatus,
+    });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 module.exports = {
   login,
   getUser,
@@ -211,4 +244,7 @@ module.exports = {
   removeUserFromProject,
   getSpecificProject,
   deleteProject,
+  getAllTasksForProject,
+  updateTaskStatus,
+  createTask,
 };

@@ -6,11 +6,13 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
 import { removeUserFromProject, getSpecificProject, assignUserToProject } from '../modules/api';
+import ManageTasks from './ManageTasks';
 
 export default function ManageProject({ project, changeProject, user, club }) {
   const [memberEmail, setMemberEmail] = useState('');
   const [jawn, rerender] = useState(false);
   const [currProject, setCurrProject] = useState(project);
+  const [managingTask, setManagingTask] = useState(false);
 
   useEffect(() => {
     async function setProject() {
@@ -47,6 +49,16 @@ export default function ManageProject({ project, changeProject, user, club }) {
     );
   }
 
+  if (managingTask) {
+    return (
+      <ManageTasks
+        project={currProject}
+        setManagingTask={setManagingTask}
+        user={user}
+        club={club}
+      />
+    );
+  }
   return (
     <KeyboardAwareScrollView scrollToEnd={{ animated: true }}>
       <View style={styles.container}>
@@ -72,7 +84,7 @@ export default function ManageProject({ project, changeProject, user, club }) {
             />
           </TouchableHighlight>
         </View>
-        <TouchableHighlight style={styles.button} onPress={() => changeProject(undefined)} underlayColor="#b00017">
+        <TouchableHighlight style={styles.button} onPress={() => setManagingTask(true)} underlayColor="#b00017">
           <Text style={{ textAlign: 'center', fontSize: 20 }}>Manage Tasks</Text>
         </TouchableHighlight>
         <TouchableHighlight style={styles.backButton} onPress={() => changeProject(undefined)} underlayColor="#b00017">
@@ -97,6 +109,8 @@ const styles = StyleSheet.create({
   scrollContainer: {
     width: 350,
     height: 400,
+    backgroundColor: '#B5E48C',
+    borderRadius: 10,
   },
   addMemberContainer: {
     flexDirection: 'row',
@@ -115,7 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#B5E48C',
     width: 350,
-    paddingVertical: 30,
+    paddingVertical: 5,
     paddingHorizontal: 20,
     borderRadius: 10,
     marginVertical: 30,
