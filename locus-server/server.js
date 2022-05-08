@@ -169,6 +169,7 @@ webapp.get('/notifications/:userEmail', async (req, res) => {
 webapp.put('/notifications/:clubName', async (req, res) => {
   const { requestedEmail } = req.body;
   try {
+    console.log('got into updateNotifs Route');
     const result = await lib.makeNotificationsRead(db, requestedEmail, req.params.clubName);
     if (result === null) {
       return res.status(403).json({ error: 'Invalid request' });

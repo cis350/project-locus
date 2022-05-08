@@ -291,6 +291,7 @@ const getUnreadNotifcations = async (db, userEmail) => {
 
 // set all the notifications for a specific club and user to read
 const makeNotificationsRead = async (db, userEmail, clubName) => {
+  console.log('got into updateNotifs DBOP');
   try {
     if (!db || !clubName || !userEmail) {
       return false;
