@@ -46,7 +46,7 @@ const testClub = {
   admins: [testUser.userEmail],
   projects: [],
   members: [testUser.userEmail],
-  clubPassword: 'abc',
+  password: 'abc',
 };
 
 beforeAll(async () => {
@@ -178,14 +178,14 @@ describe('Club endpoint tests', () => {
   test('/club endpoint 200', async () => {
     const testId = await dbLib.getUserUniqueId(db, testUser.userEmail);
     await request(webapp).post('/club')
-      .send({ id: `${testId}`, clubName: testClub.clubName, clubPassword: testClub.clubPassword }).expect(200)
+      .send({ id: `${testId}`, clubName: testClub.clubName, clubPassword: testClub.password }).expect(200)
       .then((response) => expect(JSON.parse(response.text).message).toBe(`Club created with name ${testClub.clubName}`));
   });
 
   test('/club endpoint 400', async () => {
     const testId = await dbLib.getUserUniqueId(db, testUser.userEmail);
     await request(webapp).post('/club')
-      .send({ id: `${testId}`, clubName: testClub.clubName, clubPassword: testClub.clubPassword }).expect(400)
+      .send({ id: `${testId}`, clubName: testClub.clubName, clubPassword: testClub.password }).expect(400)
       .then((response) => expect(JSON.parse(response.text).error).toBe('Club name already exists'));
   });
 
@@ -211,17 +211,99 @@ describe('Club endpoint tests', () => {
       .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or password incorrect'));
   });
 
+  test('/joinclub/:clubName endpoint 400 wrong pass', async () => {
+    await request(webapp).post('/register').send(testUser2).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message).toBe(`${testUser2.userFirstName} ${testUser2.userLastName} added`));
+    await request(webapp).post(`/joinclub/${testClub.clubName}`)
+      .send({
+        clubName: testUser.clubName,
+        userEmail: testUser2.userEmail,
+        password: 'wrong password',
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or password incorrect'));
+  });
+
   test('/joinclub/:clubname endpoint 201', async () => {
-    const user2Exists = await dbLib.checkIfEmailAlreadyExists(db, testUser2.userEmail);
-    if (!user2Exists) {
-      await request(webapp).post('/register').send(testUser2).expect(201)
-        .then((response) => expect(JSON.parse(response.text).message).toBe(`${testUser2.userFirstName} ${testUser2.userLastName} added`));
-    }
-    const userClubs = await dbLib.getUserClubs(db, testUser2.userEmail);
-    if (!userClubs.includes(testClub.clubName)) {
-      await request(webapp).post('/joinclub/nonexist').send({ userEmail: testUser2.userEmail, masterEmail: testUser.userEmail }).expect(400)
-        .then((response) => expect(JSON.parse(response.text).error).toBe('clubname or password incorrect'));
-    }
+    await request(webapp).post(`/joinclub/${testClub.clubName}`).send({
+      userEmail: testUser2.userEmail,
+      password: testClub.password,
+      clubname: testClub.clubName,
+    }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message).toBe(`added ${testUser2.userEmail} to ${testClub.clubName}`));
+  });
+
+  test('/removeMember/:clubname 400', async () => {
+    await request(webapp).delete('/removeMember/nonexistant')
+      .send({
+        requestedEmail: 'nonexistant',
+        targetEmail: 'nonexistant2',
+        clubname: testClub.clubName,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/removeMember/:clubname 403', async () => {
+    await request(webapp).delete('/removeMember/nonexistant')
+      .send({
+        requestedEmail: 'nonexistant',
+        targetEmail: 'nonexistant',
+        clubname: testClub.clubName,
+      }).expect(403)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Cannot remove self'));
+  });
+
+  test('/removeMember/:clubname 400 no privilege', async () => {
+    await request(webapp).delete(`/removeMember/${testClub.clubName}`)
+      .send({
+        requestedEmail: testUser2.userEmail,
+        targetEmail: testUser.userEmail,
+        clubname: testClub.clubName,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  // test('/removeMember/:clubname 200', async () => {
+  //   await request(webapp).delete(`/removeMember/${testClub.clubName}`)
+  //     .send({
+  //       requestedEmail: testUser.userEmail,
+  //       targetEmail: testUser2.userEmail,
+  //       clubname: testClub.clubName,
+  //     }).expect(200)
+  //     .then((response) => expect(JSON.parse(response.text).message)
+  //       .toBe(`${testUser2.userEmail} removed from ${testClub.clubName}`));
+  // });
+
+  test('/promotemember/:clubname 403', async () => {
+    await request(webapp).put(`/promotemember/${testClub.clubName}`)
+      .send({
+        requestedEmail: testUser.userEmail,
+        targetEmail: testUser.userEmail,
+        clubname: testClub.clubName,
+      }).expect(403)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Cannot promote self'));
+  });
+
+  test('/promotemember/:clubname 403 no privilege', async () => {
+    // await request(webapp).post('/register').send(testUser2).expect(201)
+    //   .then((response) => expect(JSON.parse(response.text).message)
+    //     .toBe(`${testUser2.userFirstName} ${testUser2.userLastName} added`));
+    await request(webapp).put(`/promotemember/${testClub.clubName}`)
+      .send({
+        requestedEmail: testUser2.userEmail,
+        targetEmail: testUser.userEmail,
+        clubname: testClub.clubName,
+      }).expect(403)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/promotemember/:clubname 200', async () => {
+    await request(webapp).put(`/promotemember/${testClub.clubName}`)
+      .send({
+        requestedEmail: testUser.userEmail,
+        targetEmail: testUser2.userEmail,
+        clubname: testClub.clubName,
+      }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message).toBe(`${testUser2.userEmail} promoted in ${testClub.clubName}`));
   });
 });
 
