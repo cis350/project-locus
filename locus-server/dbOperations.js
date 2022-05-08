@@ -460,7 +460,7 @@ const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => 
       }
       // update user's club involvement
       const userClubUpdate = await db.collection('Users').updateOne({ email: `${targetEmail}` }, { $pull: { clubs: { clubName: `${clubName}` } } });
-      if (userClubUpdate.acknowledged) {
+      if (!userClubUpdate.acknowledged) {
         console.log('user\'s own membership update failed');
         return false;
       }
