@@ -15,7 +15,7 @@ import {
   deleteTask,
 } from '../modules/api';
 
-const ManageTasks = function ManageTasksComponent({ project, club, email }) {
+const ManageTasks = function ManageTasksComponent({ project, club, email, role }) {
   const [modalClickCreate, setModalClickCreate] = useState(false);
   const [modalClickTask, setModalClickTask] = useState(false);
   const [taskName, setTaskName] = useState('');
@@ -184,6 +184,7 @@ const ManageTasks = function ManageTasksComponent({ project, club, email }) {
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
       <div className="club-item">
         {/* referenced https://www.delftstack.com/howto/javascript/javascript-remove-spaces */}
+        {role === 'master' && (
         <Button className="club-button" onClick={() => openCreateModal()}>
           <Row>
             <Col className="d-flex justify-content-center">
@@ -191,6 +192,7 @@ const ManageTasks = function ManageTasksComponent({ project, club, email }) {
             </Col>
           </Row>
         </Button>
+        )}
       </div>
       {allTasks.length !== 0 && displayProjects()}
       {modalClickTask && taskModal()}

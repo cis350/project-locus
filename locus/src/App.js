@@ -43,7 +43,7 @@ function App() {
         <Route exact path={`/projects/manage-projects/${currProjectWithoutSpace}/analytics/${uniqueId}`} element={<Analytics userId={uniqueId} currProjectWithoutSpace={currProjectWithoutSpace} project={currProject} club={currClub} email={userEmail} />} />
         <Route exact path={`/projects/clubs/${uniqueId}`} element={<ProjectClubList userId={uniqueId} email={userEmail} setCurrClubWithoutSpace={setCurrClubWithoutSpace} setCurrClub={setCurrClub} setCurrClubRole={setCurrClubRole} />} />
         <Route exact path={`/projects/manage-projects/${currProjectWithoutSpace}/${uniqueId}`} element={<ManageProject email={userEmail} userId={uniqueId} club={currClub} project={currProject} role={currClubRole} currProjectWithoutSpace={currProjectWithoutSpace} />} />
-        <Route exact path={`/projects/manage-projects/${currProjectWithoutSpace}/managetasks/${uniqueId}`} element={<ManageTasks project={currProject} club={currClub} email={userEmail} />} />
+        <Route exact path={`/projects/manage-projects/${currProjectWithoutSpace}/managetasks/${uniqueId}`} element={<ManageTasks project={currProject} club={currClub} email={userEmail} role={currClubRole} />} />
       </Routes>
     </div>
   );

@@ -397,7 +397,7 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
     if (!project) {
       return false;
     }
-
+    console.log(project);
     // modify all the task assignedTo's
     const tasksArray = project.tasks;
     for (let i = 0; i < tasksArray.length; i += 1) {
