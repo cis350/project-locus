@@ -8,3 +8,13 @@
     border-Color: #B1DFAD;
     margin-Top: 10px;
   }
+
+  .badge {
+    height: 20px;
+    width: 20px;
+    font-Size: 10px;
+    color: white;
+    background-Color: #c52c2c;
+    border-Color: #c52c2c;
+    margin-Top: 3px;
+  }

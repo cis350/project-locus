@@ -1,29 +1,54 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  Button, Form, Container, Row, Col, Stack,
+  Button, Form, Container, Row, Col, Stack, Alert,
 } from 'react-bootstrap';
 import '../assets/Clubs.css';
 // import from api functions instead
 import {
-  getUserFullName, getUserClubs, getClubChat, sendMessage,
-} from '../modules/storage';
+  getUserClubs, getClubChat, sendMessage, updateNotifications,
+} from '../modules/api';
 import '../assets/Chat.css';
 
 function Chat({ userEmail }) {
   const [currentChat, changeChat] = useState([]);
+  const [userClubs, changeUserClubs] = useState([]);
+  const [sendFail, changeSendFail] = useState(false);
+  const [clubsFail, changeClubsFail] = useState(false);
+  const [chatsFail, changeChatsFail] = useState(false);
   const currentClub = useRef('');
   const message = useRef('');
-  // clubs user is in
-  const userClubs = getUserClubs(userEmail);
-  // const stackElement = document.getElementsByClassName('chat-stack-scrollable')[0];
-  // stackElement.scrollTop = stackElement.scrollHeight;
+  const content = useRef('');
+
+  if (userClubs.length === 0) {
+    getUserClubs(userEmail).then((res) => {
+      if (res.status === 200) {
+        changeClubsFail(false);
+        changeUserClubs(res.jsonContent);
+      } else {
+        changeClubsFail(true);
+      }
+    });
+  }
 
   const switchToChat = (clubName) => {
     currentClub.current = clubName;
-    changeChat(getClubChat(clubName));
+    getClubChat(clubName).then((res) => {
+      if (res.status === 200) {
+        changeChatsFail(false);
+        changeChat(res.jsonContent);
+        /// update in api
+        updateNotifications(userEmail, clubName).then((resp) => {
+          if (resp.status === 200) {
+            console.log('updated notifications');
+          }
+        });
+      } else {
+        changeChatsFail(true);
+      }
+    });
   };
 
-  const switchToClubs = () => {
+  const switchToClubs = async () => {
     currentClub.current = '';
     changeChat([]);
   };
@@ -32,19 +57,110 @@ function Chat({ userEmail }) {
     message.current = e.target.value;
   };
 
-  const submitMessage = () => {
-    if (/\S/.test(message.current)) {
-      // update to api's sendmessage
-      sendMessage(currentClub.current, userEmail, message.current, new Date());
-    }
-    const updatedChat = getClubChat(currentClub.current);
-    message.current = '';
-    document.getElementById('input-text').value = '';
-    // stackElement.scrollTop = stackElement.scrollHeight;
-    changeChat(updatedChat);
+  const parseContent = (e) => {
+    content.current = e.target.value;
   };
 
-  const showAllClubs = (() => (
+  const submitMessage = () => {
+    if (/\S/.test(message.current)) {
+      sendMessage(
+        currentClub.current,
+        userEmail,
+        message.current,
+        content.current,
+        (new Date()).getTime(),
+      )
+        .then((res) => {
+          if (res.status === 201) {
+            changeSendFail(false);
+            getClubChat(currentClub.current).then((resp) => {
+              if (resp.status === 200) {
+                changeChatsFail(false);
+                message.current = '';
+                content.current = '';
+                document.getElementById('input-text').value = '';
+                document.getElementById('content-text').value = '';
+                changeChat(resp.jsonContent);
+              } else {
+                changeChatsFail(true);
+              }
+            });
+          } else {
+            changeSendFail(true);
+          }
+        });
+    }
+  };
+
+  useEffect(
+    () => {
+      const intervalId = setInterval(() => {
+        if (currentClub.current !== '') {
+          getClubChat(currentClub.current).then((resp) => {
+            if (resp.status === 200) {
+              changeChatsFail(false);
+              changeChat(resp.jsonContent);
+            } else {
+              changeChatsFail(true);
+            }
+          });
+        }
+      }, 5000);
+
+      return () => clearInterval(intervalId);
+    },
+    [currentChat],
+  );
+
+  const isValidUrl = (url) => {
+    try {
+      const f = new URL(url);
+      if (f) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return true;
+  };
+
+  const displayContent = (image) => {
+    if (image === '' || !isValidUrl(image)) {
+      return false;
+    }
+    return true;
+  };
+
+  const getDate = ((dateMilli) => {
+    const date = new Date(dateMilli);
+    const year = date.getFullYear();
+    const month = ((date.getMonth() + 1).toString()).slice(-2);
+    const day = (date.getDate().toString()).slice(-2);
+    return `${month}-${day}-${year}`;
+  });
+
+  const errorSendMessage = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Message failed to send.
+    </Alert>
+  ));
+
+  const errorGetClubs = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Failed to get clubs.
+    </Alert>
+  ));
+
+  const errorGetChats = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Failed to get messages.
+    </Alert>
+  ));
+
+  const showClubs = (() => (
     <div>
       <Stack gap={20}>
         <Row>
@@ -53,12 +169,12 @@ function Chat({ userEmail }) {
           </h1>
         </Row>
         <div className="chat-table">
-          {userClubs.map((clubName) => (
-            <div className="club-item" key={clubName}>
-              <Button className="club-button" onClick={() => switchToChat(clubName)}>
+          {userClubs.map((club) => (
+            <div className="club-item" key={club.clubName}>
+              <Button className="club-button" onClick={() => switchToChat(club.clubName)}>
                 <Row>
                   <Col className="d-flex justify-content-center">
-                    {clubName}
+                    {club.clubName}
                   </Col>
                 </Row>
               </Button>
@@ -69,34 +185,52 @@ function Chat({ userEmail }) {
     </div>
   ));
 
-  const showAChat = (() => (
+  const showAllClubs = (() => (
+    <Container>
+      {clubsFail ? errorGetClubs() : showClubs()}
+    </Container>
+  ));
+
+  const showChat = (() => (
     <Container>
       <Button onClick={switchToClubs}>Go back</Button>
       <Stack>
+        {chatsFail && errorGetChats}
         <div className="chat-stack-scrollable">
           {currentChat.map((mess) => (
             <Row>
-              <Col className="chat-item" key={mess[3]}>
+              <Col className="chat-item" key={mess.uniqueId}>
+                {displayContent(mess.content) ? <img src={mess.content} className="rounded float-left" width="200px" alt="User Content" /> : <div /> }
                 <div className="imessage">
-                  <p className="from-them">{mess[1]}</p>
+                  <p className="from-them">{mess.message}</p>
                 </div>
                 <p>
-                  {getUserFullName(mess[0])}
+                  {mess.fullName}
+                  &nbsp;
                   :
-                  {mess[2].toString()}
+                  &nbsp;
+                  {getDate(mess.timeStamp)}
                 </p>
               </Col>
             </Row>
           ))}
         </div>
       </Stack>
+      {sendFail && errorSendMessage}
       <Form>
         <Form.Group className="mb-3" controlId="formMessage">
           <Form.Label>Input Message</Form.Label>
           <Form.Control id="input-text" type="message" placeholder="Send a message!" onChange={parseInput} />
+          <Form.Control id="content-text" type="message" placeholder="Send content link" onChange={parseContent} />
         </Form.Group>
         <Button variant="primary" onClick={submitMessage}> Send </Button>
       </Form>
+    </Container>
+  ));
+
+  const showAChat = (() => (
+    <Container>
+      {chatsFail ? errorGetChats() : showChat()}
     </Container>
   ));
 

@@ -1,54 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { register } from '../modules/api';
-import majors from '../assets/Majors.json';
+import { getUserId, resetPassword } from '../modules/api';
 
-const Register = function RegisterComponent({ setJustRegistered }) {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+const ResetPassword = function ResetPasswordComponent() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [year, setYear] = useState('2022');
-  const [major, setMajor] = useState('Accounting');
-  const [verifyPassword, setVerifyPassword] = useState('');
-
   const [fieldEmpty, setFieldEmpty] = useState(false);
+  const [serverError, setServerError] = useState(false);
+  const [emailNotExist, setEmailNotExist] = useState(false);
   const [isInvalidEmail, setIsInvalidEmail] = useState(false);
-  const [emailAlreadyExists, setEmailAlreadyExists] = useState(false);
-  const [passwordsNoMatch, setPasswordsNoMatch] = useState(false);
+  const [password, setPassword] = useState('');
+  const [verifyPassword, setVerifyPassword] = useState('');
   const [passwordNotLong, setPasswordNotLong] = useState(false);
+  const [passwordsNoMatch, setPasswordsNoMatch] = useState(false);
   const [passwordHasNoUpper, setPasswordHasNoUpper] = useState(false);
   const [passwordHasNoSpecialCharacter, setPasswordHasNoSpecialCharacter] = useState(false);
-
-  const navigate = useNavigate();
-
-  // setup major selection form
-  const displayMajorSelections = [];
-  for (let i = 0; i < majors.length; i += 1) {
-    displayMajorSelections.push(
-      <option value={majors[i]} key={`major${i}`}>{majors[i]}</option>,
-    );
-  }
-
-  // handles redirecting to "/home"
-  function onRegister(path) {
-    // referenced https://www.npmjs.com/package/uuid
-    setJustRegistered(true);
-    navigate(path);
-  }
-
-  const updateFirstName = (e) => {
-    setFirstName(e.target.value);
-  };
-
-  const updateLastName = (e) => {
-    setLastName(e.target.value);
-  };
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const updateEmail = (e) => {
     setEmail(e.target.value);
@@ -80,13 +50,28 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     return re.test(inputPassword);
   };
 
-  // make it better
   const checkEmptyFields = () => {
-    if (firstName === '' || lastName === '' || email === '' || password === '' || verifyPassword === '') {
+    if (email === '' || password === '' || verifyPassword === '') {
       setFieldEmpty(true);
+      setPasswordNotLong(false);
+      setPasswordsNoMatch(false);
+      setPasswordHasNoUpper(false);
+      setPasswordHasNoSpecialCharacter(false);
+      setServerError(false);
+      setEmailNotExist(false);
+      setIsInvalidEmail(false);
+      setResetSuccess(false);
       return false;
     }
     setFieldEmpty(false);
+    setPasswordNotLong(false);
+    setPasswordsNoMatch(false);
+    setPasswordHasNoUpper(false);
+    setPasswordHasNoSpecialCharacter(false);
+    setServerError(false);
+    setEmailNotExist(false);
+    setIsInvalidEmail(false);
+    setResetSuccess(false);
     return true;
   };
 
@@ -96,6 +81,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
       setPasswordsNoMatch(true);
       setPasswordHasNoUpper(false);
       setPasswordHasNoSpecialCharacter(false);
+      setFieldEmpty(false);
+      setServerError(false);
+      setEmailNotExist(false);
+      setIsInvalidEmail(false);
+      setResetSuccess(false);
       return false;
     }
     if (password.length < 5) {
@@ -103,6 +93,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
       setPasswordsNoMatch(false);
       setPasswordHasNoUpper(false);
       setPasswordHasNoSpecialCharacter(false);
+      setFieldEmpty(false);
+      setServerError(false);
+      setEmailNotExist(false);
+      setIsInvalidEmail(false);
+      setResetSuccess(false);
       return false;
     }
     if (!hasNoUpper(password)) {
@@ -110,6 +105,11 @@ const Register = function RegisterComponent({ setJustRegistered }) {
       setPasswordsNoMatch(false);
       setPasswordHasNoUpper(true);
       setPasswordHasNoSpecialCharacter(false);
+      setFieldEmpty(false);
+      setServerError(false);
+      setEmailNotExist(false);
+      setIsInvalidEmail(false);
+      setResetSuccess(false);
       return false;
     }
     if (!hasNoSpecialCharacter(password)) {
@@ -117,41 +117,103 @@ const Register = function RegisterComponent({ setJustRegistered }) {
       setPasswordsNoMatch(false);
       setPasswordHasNoUpper(false);
       setPasswordHasNoSpecialCharacter(true);
+      setFieldEmpty(false);
+      setServerError(false);
+      setEmailNotExist(false);
+      setIsInvalidEmail(false);
+      setResetSuccess(false);
       return false;
     }
     setPasswordNotLong(false);
     setPasswordsNoMatch(false);
     setPasswordHasNoUpper(false);
     setPasswordHasNoSpecialCharacter(false);
+    setFieldEmpty(false);
+    setServerError(false);
+    setEmailNotExist(false);
+    setIsInvalidEmail(false);
+    setResetSuccess(false);
     return true;
   };
 
-  const processUserInputs = async () => {
+  const processUserInput = async () => {
     if (checkEmptyFields() && checkValidPassword()) {
       if (!validateEmail(email)) {
-        setEmailAlreadyExists(false);
         setIsInvalidEmail(true);
+        setPasswordNotLong(false);
+        setPasswordsNoMatch(false);
+        setPasswordHasNoUpper(false);
+        setPasswordHasNoSpecialCharacter(false);
+        setFieldEmpty(false);
+        setServerError(false);
+        setEmailNotExist(false);
+        setResetSuccess(false);
       } else {
-        register(firstName, lastName, email, password, year, major)
-          .then((res) => {
-            if (res.status === 201) {
-              setIsInvalidEmail(false);
-              setEmailAlreadyExists(false);
-              onRegister('/');
-            }
-            if (res.status === 400) {
-              setIsInvalidEmail(false);
-              setEmailAlreadyExists(true);
-            }
-          });
+        getUserId(email).then((res) => {
+          if (res.status === 200) {
+            setIsInvalidEmail(false);
+            setFieldEmpty(false);
+            setServerError(false);
+            setEmailNotExist(false);
+            setPasswordNotLong(false);
+            setPasswordsNoMatch(false);
+            setPasswordHasNoUpper(false);
+            setPasswordHasNoSpecialCharacter(false);
+            resetPassword(email, password).then((res2) => {
+              console.log(res2);
+            });
+            setResetSuccess(true);
+          } else if (res.status === 404) {
+            setIsInvalidEmail(false);
+            setFieldEmpty(false);
+            setServerError(false);
+            setEmailNotExist(true);
+            setPasswordNotLong(false);
+            setPasswordsNoMatch(false);
+            setPasswordHasNoUpper(false);
+            setPasswordHasNoSpecialCharacter(false);
+            setResetSuccess(false);
+          } else if (res.status === 500) {
+            setIsInvalidEmail(false);
+            setFieldEmpty(false);
+            setServerError(true);
+            setEmailNotExist(false);
+            setPasswordNotLong(false);
+            setPasswordsNoMatch(false);
+            setPasswordHasNoUpper(false);
+            setPasswordHasNoSpecialCharacter(false);
+            setResetSuccess(false);
+          }
+        });
       }
     }
   };
 
+  const errorMsgEmptyEmail = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Please enter your all 3 fields.
+    </Alert>
+  ));
+
   const errorMsgInvalidEmail = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Invalid email.
+      Please enter a valid email address.
+    </Alert>
+  ));
+
+  const errorMsgServerError = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Server error.
+    </Alert>
+  ));
+
+  const errorMsgEmailNotExist = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Email does not exist.
     </Alert>
   ));
 
@@ -169,20 +231,6 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     </Alert>
   ));
 
-  const errorMsgEmailAlreadyExists = (() => (
-    // referenced https://react-bootstrap.github.io/components/alerts/
-    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Email already exists.
-    </Alert>
-  ));
-
-  const errorMsgEmptyFields = (() => (
-    // referenced https://react-bootstrap.github.io/components/alerts/
-    <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
-      Please fill out all 5 fields below.
-    </Alert>
-  ));
-
   const errorMsgPasswordHasNoUpper = (() => (
     // referenced https://react-bootstrap.github.io/components/alerts/
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
@@ -197,16 +245,25 @@ const Register = function RegisterComponent({ setJustRegistered }) {
     </Alert>
   ));
 
+  const resetSuccessMsg = (() => (
+    // referenced https://react-bootstrap.github.io/components/alerts/
+    <Alert variant="success" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
+      Password was reset.
+    </Alert>
+  ));
+
   return (
-    <div className="container" style={{ position: 'relative', padding: '20px' }}>
-      <h1 className="text-center">Register</h1>
-      {fieldEmpty && errorMsgEmptyFields()}
-      {emailAlreadyExists && errorMsgEmailAlreadyExists()}
+    <div className="container" style={{ position: 'relative', padding: '120px' }}>
+      <h1 className="text-center">Reset Password</h1>
+      {fieldEmpty && errorMsgEmptyEmail()}
+      {serverError && errorMsgServerError()}
+      {emailNotExist && errorMsgEmailNotExist()}
+      {isInvalidEmail && errorMsgInvalidEmail()}
       {passwordNotLong && errorMsgPasswordTooShort()}
       {passwordsNoMatch && errorMsgPasswordsNotMatch()}
-      {isInvalidEmail && errorMsgInvalidEmail()}
       {passwordHasNoUpper && errorMsgPasswordHasNoUpper()}
       {passwordHasNoSpecialCharacter && errorMsgPasswordHasNoSpecialCharacter()}
+      {resetSuccess && resetSuccessMsg()}
       <Card style={{
         width: '23rem',
         margin: 'auto',
@@ -220,33 +277,12 @@ const Register = function RegisterComponent({ setJustRegistered }) {
           {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>First name</Form.Label>
-              <Form.Control data-testid="firstname-input" style={{ height: '35px' }} type="name" onChange={(e) => updateFirstName(e)} />
-              <Form.Label>Last name</Form.Label>
-              <Form.Control data-testid="lastname-input" style={{ height: '35px' }} type="name" onChange={(e) => updateLastName(e)} />
               <Form.Label>Email</Form.Label>
-              <Form.Control data-testid="email-input" style={{ height: '35px' }} type="email" onChange={(e) => updateEmail(e)} />
-              <Form.Label>Year</Form.Label>
-              <Form.Select onChange={(e) => setYear(e.target.value)}>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-              </Form.Select>
-              <Form.Label>Major</Form.Label>
-              <Form.Select onChange={(e) => setMajor(e.target.value)}>
-                {displayMajorSelections}
-              </Form.Select>
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                data-testid="password-input"
-                style={{ height: '35px' }}
-                type="password"
-                maxlength="20"
-                onChange={(e) => updatePassword(e)}
-              />
-              <Form.Label>Verify password</Form.Label>
-              <Form.Control data-testid="verpassword-input" style={{ height: '35px' }} type="password" maxlength="20" onChange={(e) => updateVerifyPassword(e)} />
+              <Form.Control style={{ height: '25px' }} type="email" onChange={(e) => updateEmail(e)} />
+              <Form.Label>New password</Form.Label>
+              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updatePassword(e)} />
+              <Form.Label>Verify new password</Form.Label>
+              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updateVerifyPassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>
@@ -258,17 +294,17 @@ const Register = function RegisterComponent({ setJustRegistered }) {
             width: '120px',
             height: '50px',
             fontWeight: 'bold',
-            fontSize: '25px',
+            fontSize: '20px',
             color: 'black',
             borderColor: '#6A9B72',
           }}
-          onClick={() => processUserInputs()}
+          onClick={() => processUserInput()}
         >
-          Register
+          Continue
         </Button>
       </div>
     </div>
   );
 };
 
-export default Register;
+export default ResetPassword;

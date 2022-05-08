@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-expressions */
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -5,98 +8,100 @@ import {
   Card,
   Form,
   Alert,
+  Row,
+  Col,
+  Modal,
 } from 'react-bootstrap';
-import { checkIfEmailAlreadyExists, getUserFullName } from '../modules/storage';
+import {
+  getProject,
+  getSpecificClub,
+  addUserToProject,
+  removeMemberFromProject,
+  getTasksForProject,
+  updateStatusForCurrTask,
+} from '../modules/api';
 
-const ManageProject = function ManageProjectComponent() {
+const ManageProject = function ManageProjectComponent({
+  email,
+  userId,
+  club,
+  project,
+  role,
+  currProjectWithoutSpace,
+}) {
   const [currMembers, setCurrMembers] = useState([]);
-  const [currentMilestones, setCurrMilestones] = useState([]);
-  const [currentTasks, setCurrTasks] = useState([]);
-  const [attendance, checkAttendence] = useState(false);
-  const [milestonesView, changeMilestonesView] = useState(false);
+  const [clubMembers, setClubMembers] = useState([]);
   const [userNotInClub, setUserNotInClub] = useState(false);
   const [userAlreadyInProject, setUserAlreadyInProject] = useState(false);
   const [memberEmail, setMemberEmail] = useState('');
   const [rerender, setRerender] = useState(false);
+  const [allTasksForNonMaster, setAllTasksForNonMaster] = useState([]);
+  const [modalClickTask, setModalClickTask] = useState(false);
+  const [currTask, setCurrTask] = useState('');
+  const [currTaskId, setCurrTaskId] = useState('');
+  const [currStatus, setCurrStatus] = useState('');
+  const [updatedStatus, setUpdatedStatus] = useState('');
 
-  const poke = (() => {
-    alert('poked!');
-  });
+  const navigate = useNavigate();
 
-  const createMilestone = (() => {
-    alert('milestone created!');
-  });
+  useEffect(() => {
+    getProject(club, project).then((res1) => {
+      if (res1.status === 200) {
+        const userList = res1.jsonContent.result.members;
+        setCurrMembers(userList);
+      }
+    });
+    getSpecificClub(club).then((res2) => {
+      if (res2.status === 200) {
+        const currClubMembers = res2.jsonContent.members;
+        setClubMembers(currClubMembers);
+      }
+    });
+    getTasksForProject(project, club, email).then((res) => {
+      if (res.status === 200) {
+        setAllTasksForNonMaster(res.jsonContent);
+      }
+    });
+  }, [rerender]);
 
-  const closeMilestone = (() => {
-    alert('milestone closed!');
-  });
+  const openTaskModal = (task, id, status) => {
+    setModalClickTask(true);
+    setCurrTask(task);
+    setCurrTaskId(id);
+    setCurrStatus(status);
+  };
 
-  const assignTask = (() => {
-    alert('task assigned!');
-  });
+  const closeTaskModal = () => {
+    setModalClickTask(false);
+  };
 
-  const completeTask = (() => {
-    alert('task completed!');
-  });
-
-  const createTask = (() => {
-    alert('task created!');
-  });
-
-  const deleteUser = (() => {
-    alert('deleted!');
-  });
-
-  const takeAttendance = (() => {
-    checkAttendence(!attendance);
-  });
-
-  const manageMilestonesAndTasks = (() => {
-    changeMilestonesView(!milestonesView);
+  const deleteUser = ((data) => {
+    if (data === email) {
+      alert('You are the owner of the project.');
+    } else {
+      removeMemberFromProject(project, club, email, data).then((res) => {
+        console.log(res);
+        setRerender(!rerender);
+      });
+    }
   });
 
   const viewAnalytics = (() => {
-    alert('view analytics!');
+    navigate(`/projects/manage-projects/${currProjectWithoutSpace}/analytics/${userId}`);
   });
 
-  const attendenceMembers = (() => (
-    currMembers.map((data) => (
-      <div className="form-check">
-        <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-        <label className="form-check-label" htmlFor="flexCheckDefault">
-          {getUserFullName(data)}
-        </label>
-      </div>
-    )))
-  );
+  const manageTasks = (() => {
+    navigate(`/projects/manage-projects/${currProjectWithoutSpace}/managetasks/${userId}`);
+  });
 
   const usersInTable = (() => (
     currMembers.map((data) => (
       <li style={{ listStyleType: 'none', width: '15rem' }} key={data}>
         <div className="row">
-          <div className="col-6">
-            {getUserFullName(data)}
+          <div className="col-8">
+            {data}
           </div>
-          <div className="col-3">
-            <Button
-              style={{
-                backgroundColor: '#D9ED92',
-                width: '60px',
-                height: '25px',
-                fontWeight: 'bold',
-                fontSize: '8px',
-                color: 'black',
-                borderColor: '#D9ED92',
-                borderRadius: '20px',
-                marginTop: '5px',
-                marginLeft: '20px',
-              }}
-              onClick={() => poke()}
-            >
-              Poke
-            </Button>
-          </div>
-          <div className="col-3">
+          <div className="col-4">
             <Button
               style={{
                 backgroundColor: '#9C0000',
@@ -111,7 +116,7 @@ const ManageProject = function ManageProjectComponent() {
                 marginRight: '30px',
                 marginLeft: '20px',
               }}
-              onClick={() => deleteUser()}
+              onClick={() => deleteUser(data)}
             >
               Remove
             </Button>
@@ -128,7 +133,7 @@ const ManageProject = function ManageProjectComponent() {
     </Alert>
   ));
 
-  const errorMsgUserAlreadyInClub = (() => (
+  const errorMsgUserAlreadyInProject = (() => (
     <Alert variant="danger" style={{ width: '23rem', margin: 'auto', marginTop: '10px' }} className="text-center">
       User already in project.
     </Alert>
@@ -138,360 +143,217 @@ const ManageProject = function ManageProjectComponent() {
     setMemberEmail(e.target.value);
   });
 
+  const checkUserInClub = (inputEmail) => clubMembers.includes(inputEmail);
+
   const processUserEmail = (() => {
-    if (checkIfEmailAlreadyExists(memberEmail)) {
+    if (!checkUserInClub(memberEmail)) {
       setUserAlreadyInProject(false);
       setUserNotInClub(true);
     } else if (currMembers.includes(memberEmail)) {
       setUserAlreadyInProject(true);
       setUserNotInClub(false);
     } else {
+      addUserToProject(club, email, memberEmail, project).then((res) => {
+        if (res.status === 201) {
+          setRerender(!rerender);
+        }
+      });
       setUserAlreadyInProject(false);
       setUserNotInClub(false);
-      setRerender(!rerender);
     }
   });
 
-  const currMilestones = (() =>
-    currentMilestones.map((data) => (
-      <div>
-        <div className="col-6">
-          {data}
-        </div>
-        <div className="col-3">
+  const masterView = (() => (
+    <div className="row">
+      <div className="col-sm">
+        <Card style={{
+          width: '23rem',
+          height: '27rem',
+          margin: 'auto',
+          marginTop: '20px',
+          borderRadius: '10px',
+          backgroundColor: '#B5E48C',
+          borderColor: '#B5E48C',
+        }}
+        >
+          <Card.Body>
+            {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
+            <h5 className="text-center">Members</h5>
+            <div style={{ overflow: 'hidden', overflowY: 'scroll' }}>
+              <ul style={{ height: '310px' }}>
+                {usersInTable()}
+              </ul>
+            </div>
+
+            <div className="row">
+              <div className="col-8">
+                <Form.Control style={{ marginTop: '10px', height: '25px' }} type="name" onChange={(e) => updateMemberEmail(e)} />
+              </div>
+              <div className="col-4">
+                <Button
+                  style={{
+                    backgroundColor: '#6A9B72',
+                    width: '100px',
+                    height: '25px',
+                    fontWeight: 'bold',
+                    fontSize: '8px',
+                    color: 'black',
+                    borderColor: '#6A9B72',
+                    marginTop: '10px',
+                  }}
+                  onClick={() => processUserEmail()}
+                >
+                  Add Member
+                </Button>
+              </div>
+            </div>
+          </Card.Body>
+        </Card>
+        {userNotInClub && errorMsgUserDoesNotExist()}
+        {userAlreadyInProject && errorMsgUserAlreadyInProject()}
+      </div>
+      <div className="col-sm" style={{ marginTop: '120px' }}>
+        <div style={{ height: '70px', width: '23rem', margin: 'auto' }}>
           <Button
             style={{
-              backgroundColor: '#C30000',
-              width: '60px',
-              height: '25px',
+              backgroundColor: '#52B69A',
+              width: '300px',
+              height: '35px',
               fontWeight: 'bold',
-              fontSize: '8px',
-              color: 'white',
-              borderColor: '#D9ED92',
-              borderRadius: '20px',
-              marginTop: '5px',
-              marginLeft: '20px',
+              fontSize: '15px',
+              color: 'black',
+              borderColor: '#52B69A',
+              marginTop: '10px',
             }}
-            onClick={() => closeMilestone()}
+            onClick={() => viewAnalytics()}
           >
-            Close
+            View Analytics
+          </Button>
+        </div>
+        <div style={{ height: '70px', width: '23rem', margin: 'auto' }}>
+          <Button
+            style={{
+              backgroundColor: '#52B69A',
+              width: '300px',
+              height: '35px',
+              fontWeight: 'bold',
+              fontSize: '15px',
+              color: 'black',
+              borderColor: '#52B69A',
+              marginTop: '10px',
+            }}
+            onClick={() => manageTasks()}
+          >
+            Manage Tasks
           </Button>
         </div>
       </div>
-    ))
-  );
+    </div>
+  ));
 
-  const currTasks = (() =>
-    currentTasks.map((data) => (
-      <div>
-        <div className="col-6">
-          {data}
-        </div>
-        <div className="col-3">
-          <Button
-            style={{
-              backgroundColor: '#34A0A4',
-              width: '60px',
-              height: '25px',
-              fontWeight: 'bold',
-              fontSize: '8px',
-              color: 'white',
-              borderColor: '#D9ED92',
-              borderRadius: '20px',
-              marginTop: '5px',
-              marginLeft: '20px',
-            }}
-            onClick={() => assignTask()}
-          >
-            Assign
-          </Button>
-          <Button
-            style={{
-              backgroundColor: '#C30000',
-              width: '60px',
-              height: '25px',
-              fontWeight: 'bold',
-              fontSize: '8px',
-              color: 'white',
-              borderColor: '#D9ED92',
-              borderRadius: '20px',
-              marginTop: '5px',
-              marginLeft: '20px',
-            }}
-            onClick={() => completeTask()}
-          >
-            Complete
-          </Button>
-        </div>
-      </div>
-    ))
-  );
+  const updateStatus = (() => {
+    setUpdatedStatus('');
+  });
 
-  useEffect(() => {
-    if (memberEmail !== '') {
-      const newCurrMembers = currMembers;
-      newCurrMembers.push(memberEmail);
-      setCurrMembers([...newCurrMembers]);
+  const updateStatusState = ((e) => {
+    setUpdatedStatus(e.target.value);
+  });
+
+  const updateStatusForTask = (() => {
+    updateStatusForCurrTask(currTaskId, club, project, email, updatedStatus).then((res) => {
+      setRerender(!rerender);
+    });
+  });
+
+  const taskModal = (() => (
+    <Modal show={modalClickTask} onHide={() => closeTaskModal()}>
+      <Modal.Header closeButton>
+        <Modal.Title>
+          Update status for
+          {' '}
+          {currTask}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Current status:
+        {' '}
+        {currStatus}
+        <div className="form-check">
+          <input className="form-check-input" type="radio" name="inlineRadioOptions" id="radio1" value="incomplete" onChange={(e) => updateStatusState(e)} />
+          <label className="form-check-label" htmlFor="inlineRadio1">Incomplete</label>
+        </div>
+        <div className="form-check">
+          <input className="form-check-input" type="radio" name="inlineRadioOptions" id="radio2" value="done" onChange={(e) => updateStatusState(e)} />
+          <label className="form-check-label" htmlFor="inlineRadio2">Done</label>
+        </div>
+        <div className="form-check">
+          <input className="form-check-input" type="radio" name="inlineRadioOptions" id="radio2" value="need help" onChange={(e) => updateStatusState(e)} />
+          <label className="form-check-label" htmlFor="inlineRadio2">Need help</label>
+        </div>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button className="btn btn-secondary mt-2" onClick={() => closeTaskModal()}>
+          Close
+        </Button>
+        <Button className="btn btn-primary mt-2" onClick={() => { updateStatus(); updatedStatus !== '' ? updateStatusForTask() : alert('please select an option'); closeTaskModal() }}>
+          Update
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  ));
+
+  const displayTasksForNonMaster = (() => (
+    allTasksForNonMaster.map((data) => {
+      if (data.assignedTo === email) {
+        return (
+          <div className="club-item" key={data._id}>
+            {/* referenced https://www.delftstack.com/howto/javascript/javascript-remove-spaces */}
+            <Button className="club-button" onClick={() => openTaskModal(data.taskName, data._id, data.status)}>
+              <Row>
+                <Col className="d-flex justify-content-center">
+                  {data.taskName}
+                  {' '}
+                  (Status:
+                  {' '}
+                  {data.status}
+                  )
+                </Col>
+              </Row>
+            </Button>
+          </div>
+        );
+      }
+      return null;
+    })
+  ));
+
+  const hasAtLeastOneProjectAssigned = (() => {
+    for (let i = 0; i < allTasksForNonMaster.length; i += 1) {
+      if (allTasksForNonMaster[i].assignedTo === email) {
+        return true;
+      }
     }
-  }, [rerender]);
+    return false;
+  });
 
-  if (attendance) {
-    return (
-      <div className="mx-auto" style={{ position: 'relative', padding: '20px' }}>
-        <div>
-          {attendenceMembers()}
-        </div>
-        <Button
-          style={{
-            backgroundColor: '#C30000',
-            width: '300px',
-            height: '35px',
-            fontWeight: 'bold',
-            fontSize: '15px',
-            color: 'black',
-            borderColor: '#52B69A',
-            marginTop: '10px',
-          }}
-          onClick={() => takeAttendance()}
-        >
-          Return
-        </Button>
-        <Button
-          style={{
-            backgroundColor: '#52B69A',
-            width: '300px',
-            height: '35px',
-            fontWeight: 'bold',
-            fontSize: '15px',
-            color: 'black',
-            borderColor: '#52B69A',
-            marginTop: '10px',
-          }}
-          onClick={() => takeAttendance()}
-        >
-          Submit Attendance
-        </Button>
-      </div>
-    );
-  }
-
-  if (milestonesView) {
-    return (
-      <div>
-        <div className="row">
-          <div className="col-sm">
-            <Card style={{
-              width: '23rem',
-              height: '27rem',
-              margin: 'auto',
-              marginTop: '20px',
-              borderRadius: '10px',
-              backgroundColor: '#B5E48C',
-              borderColor: '#B5E48C',
-            }}
-            >
-              <Card.Body>
-                {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
-                <h5 className="text-center">Active Milestones</h5>
-                <div style={{ overflow: 'hidden', overflowY: 'scroll' }}>
-                  <ul style={{ height: '310px' }}>
-                    {currMilestones()}
-                  </ul>
-                </div>
-                <div className="row">
-                  {/* <div className="col-8">
-                    <Form.Control style={{ marginTop: '10px', height: '25px' }} type="name" onChange={(e) => updateMemberEmail(e)} />
-                  </div> */}
-                  <div className="col-4">
-                    <Button
-                      style={{
-                        backgroundColor: '#52B69A',
-                        width: '100px',
-                        height: '25px',
-                        fontWeight: 'bold',
-                        fontSize: '8px',
-                        color: 'black',
-                        borderColor: '#6A9B72',
-                        marginTop: '10px',
-                      }}
-                      onClick={() => createMilestone()}
-                    >
-                      Create Milestone
-                    </Button>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-          <div className="col-sm">
-            <Card style={{
-              width: '23rem',
-              height: '27rem',
-              margin: 'auto',
-              marginTop: '20px',
-              borderRadius: '10px',
-              backgroundColor: '#B5E48C',
-              borderColor: '#B5E48C',
-            }}
-            >
-              <Card.Body>
-                {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
-                <h5 className="text-center">Active Tasks</h5>
-                <div style={{ overflow: 'hidden', overflowY: 'scroll' }}>
-                  <ul style={{ height: '310px' }}>
-                    {currTasks()}
-                  </ul>
-                </div>
-                <div className="row">
-                  {/* <div className="col-8">
-                    <Form.Control style={{ marginTop: '10px', height: '25px' }} type="name" onChange={(e) => updateMemberEmail(e)} />
-                  </div> */}
-                  <div className="col-4">
-                    <Button
-                      style={{
-                        backgroundColor: '#52B69A',
-                        width: '100px',
-                        height: '25px',
-                        fontWeight: 'bold',
-                        fontSize: '8px',
-                        color: 'black',
-                        borderColor: '#6A9B72',
-                        marginTop: '10px',
-                      }}
-                      onClick={() => createTask()}
-                    >
-                      Create Task
-                    </Button>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </div>
-        </div>
-        <Button
-          style={{
-            backgroundColor: '#C30000',
-            width: '300px',
-            height: '35px',
-            fontWeight: 'bold',
-            fontSize: '15px',
-            color: 'black',
-            borderColor: '#52B69A',
-            marginTop: '10px',
-          }}
-          onClick={() => manageMilestonesAndTasks()}
-        >
-          Return
-        </Button>
-      </div>
-    );
-  }
+  const msgNoTasks = (() => (
+    <h3 className="text-center">
+      You do not have any tasks assigned for
+      {' '}
+      {project}
+      !
+    </h3>
+  ));
 
   return (
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
-      <h1 className="text-center">PROJECT NAME</h1>
-      <div className="row">
-        <div className="col-sm">
-          <Card style={{
-            width: '23rem',
-            height: '27rem',
-            margin: 'auto',
-            marginTop: '20px',
-            borderRadius: '10px',
-            backgroundColor: '#B5E48C',
-            borderColor: '#B5E48C',
-          }}
-          >
-            <Card.Body>
-              {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
-              <h5 className="text-center">Members</h5>
-              <div style={{ overflow: 'hidden', overflowY: 'scroll' }}>
-                <ul style={{ height: '310px' }}>
-                  {usersInTable()}
-                </ul>
-              </div>
-
-              <div className="row">
-                <div className="col-8">
-                  <Form.Control style={{ marginTop: '10px', height: '25px' }} type="name" onChange={(e) => updateMemberEmail(e)} />
-                </div>
-                <div className="col-4">
-                  <Button
-                    style={{
-                      backgroundColor: '#6A9B72',
-                      width: '100px',
-                      height: '25px',
-                      fontWeight: 'bold',
-                      fontSize: '8px',
-                      color: 'black',
-                      borderColor: '#6A9B72',
-                      marginTop: '10px',
-                    }}
-                    onClick={() => processUserEmail()}
-                  >
-                    Add Member
-                  </Button>
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-          {userNotInClub && errorMsgUserDoesNotExist()}
-          {userAlreadyInProject && errorMsgUserAlreadyInClub()}
-        </div>
-        <div className="col-sm" style={{ marginTop: '120px' }}>
-          <div style={{ height: '70px', width: '23rem', margin: 'auto' }}>
-            <Button
-              style={{
-                backgroundColor: '#52B69A',
-                width: '300px',
-                height: '35px',
-                fontWeight: 'bold',
-                fontSize: '15px',
-                color: 'black',
-                borderColor: '#52B69A',
-                marginTop: '10px',
-              }}
-              onClick={() => takeAttendance()}
-            >
-              Attendance
-            </Button>
-          </div>
-          <div style={{ height: '70px', width: '23rem', margin: 'auto' }}>
-            <Button
-              style={{
-                backgroundColor: '#52B69A',
-                width: '300px',
-                height: '35px',
-                fontWeight: 'bold',
-                fontSize: '15px',
-                color: 'black',
-                borderColor: '#52B69A',
-                marginTop: '10px',
-              }}
-              onClick={() => manageMilestonesAndTasks()}
-            >
-              Manange Milestones/Tasks
-            </Button>
-          </div>
-          <div style={{ height: '70px', width: '23rem', margin: 'auto' }}>
-            <Button
-              style={{
-                backgroundColor: '#52B69A',
-                width: '300px',
-                height: '35px',
-                fontWeight: 'bold',
-                fontSize: '15px',
-                color: 'black',
-                borderColor: '#52B69A',
-                marginTop: '10px',
-              }}
-              onClick={() => viewAnalytics()}
-            >
-              View Analytics
-            </Button>
-          </div>
-        </div>
-      </div>
+      <h1 className="text-center">
+        {project}
+      </h1>
+      {role === 'master' && masterView()}
+      {role !== 'master' && hasAtLeastOneProjectAssigned() && displayTasksForNonMaster()}
+      {role !== 'master' && !hasAtLeastOneProjectAssigned() && msgNoTasks()}
+      {modalClickTask && taskModal()}
     </div>
   );
 };

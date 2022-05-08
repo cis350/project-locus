@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card, Form,
   Alert,
 } from 'react-bootstrap';
-import { login, getLockout, updateLockout } from '../modules/fetchRequests';
+import { login } from '../modules/api';
 // import { verifyLogInInfo, getUserUniqueId } from '../modules/storage';
 
 const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId }) {
@@ -15,16 +15,6 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId
   const [logInFieldEmpty, setLogInFieldEmpty] = useState(false);
   const [logInInfoInvalid, setLogInInfoInvalid] = useState(false);
   const [lockout, setLockout] = useState(false);
-  const loginAttempts = useRef(0);
-
-  getLockout(logInEmail).then((res) => {
-    if (res.status === 200) {
-      const date = Date.now();
-      if (res.jsonContent.userLockout > date) {
-        setLockout(true);
-      }
-    }
-  });
 
   const navigate = useNavigate();
 
@@ -32,6 +22,10 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId
   function onLogIn(path) {
     setIsLoggedIn(true);
     setUserEmail(logInEmail);
+    navigate(path);
+  }
+
+  function onResetPassword(path) {
     navigate(path);
   }
 
@@ -48,53 +42,24 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId
       setLogInFieldEmpty(true);
       setLogInInfoInvalid(false);
     } else {
-      getLockout(logInEmail).then((resp) => {
-        if (resp.status === 200) {
-          const date = Date.now();
-          // need to fix this if statement
-          // mongo does something weird with dates
-          if (resp.jsonContent.userLockout > date) {
-            setLockout(true);
-          } else {
-            login(logInEmail, logInPassword)
-              .then((res) => {
-                // TODO: Remove after debugging
-                console.log(res.jsonContent);
-                console.log(res.status);
-                if (res.status === 200) {
-                  setLogInFieldEmpty(false);
-                  setLogInInfoInvalid(false);
-                  setUniqueId(res.jsonContent.userId);
-                  onLogIn(`/home/${res.jsonContent.userId}`);
-                } else {
-                  setLogInFieldEmpty(false);
-                  setLogInInfoInvalid(true);
-                  loginAttempts.current += 1;
-                  if (loginAttempts.current >= 5) {
-                    if (loginAttempts.current === 5) {
-                      updateLockout(logInEmail, date).then((response) => {
-                        if (response.status === 200) {
-                          setLockout(true);
-                        }
-                      });
-                    }
-                  }
-                }
-              });
-          }
+      login(logInEmail, logInPassword).then((res) => {
+        if (res.status === 200) {
+          setLogInFieldEmpty(false);
+          setLogInInfoInvalid(false);
+          setLockout(false);
+          setUniqueId(res.jsonContent.userId);
+          onLogIn(`/home/${res.jsonContent.userId}`);
+        } else if (res.status === 400 || res.status === 404) {
+          setLogInFieldEmpty(false);
+          setLogInInfoInvalid(true);
+          setLockout(false);
+        } else if (res.status === 403) {
+          setLogInFieldEmpty(false);
+          setLogInInfoInvalid(false);
+          setLockout(true);
         }
       });
     }
-
-    // else if (!verifyLogInInfo(logInEmail, logInPassword)) {
-    //   setLogInFieldEmpty(false);
-    //   setLogInInfoInvalid(true);
-    // } else {
-    //   const uniqueId = getUserUniqueId(logInEmail);
-    //   setLogInFieldEmpty(false);
-    //   setLogInInfoInvalid(false);
-    //   onLogIn(`/home/${uniqueId}`);
-    // }
   };
 
   const errorMsgEmptyFields = (() => (
@@ -159,6 +124,22 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId
           onClick={() => processUserInputs()}
         >
           Log-in
+        </Button>
+      </div>
+      <div className="navbar-brand" style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+        <Button
+          style={{
+            backgroundColor: '#6A9B72',
+            width: '120px',
+            height: '50px',
+            fontWeight: 'bold',
+            fontSize: '12px',
+            color: 'black',
+            borderColor: '#6A9B72',
+          }}
+          onClick={() => onResetPassword('/reset')}
+        >
+          Reset Password
         </Button>
       </div>
     </div>
