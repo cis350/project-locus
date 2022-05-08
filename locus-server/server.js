@@ -190,7 +190,7 @@ webapp.put('/notifications/:clubName', async (req, res) => {
   const { requestedEmail } = req.body;
   try {
     const result = await lib.makeNotificationsRead(db, requestedEmail, req.params.clubName);
-    if (result === null) {
+    if (!result) {
       return res.status(403).json({ error: 'Invalid request' });
     }
     return res.status(200).json({ message: `Notifications for ${requestedEmail} updated for in ${req.params.clubName}` });

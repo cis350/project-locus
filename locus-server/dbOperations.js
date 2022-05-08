@@ -306,7 +306,7 @@ const getUnreadNotifications = async (db, userEmail) => {
       console.log('user not found');
       return null;
     }
-    const unfilteredNotifcations = user.notifications;  
+    const unfilteredNotifcations = user.notifications;
     const unreadNotifications = unfilteredNotifcations.filter((item) => !item.readStatus);
     return unreadNotifications;
   } catch (err) {
@@ -392,7 +392,7 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
   if (!db || !clubName || !projectName || !oldAssignee) return false;
   try {
     const taskUpdateResult = await db.collection('Projects').updateMany(
-      { clubName: `${clubName}`, projectName: `${projectName}`, 'tasks.assignedTo': oldAssignee },
+      { clubName: `${clubName}`, projectName: `${projectName}` },
       {
         $set: {
           'tasks.$[elem].assignedTo': '$leaderEmail',
@@ -773,8 +773,14 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
 
     if (!taskIndex && taskIndex !== 0) return false;
     const task = tasks[taskIndex];
+    const club = await db.collection('Clubs').findOne({ clubName: `${clubName}`});
+    if (!club.admins.includes(requestedEmail) || task.assignedTo !== requestedEmail) {
+      return false;
+    }
 
-    task.status = newStatus;
+    // if ()
+
+    // task.status = newStatus;
 
     // does this push all copies again?
     const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
