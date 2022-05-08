@@ -14,6 +14,7 @@ const Project = function ProjectComponent({
   club,
   role,
   setCurrProject,
+  setCurrProjectWithoutSpace,
 }) {
   const [allProjects, setAllProjects] = useState([]);
   const [modalClick, setModalClick] = useState(false);
@@ -25,6 +26,7 @@ const Project = function ProjectComponent({
   useEffect(() => {
     getAllProjects(club).then((res) => {
       if (res.status === 200) {
+        console.log(res.jsonContent.result);
         setAllProjects(res.jsonContent.result);
       }
     });
@@ -53,6 +55,7 @@ const Project = function ProjectComponent({
   });
 
   const goToManageProject = ((noSpaceProject, project) => {
+    setCurrProjectWithoutSpace(noSpaceProject);
     setCurrProject(project);
     navigate(`/projects/manage-projects/${noSpaceProject}/${userId}`);
   });
@@ -81,19 +84,24 @@ const Project = function ProjectComponent({
   ));
 
   const displayProjects = (() => (
-    allProjects.map((data) => (
-      <div className="club-item" key={data.projectName}>
-        {/* referenced https://www.delftstack.com/howto/javascript/javascript-remove-spaces */}
-        <Button className="club-button" onClick={() => goToManageProject(data.projectName.replace(/\s+/g, ''), data.projectName)}>
-          <Row>
-            <Col className="d-flex justify-content-center">
-              {console.log(data)}
-              {data.projectName}
-            </Col>
-          </Row>
-        </Button>
-      </div>
-    ))
+    allProjects.map((data) => {
+      if (data.members.includes(email)) {
+        return (
+          <div className="club-item" key={data.projectName}>
+            {/* referenced https://www.delftstack.com/howto/javascript/javascript-remove-spaces */}
+            <Button className="club-button" onClick={() => goToManageProject(data.projectName.replace(/\s+/g, ''), data.projectName)}>
+              <Row>
+                <Col className="d-flex justify-content-center">
+                  {console.log(data)}
+                  {data.projectName}
+                </Col>
+              </Row>
+            </Button>
+          </div>
+        );
+      }
+      return null;
+    })
   ));
 
   const createNewProjectButton = (() => (
@@ -117,11 +125,30 @@ const Project = function ProjectComponent({
     </h4>
   ));
 
+  const hasAtLeastOneProjectAssigned = (() => {
+    for (let i = 0; i < allProjects.length; i += 1) {
+      if (allProjects[i].members.includes(email)) {
+        return true;
+      }
+    }
+    return false;
+  });
+
+  const msgNoProjectsAssigned = (() => (
+    <h3 className="text-center">
+      You do not have any projects assigned for
+      {' '}
+      {club}
+      !
+    </h3>
+  ));
+
   return (
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
       {allProjects.length === 0 && msgNoProjects()}
       {role === 'master' && createNewProjectButton()}
       {allProjects.length !== 0 && displayProjects()}
+      {!hasAtLeastOneProjectAssigned() && msgNoProjectsAssigned()}
       {modalClick && (modal())}
     </div>
   );

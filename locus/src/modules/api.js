@@ -195,6 +195,79 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
   }
 }
 
+async function createTask(projectName, clubName, taskName, requestedEmail, targetEmail, status) {
+  try {
+    const result = await axios.post(`${domain}/createTask/${projectName}`, {
+      clubName,
+      taskName,
+      requestedEmail,
+      targetEmail,
+      status,
+    });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getTasksForProject(projectName, clubName, requestedEmail) {
+  try {
+    const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function updateStatusForCurrTask(taskId, clubName, projectName, requestedEmail, newStatus) {
+  try {
+    const result = await axios.put(`${domain}/updateTaskStatus/${taskId}`, {
+      clubName,
+      projectName,
+      requestedEmail,
+      newStatus,
+    });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function resetPassword(useremail, password) {
+  try {
+    const result = await axios.put(`${domain}/resetPassword/${useremail}`, { password });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function deleteTask(taskId, clubName, projectName, requestedEmail) {
+  try {
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/deleteTask/${taskId}`,
+      data: {
+        clubName,
+        projectName,
+        requestedEmail,
+      },
+    });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getAllTasks(projectName, clubName, requestedEmail) {
+  try {
+    const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -213,4 +286,10 @@ module.exports = {
   sendMessage,
   addUserToProject,
   removeMemberFromProject,
+  createTask,
+  getTasksForProject,
+  updateStatusForCurrTask,
+  resetPassword,
+  deleteTask,
+  getAllTasks,
 };
