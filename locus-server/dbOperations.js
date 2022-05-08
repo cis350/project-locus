@@ -711,7 +711,7 @@ const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmai
 const removeTaskFromProject = async (db, clubName, projectName, taskID, requestedEmail) => {
   try {
     if (!db || !clubName || !projectName || !taskID || !requestedEmail) return false;
-    const project = db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     if (!project) {
       return false;
     }
@@ -720,7 +720,7 @@ const removeTaskFromProject = async (db, clubName, projectName, taskID, requeste
       return false;
     }
     // TODO: Not sure if this deletes a task from the array correctly
-    const dbRes = db.collection('Projects').updateOne(
+    const dbRes = await db.collection('Projects').updateOne(
       { clubName: `${clubName}`, projectName: `${projectName}` },
       { $pull: { tasks: { _id: taskID } } },
       false,
