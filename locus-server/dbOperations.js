@@ -81,6 +81,38 @@ const registerUser = async (
   }
 };
 
+// reset password db op
+const resetPassword = async (db, userEmail, newPassword, newLockoutDate) => {
+  try {
+    const user = await db.collection('Users').findOne({ email: `${userEmail}` });
+    if (!user) {
+      return false;
+    }
+    // update the user
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Tricky ops; if one fails the state will be messed up
+    await db.collection('Users').updateOne(
+      { email: `${userEmail}` },
+      { $set: { password: hashedPassword } },
+    );
+    await db.collection('Users').updateOne(
+      { email: `${userEmail}` },
+      { $set: { lockoutAttempts: 0 } },
+    );
+
+    await db.collection('Users').updateOne(
+      { email: `${userEmail}` },
+      { $set: { lockoutDate: newLockoutDate } },
+    );
+
+    return true;
+  } catch (err) {
+    console.error(err);
+    throw new Error(`unable to reset password for ${userEmail}`);
+  }
+};
+
 // check if login infomation is correct; date = now
 const verifyLoginInfo = async (db, userEmail, userPassword, date, lockoutInterval) => {
   try {
@@ -291,7 +323,15 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
   try {
     const taskUpdateResult = await db.collection('Projects').updateMany(
       { clubName: `${clubName}`, projectName: `${projectName}`, 'tasks.assignedTo': oldAssignee },
-      { $set: { 'tasks.$.assignedTo': '$leaderEmail' } },
+      {
+        $set: {
+          'tasks.$[elem].assignedTo': '$leaderEmail',
+        },
+      },
+      {
+        arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
+        multi: true,
+      },
     );
     if (!taskUpdateResult.acknowledged) {
       console.log(`DB failed to update tasks for ${projectName}`);
@@ -309,8 +349,16 @@ const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
   if (!db || !clubName || !oldAssignee) return false;
   try {
     const taskUpdateResult = await db.collection('Projects').updateMany(
-      { clubName: `${clubName}`, 'tasks.assignedTo': oldAssignee },
-      { $set: { 'tasks.$.assignedTo': '$leaderEmail' } },
+      { clubName: `${clubName}` },
+      {
+        $set: {
+          'tasks.$[elem].assignedTo': '$leaderEmail',
+        },
+      },
+      {
+        arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
+        multi: true,
+      },
     );
     if (!taskUpdateResult.acknowledged) {
       return false;
@@ -435,6 +483,7 @@ const promoteUserToAdmin = async (db, clubName, requestedEmail, targetEmail) => 
 const removeUserFromClub = async (db, clubName, requestedEmail, targetEmail) => {
   try {
     if (!db || !clubName || !requestedEmail || !targetEmail) return false;
+    if (requestedEmail === targetEmail) return false;
     const club = await getClub(db, clubName);
     if (club && club.admins.includes(requestedEmail)
       && club.members.includes(targetEmail) && !club.admins.includes(targetEmail)) {
@@ -492,8 +541,8 @@ const createTask = async (
     if (!db || !clubName || !projectName || !taskName
       || !requestedEmail || !targetEmail || !status) return null;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
-      return null;
+    if (!project) {
+      return false;
     }
     if (project.leaderEmail === requestedEmail && project.members.includes(targetEmail)) {
       const taskValues = {
@@ -502,13 +551,16 @@ const createTask = async (
         assignedTo: targetEmail,
         status,
       };
-      const projectResult = await db.collection('Projects').updateOne({ projectName: `${projectName}` }, { $push: { tasks: taskValues } });
+      const projectResult = await db.collection('Projects').updateOne(
+        { clubName: `${clubName}`, projectName: `${projectName}` },
+        { $push: { tasks: taskValues } },
+      );
       if (!projectResult.acknowledged) {
-        return null;
+        return false;
       }
-      return projectResult._id;
+      return true;
     }
-    return null;
+    return false;
   } catch (err) {
     console.error(err);
     throw new Error('unable to create tasks');
@@ -525,7 +577,7 @@ const getAllTasksForProject = async (
   try {
     if (!db || !clubName || !projectName || !requestedEmail) return null;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
+    if (!project) {
       return null;
     }
     if (project.members.includes(requestedEmail)) {
@@ -553,7 +605,7 @@ const getOngoingTasksForProject = async (
     }
     if (project.members.includes(requestedEmail)) {
       const { tasks } = project;
-      return tasks.filter((task) => task.status !== 'Done');
+      return tasks.filter((task) => task.status !== 'done');
     }
     return null;
   } catch (err) {
@@ -636,30 +688,62 @@ const getTask = async (
 const updateTaskStatus = async (db, clubName, projectName, taskID, requestedEmail, newStatus) => {
   try {
     if (!db || !clubName || !projectName || !taskID || !requestedEmail || !newStatus) return false;
-    const project = db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    if (!project) {
       return false;
     }
     const { tasks } = project;
+
     let taskIndex;
     for (let i = 0; i < tasks.length; i += 1) {
       if (tasks[i]._id === taskID) {
         taskIndex = i;
       }
     }
-    if (!taskIndex) return false;
+
+    if (!taskIndex && taskIndex !== 0) return false;
     const task = tasks[taskIndex];
-    if (requestedEmail !== task.assignedTo) {
-      return false;
-    }
+
     task.status = newStatus;
+
     // does this push all copies again?
-    const result = db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
-    if (!result.acknowledged) return false;
+    const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks } });
+    console.log(result);
+    if (!result) return false;
     return true;
   } catch (err) {
     console.error(err);
     throw new Error('unable to update task status');
+  }
+};
+
+const removeTaskFromProject = async (db, clubName, projectName, taskID, requestedEmail) => {
+  console.log(clubName, projectName, taskID, requestedEmail);
+  try {
+    if (!db || !clubName || !projectName || !taskID || !requestedEmail) return false;
+    const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
+    if (!project) {
+      return false;
+    }
+    if (project.leaderEmail !== requestedEmail) {
+      console.log(`${requestedEmail} not authorized to remove task`);
+      return false;
+    }
+    // TODO: Not sure if this deletes a task from the array correctly
+    const dbRes = await db.collection('Projects').updateOne(
+      { clubName: `${clubName}`, projectName: `${projectName}` },
+      { $pull: { tasks: { _id: taskID } } },
+      false,
+      true,
+    );
+    if (!dbRes.acknowledged) {
+      console.log('request to remove task not acknowledged');
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error(err);
+    throw new Error('unable to remove task');
   }
 };
 
@@ -787,6 +871,12 @@ const assignUserToProject = async (db, clubName, projectName, requestedEmail, as
     // check authorization
     if (club && project && (club.admins.includes(requestedEmail)
       || project.leaderEmail === requestedEmail) && club.members.includes(assigneeEmail)) {
+      // check if user is already there
+      if (project.members.includes(assigneeEmail)) {
+        return false;
+      }
+
+      // add the user if not already in there
       const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $push: { members: assigneeEmail } });
       if (!result.acknowledged) {
         console.log('project assignment not acknowledged');
@@ -805,6 +895,7 @@ const assignUserToProject = async (db, clubName, projectName, requestedEmail, as
 const removeUserFromProject = async (db, clubName, projectName, requestedEmail, targetEmail) => {
   try {
     if (!db || !clubName || !projectName || !requestedEmail || !targetEmail) return false;
+    if (requestedEmail === targetEmail) return false;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     // check authorization
@@ -882,6 +973,7 @@ module.exports = {
   connect,
   verifyLoginInfo,
   registerUser,
+  resetPassword,
   getUserProfile,
   checkIfEmailAlreadyExists,
   getUserUniqueId,
@@ -904,6 +996,7 @@ module.exports = {
   getAllOngoingTasksForClub,
   getTask,
   updateTaskStatus,
+  removeTaskFromProject,
   getCompletedTasks,
   getCompletedTasksByUsers,
   promoteUserToAdmin,
