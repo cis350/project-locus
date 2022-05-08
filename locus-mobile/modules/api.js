@@ -221,7 +221,7 @@ async function updateTaskStatus(clubName, projectName, requestedEmail, newStatus
   console.log(newStatus);
   console.log(taskId);
   try {
-    const result = await axios.post(`${domain}/updateTaskStatus/${taskId}`, {
+    const result = await axios.put(`${domain}/updateTaskStatus/${taskId}`, {
       clubName, requestedEmail, projectName, newStatus,
     });
     return { status: result.status, jsonContent: result.data };
