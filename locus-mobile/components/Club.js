@@ -24,7 +24,7 @@ export default function Club({ route }) {
       setClubProjects((await getClubProjects(currentClub.clubName)).jsonContent);
     }
     setProjects();
-  }, [isFocused]);
+  }, [isFocused, selectedProject]);
 
   async function showProfile(memberEmail) {
     const member = (await getUser(memberEmail)).result;

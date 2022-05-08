@@ -214,8 +214,14 @@ async function getAllTasksForProject(clubName, projectName, requestedEmail) {
 }
 
 async function updateTaskStatus(clubName, projectName, requestedEmail, newStatus, taskId) {
+  console.log('update task');
+  console.log(clubName);
+  console.log(projectName);
+  console.log(requestedEmail);
+  console.log(newStatus);
+  console.log(taskId);
   try {
-    const result = await axios.post(`${domain}/updateTaskStatus//${taskId}`, {
+    const result = await axios.post(`${domain}/updateTaskStatus/${taskId}`, {
       clubName, requestedEmail, projectName, newStatus,
     });
     return { status: result.status, jsonContent: result.data };
@@ -237,11 +243,18 @@ async function reassignTask(clubName, projectName, requestedEmail, targetEmail, 
 
 async function getSpecificTask(clubName, projectName, requestedEmail, taskId) {
   try {
+    console.log('here');
+    console.log(clubName);
+    console.log(projectName);
+    console.log(requestedEmail);
+    console.log(taskId);
     const result = await axios.post(`${domain}/task/project/${taskId}`, {
       clubName, requestedEmail, projectName,
     });
+    console.log(result.data);
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
+    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }

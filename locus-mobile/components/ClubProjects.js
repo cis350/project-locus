@@ -21,6 +21,7 @@ export default function ClubProjects({ clubName, user, changeClub }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [selectedProject, setSelectedProject] = useState(undefined);
+  const [jawn, rerender] = useState(false);
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -29,13 +30,14 @@ export default function ClubProjects({ clubName, user, changeClub }) {
       setClubProjects((await getClubProjects(clubName)).jsonContent);
     }
     setProjects();
-  }, [isFocused]);
+  }, [isFocused, jawn, selectedProject]);
 
   async function handleCreateProject() {
     const response = await createClubProject(clubName, projectName, user.email);
     if (response.status !== 200) Alert.alert('Project Creation Failed');
     setProjectName('');
     setModalVisible(false);
+    rerender(!jawn);
   }
 
   const displayProjects = [];

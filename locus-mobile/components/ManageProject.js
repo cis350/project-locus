@@ -39,6 +39,7 @@ export default function ManageProject({ project, changeProject, user, club }) {
 
   async function handleDeleteProject() {
     await deleteProject(club.clubName, project.projectName, user.email);
+    changeProject(undefined);
   }
 
   const displayMembers = [];

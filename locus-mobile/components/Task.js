@@ -1,18 +1,35 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable object-curly-newline */
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, Alert, TextInput, Modal,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { deleteTask, reassignTask, getSpecificTask, updateTaskStatus } from '../modules/api';
+
+const statuses = ['incomplete', 'need help', 'done'];
 
 export default function Task({ project, task, setSelectedTask, user, club }) {
   const [status, setStatus] = useState(task.status);
   const [assignee, setAssignee] = useState(task.assignedTo);
   const [currTask, setCurrTask] = useState(task);
-  
+  const [jawn, rerender] = useState(false);
 
-  async function handleUpdateStatus() {
+  useEffect(() => {
+    async function setTask() {
+      setCurrTask(
+        (await getSpecificTask(club.clubName, project.projectName, user.email, task._id))
+          .jsonContent.result,
+      );
+    }
+    setTask();
+  }, [jawn]);
+
+  async function handleUpdateStatus(newStatus) {
     Alert.alert('Status Updated');
+    await updateTaskStatus(club.clubName, project.projectName, user.email, newStatus, task._id);
+    setStatus(newStatus);
+    rerender(!jawn);
   }
   async function handleReassignTask() {
     Alert.alert('Task Reassigned');
@@ -20,12 +37,25 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
   async function handleDeleteTask() {
     await deleteTask(club.clubName, project.projectName, user.email, task.id);
   }
+
+  const statusPicker = (
+    <Picker
+      selectedValue={status}
+      style={{ height: 300, width: 150 }}
+      onValueChange={(itemValue) => handleUpdateStatus(itemValue)}
+    >
+      <Picker.Item label="Incomplete" value="incomplete" />
+      <Picker.Item label="Need Help" value="need help" />
+      <Picker.Item label="Done" value="done" />
+    </Picker>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.taskTitle}>{task.taskName}</Text>
-      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
-        <Text>Reassign</Text>
-      </TouchableHighlight>
+      <Text style={styles.taskTitle}>{currTask.taskName}</Text>
+      <Text style={styles.taskTitle}>{currTask.assignedTo}</Text>
+      <Text style={styles.taskTitle}>{currTask.status}</Text>
+      {statusPicker}
       <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
         <Text>Delete</Text>
       </TouchableHighlight>
@@ -45,39 +75,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 25,
   },
-  projectTitle: {
-    fontSize: 40,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  scrollContainer: {
-    width: 350,
-    height: 400,
-    backgroundColor: '#B5E48C',
-    borderRadius: 10,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
   addMemberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  addMember: {
-    backgroundColor: 'green',
-    width: 40,
-    height: 40,
-    marginLeft: 20,
-    borderRadius: 50,
-    alignContent: 'center',
-    justifyContent: 'center',
-  },
   taskTitle: {
-    width: 100,
-    fontSize: 30,
+    width: 200,
+    fontSize: 20,
   },
   memberContainer: {
     justifyContent: 'space-between',

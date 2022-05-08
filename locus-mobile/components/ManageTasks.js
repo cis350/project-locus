@@ -59,6 +59,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
         setSelectedTask={setSelectedTask}
         user={user}
         project={project}
+        club={club}
       />
     );
   }
