@@ -1,3 +1,5 @@
+/* eslint-disable vars-on-top */
+/* eslint-disable no-var */
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 const { MongoClient } = require('mongodb');
@@ -418,43 +420,31 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
 const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
   if (!db || !clubName || !oldAssignee) return false;
   try {
-    const taskUpdateResult = await db.collection('Projects').updateMany(
-      { clubName: `${clubName}` },
-      {
-        $set: {
-          'tasks.$[elem].assignedTo': '$leaderEmail',
+    var projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` });
+    const bulkUpdateOps = [];
+
+    projectCursor.forEach((doc) => {
+      const tasksArray = doc.tasks;
+      for (let i = 0; i < tasksArray.length; i += 1) {
+        const task = tasksArray[i];
+        if (task.assignedTo === oldAssignee) {
+          task.assignedTo = doc.leaderEmail;
+        }
+      }
+      const currProjectName = doc.projectName;
+      bulkUpdateOps.push({
+        updateOne: {
+          filter: { clubName: `${clubName}`, projectName: `${currProjectName}` },
+          update: { $set: { tasks: tasksArray } },
         },
-      },
-      {
-        arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
-        multi: true,
-      },
-    );
-    if (!taskUpdateResult.acknowledged) {
+      });
+    });
+
+    const dbres = await db.collection('Projects').bulkWrite(bulkUpdateOps);
+    if (!dbres.acknowledged) {
       return false;
     }
     return true;
-
-    // cursor.forEach((doc) => {
-    // });
-
-    // })
-    //   {
-    //     $set: {
-    //       'tasks.$[elem].assignedTo': '',
-    //     },
-    //   },
-    //   {
-    //     arrayFilters: [{ 'elem.assignedTo': `${oldAssignee}` }],
-    //     multi: true,
-    //   },
-    // );
-    // if (!taskUpdateResult.acknowledged) {
-    //   console.log(`DB failed to update tasks for ${projectName}`);
-    //   return false;
-    // }
-    return true;
-
   } catch (err) {
     console.error(err);
     throw new Error('unable to send message');
