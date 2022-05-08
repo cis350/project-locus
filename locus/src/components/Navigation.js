@@ -8,9 +8,10 @@ import '../assets/Navigation.css';
 
 const Navigation = function NavigationComponent({ isLoggedIn, userId, userEmail }) {
   const [notifs, setNotifications] = useState([]);
+  console.log(userEmail);
 
-  useEffect(
-    () => {
+  useEffect(() => {
+    if (userEmail) {
       const intervalId = setInterval(() => {
         /// set up in api
         getUserNotifications(userEmail).then((resp) => {
@@ -20,12 +21,11 @@ const Navigation = function NavigationComponent({ isLoggedIn, userId, userEmail 
             setNotifications(notifs);
           }
         });
-      }, 5000);
-
+      }, 2000);
       return () => clearInterval(intervalId);
-    },
-    [notifs],
-  );
+    }
+    return null;
+  }, [userEmail]);
 
   const noNotifications = (() => (
     <Link to={`/chats/${userId}`} className="navbar-brand">
