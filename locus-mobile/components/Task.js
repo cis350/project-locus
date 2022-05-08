@@ -6,6 +6,20 @@ import {
 import { deleteTask, reassignTask, getSpecificTask, updateTaskStatus } from '../modules/api';
 
 export default function Task({ project, task, setSelectedTask, user, club }) {
+  const [status, setStatus] = useState(task.status);
+  const [assignee, setAssignee] = useState(task.assignedTo);
+  const [currTask, setCurrTask] = useState(task);
+  
+
+  async function handleUpdateStatus() {
+    Alert.alert('Status Updated');
+  }
+  async function handleReassignTask() {
+    Alert.alert('Task Reassigned');
+  }
+  async function handleDeleteTask() {
+    await deleteTask(club.clubName, project.projectName, user.email, task.id);
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.taskTitle}>{task.taskName}</Text>
