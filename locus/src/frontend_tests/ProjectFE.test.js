@@ -3,12 +3,15 @@
 */
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import Clubs from '../components/Clubs';
+import userEvent from '@testing-library/user-event';
+import Project from '../components/Project';
 
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
+const domain = 'http://localhost:3306';
 
 // mock useNavigate: https://github.com/remix-run/react-router/issues/7811
 const mockedNavigator = jest.fn();
@@ -25,8 +28,8 @@ afterEach(() => {
   mock.reset();
 });
 
-test('clubs snapshot test', () => {
-  const component = renderer.create(<Clubs />);
+test('project snapshot test', () => {
+  const component = renderer.create(<Project />);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
 });

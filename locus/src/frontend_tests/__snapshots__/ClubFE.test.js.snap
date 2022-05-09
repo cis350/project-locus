@@ -4,16 +4,26 @@ exports[`club snapshot test 1`] = `
 <div
   className="container"
 >
-  <button
-    className="btn btn-success btn btn-primary"
-    disabled={false}
-    onClick={[Function]}
-    type="button"
+  <div
+    className="d-flex justify-content-center"
   >
-    View All Clubs
-  </button>
+    <button
+      className="btn btn-success btn btn-primary"
+      disabled={false}
+      onClick={[Function]}
+      type="button"
+    >
+      View All Clubs
+    </button>
+  </div>
   <br />
-  <h1>
+  <h1
+    style={
+      Object {
+        "textAlign": "center",
+      }
+    }
+  >
     Welcome to 
     !
   </h1>
@@ -21,7 +31,7 @@ exports[`club snapshot test 1`] = `
     className="row"
   >
     <div
-      className="col-4"
+      className="col"
     >
       <h2>
         Members
@@ -31,17 +41,17 @@ exports[`club snapshot test 1`] = `
       />
     </div>
     <div
-      className="col-4"
+      className="col"
     >
       <h2>
-        Tasks Assigned
+        Ongoing Tasks
       </h2>
       <div
         className="container section-container"
       />
     </div>
     <div
-      className="col-4"
+      className="col"
     >
       <h2>
         Projects
