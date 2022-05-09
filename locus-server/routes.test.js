@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 // mock express server for comparison
 const request = require('supertest');
 const { changeURL, webapp } = require('./server');
@@ -50,7 +51,7 @@ const lockoutUser = {
 
 const testClub = {
   db,
-  clubName: 'Gym Rats',
+  clubName: 'GymRats',
   masterEmail: testUser.userEmail,
   masterName: 'Jeff Nippard',
   admins: [testUser.userEmail],
@@ -524,10 +525,156 @@ describe('Projects endpoint tests', () => {
   });
 });
 
-// describe('Tasks endpoint tests', () => {
+describe('Tasks endpoint tests', () => {
+  test('/createTask/:projectName 400', async () => {
+    await request(webapp).put(`/project/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'TestProject',
+        leaderEmail: testUser2.userEmail,
+        requestedEmail: testUser.userEmail,
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Created TestProject for ${testClub.clubName}`));
+    await request(webapp).post('/assignUsertoProject/TestProject')
+      .send({
+        clubName: testClub.clubName,
+        requestedEmail: testUser.userEmail,
+        assigneeEmail: testUser3.userEmail,
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`${testUser3.userEmail} added to TestProject`));
+    await request(webapp).post('/createTask/TestProject')
+      .send({
+        clubName: testClub.clubName,
+        taskName: 'Task1',
+        requestedEmail: testUser3.userEmail,
+        targetEmail: testUser2.userEmail,
+        status: 'Incomplete',
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
 
-// });
+  test('/createTask/:projectName 201', async () => {
+    await request(webapp).post('/createTask/TestProject')
+      .send({
+        clubName: testClub.clubName,
+        taskName: 'Task1',
+        requestedEmail: testUser2.userEmail,
+        targetEmail: testUser3.userEmail,
+        status: 'Incomplete',
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Created Task1 for TestProject assigned to ${testUser3.userEmail}`));
+  });
 
-// describe('Analytics endpoints tests', () => {
+  test('/reassignTask/:taskid 200', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    const taskId = project.tasks[0]._id.toString();
+    await request(webapp).put(`/reassignTask/${taskId}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'TestProject',
+        requestedEmail: testUser2.userEmail,
+        targetEmail: testUser3.userEmail,
+      }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Reassigned ${taskId} of TestProject to ${testUser3.userEmail}`));
+  });
 
-// });
+  test('/reassignTask/:taskid 404 bad id', async () => {
+    await request(webapp).put('/reassignTask/23525666632')
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'TestProject',
+        requestedEmail: testUser2.userEmail,
+        targetEmail: testUser3.userEmail,
+      }).expect(404)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Task with id:23525666632 not found'));
+  });
+
+  test('/reassignTask/:taskid 400 no privilege', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    const taskId = project.tasks[0]._id.toString();
+    await request(webapp).put(`/reassignTask/${taskId}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'TestProject',
+        requestedEmail: testUser3.userEmail,
+        targetEmail: testUser2.userEmail,
+      }).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+
+  test('/tasks/:projectName 400', async () => {
+    await request(webapp).post('/tasks/TestProject').expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/tasks/:projectName 200', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    await request(webapp).post('/tasks/TestProject')
+      .send({ clubName: testClub.clubName, requestedEmail: testUser2 }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).result)
+        .toMatchObject(project.tasks));
+  });
+
+  test('/ongoingProjectTasks/:projectName 400', async () => {
+    await request(webapp).post('/ongoingProjectTasks/TestProject').expect(400)
+      .then((response) => expect(JSON.parse(response.text).error)
+        .toBe('Invalid request'));
+  });
+
+  test('/ongoingProjectTasks/:projectName 200', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    await request(webapp).post('/ongoingProjectTasks/TestProject')
+      .send({ clubName: testClub.clubName, requestedEmail: testUser2.userEmail }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).result)
+        .toMatchObject(project.tasks));
+  });
+
+  test('/allOngoingTasks/:clubName 200', async () => {
+    await request(webapp).get(`/allOngoingTasks/${testClub.clubName}`).expect(200);
+  });
+
+  test('/task/project/:taskId 400', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    const taskId = project.tasks[0]._id.toString();
+    await request(webapp).post(`/task/project/${taskId}`).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/task/project/:taskId 200', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    const taskId = project.tasks[0]._id.toString();
+    const task = await dbLib.getTask(db, testClub.clubName, 'TestProject', testUser2.userEmail, taskId);
+    await request(webapp).post(`/task/project/${taskId}`)
+      .send({ clubName: testClub.clubName, projectName: 'TestProject', requestedEmail: testUser2.userEmail }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).result)
+        .toMatchObject(task));
+  });
+
+  test('/updateTaskStatus/:taskId 400', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    const taskId = project.tasks[0]._id.toString();
+    await request(webapp).put(`/updateTaskStatus/${taskId}`).expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('/updateTaskStatus/:taskId 200', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    const taskId = project.tasks[0]._id.toString();
+    await request(webapp).put(`/updateTaskStatus/${taskId}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'TestProject',
+        requestedEmail: testUser2.userEmail,
+        newStatus: 'need help',
+      }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Updated ${taskId} to need help`));
+  });
+});
