@@ -360,7 +360,12 @@ webapp.post('/assignUsertoProject/:projectName', async (req, res) => {
 
 // delete a user from a specific project
 webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
-  const { clubName, requestedEmail, assigneeEmail } = req.body;
+  const {
+    clubName,
+    requestedEmail,
+    assigneeEmail,
+    leaderEmail,
+  } = req.body;
   const { projectName } = req.params;
   try {
     const result = await lib.removeUserFromProject(
@@ -369,6 +374,7 @@ webapp.delete('/removeUserFromProject/:projectName', async (req, res) => {
       projectName,
       requestedEmail,
       assigneeEmail,
+      leaderEmail,
     );
     if (result) {
       return res.status(200).json({ message: `${assigneeEmail} removed from ${projectName}` });

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-var */
 /* eslint-disable no-console */
@@ -981,10 +982,12 @@ const assignUserToProject = async (db, clubName, projectName, requestedEmail, as
   }
 };
 
-const removeUserFromProject = async (db, clubName, projectName, requestedEmail, targetEmail) => {
+const removeUserFromProject = async (db, clubName, projectName, requestedEmail, targetEmail, leaderEmail) => {
   try {
-    if (!db || !clubName || !projectName || !requestedEmail || !targetEmail) return false;
+    if (!db || !clubName || !projectName || !requestedEmail
+      || !targetEmail || !leaderEmail) return false;
     if (requestedEmail === targetEmail) return false;
+    if (targetEmail === leaderEmail) return false;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
     const club = await db.collection('Clubs').findOne({ clubName: `${clubName}` });
     // check authorization

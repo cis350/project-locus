@@ -169,7 +169,8 @@ async function removeMember(clubName, requestedEmail, targetEmail) {
   }
 }
 
-async function removeMemberFromProject(projectName, clubName, requestedEmail, assigneeEmail) {
+async function
+removeMemberFromProject(projectName, clubName, requestedEmail, assigneeEmail, leaderEmail) {
   try {
     const result = await axios({
       method: 'DELETE',
@@ -178,6 +179,7 @@ async function removeMemberFromProject(projectName, clubName, requestedEmail, as
         clubName,
         requestedEmail,
         assigneeEmail,
+        leaderEmail,
       },
     });
     return { status: result.status, jsonContent: result.data.result };

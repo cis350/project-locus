@@ -42,6 +42,7 @@ const ManageProject = function ManageProjectComponent({
   const [currTaskId, setCurrTaskId] = useState('');
   const [currStatus, setCurrStatus] = useState('');
   const [updatedStatus, setUpdatedStatus] = useState('');
+  const [leaderEmail, setLeaderEmail] = useState('');
 
   const navigate = useNavigate();
 
@@ -49,7 +50,9 @@ const ManageProject = function ManageProjectComponent({
     getProject(club, project).then((res1) => {
       if (res1.status === 200) {
         const userList = res1.jsonContent.result.members;
+        const leaderData = res1.jsonContent.result.leaderEmail;
         setCurrMembers(userList);
+        setLeaderEmail(leaderData);
       }
     });
     getSpecificClub(club).then((res2) => {
@@ -80,11 +83,11 @@ const ManageProject = function ManageProjectComponent({
     if (data === email) {
       alert('You cannot remove yourself from the project!');
     } else {
-      removeMemberFromProject(project, club, email, data).then((res) => {
+      removeMemberFromProject(project, club, email, data, leaderEmail).then((res) => {
         if (res.status === 200) {
           setRerender(!rerender);
         } else {
-          alert('You cannot remove the master!');
+          alert('You cannot remove the leader!');
         }
       });
     }
