@@ -193,7 +193,7 @@ const ManageTasks = function ManageTasksComponent({
     <div className="container" style={{ position: 'relative', padding: '20px' }}>
       <div className="club-item">
         {/* referenced https://www.delftstack.com/howto/javascript/javascript-remove-spaces */}
-        {role === 'master' && (
+        {(role === 'master' || role === 'admin') && (
         <Button className="club-button" onClick={() => openCreateModal()}>
           <Row>
             <Col className="d-flex justify-content-center">
