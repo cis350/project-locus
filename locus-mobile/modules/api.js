@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const domain = 'http://localhost:3306';
+const domain = 'https://locus-backend-350.herokuapp.com';
 
 // returns a boolean based on whether or not he login was successful
 async function login(email, password) {
@@ -28,6 +28,15 @@ async function getUserId(email) {
     return response.data.userId;
   } catch (err) {
     return err.response.status;
+  }
+}
+
+async function updateNotifications(userEmail, club) {
+  try {
+    const result = await axios.put(`${domain}/notifications/${club}`, { requestedEmail: userEmail });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
@@ -85,6 +94,8 @@ async function removeMember(clubName, requestedEmail, targetEmail) {
     });
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
+    console.log(err.response.status);
+    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
@@ -195,26 +206,16 @@ async function deleteProject(clubName, projectName, requestedEmail) {
 
 async function createTask(clubName, projectName, taskName, requestedEmail, targetEmail, status) {
   try {
-    console.log(clubName);
-    console.log(projectName);
-    console.log(taskName);
-    console.log(requestedEmail);
-    console.log(targetEmail);
-    console.log(status);
     const result = await axios.post(`${domain}/createTask/${projectName}`, {
       clubName, taskName, requestedEmail, targetEmail, status,
     });
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
 async function getAllTasksForProject(clubName, projectName, requestedEmail) {
-  console.log(clubName);
-  console.log(projectName);
-  console.log(requestedEmail);
   try {
     const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
     return { status: result.status, jsonContent: result.data.result };
@@ -225,8 +226,47 @@ async function getAllTasksForProject(clubName, projectName, requestedEmail) {
 
 async function updateTaskStatus(clubName, projectName, requestedEmail, newStatus, taskId) {
   try {
-    const result = await axios.post(`${domain}//updateTaskStatus//${taskId}`, {
+    const result = await axios.put(`${domain}/updateTaskStatus/${taskId}`, {
       clubName, requestedEmail, projectName, newStatus,
+    });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function reassignTask(clubName, projectName, requestedEmail, targetEmail, taskId) {
+  try {
+    const result = await axios.put(`${domain}/reassignTask/${taskId}`, {
+      clubName, requestedEmail, projectName, targetEmail,
+    });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getSpecificTask(clubName, projectName, requestedEmail, taskId) {
+  try {
+    const result = await axios.post(`${domain}/task/project/${taskId}`, {
+      clubName, requestedEmail, projectName,
+    });
+    return { status: result.status, jsonContent: result.data };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function deleteTask(clubName, projectName, requestedEmail, taskId) {
+  try {
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/deleteTask/${taskId}`,
+      data: {
+        projectName,
+        clubName,
+        requestedEmail,
+      },
     });
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
@@ -255,4 +295,8 @@ module.exports = {
   getAllTasksForProject,
   updateTaskStatus,
   createTask,
+  reassignTask,
+  getSpecificTask,
+  deleteTask,
+  updateNotifications,
 };

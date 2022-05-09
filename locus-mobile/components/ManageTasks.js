@@ -14,13 +14,15 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
   const [newTaskAssignee, setNewTaskAssignee] = useState('');
   const [selectedTask, setSelectedTask] = useState(undefined);
 
+  console.log(`task selected${selectedTask}`);
+  console.log(selectedTask);
   useEffect(() => {
     async function getTasks() {
       setTasks((await getAllTasksForProject(club.clubName, project.projectName, user.email))
         .jsonContent);
     }
     getTasks();
-  }, [jawn]);
+  }, [jawn, selectedTask]);
 
   async function handleCreateTask() {
     const response = await (
@@ -42,11 +44,11 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
 
   const displayTasks = [];
   for (let i = 0; i < tasks.length; i += 1) {
-    console.log(tasks[i]);
     displayTasks.push(
       <View style={styles.task} key={`task${i}`}>
-        <Text style={styles.taskTitle}>sdaoifjaosdfjoasdjfosjdfoiasjdfoaiojsfd</Text>
-        <TouchableHighlight style={styles.viewButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
+        <Text style={styles.taskTitle}>{tasks[i].taskName}</Text>
+        <Text style={styles.status}>{tasks[i].status}</Text>
+        <TouchableHighlight style={styles.viewButton} onPress={() => setSelectedTask(tasks[i])} underlayColor="#b00017">
           <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>View</Text>
         </TouchableHighlight>
       </View>,
@@ -60,6 +62,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
         setSelectedTask={setSelectedTask}
         user={user}
         project={project}
+        club={club}
       />
     );
   }
@@ -102,11 +105,15 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
           {displayTasks}
         </View>
       </ScrollView>
-      <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
-      </TouchableHighlight>
+      {(user.email === project.leaderEmail)
+        ? (
+          <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#b00017">
+            <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
+          </TouchableHighlight>
+        )
+        : <View />}
       <TouchableHighlight style={styles.backButton} onPress={() => setManagingTask(false)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Back</Text>
+        <Text style={{ textAlign: 'center', fontSize: 20 }}>Return</Text>
       </TouchableHighlight>
     </View>
   );
@@ -149,8 +156,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   taskTitle: {
-    width: 200,
-    fontSize: 15,
+    width: 100,
+    fontSize: 14,
+  },
+  status: {
+    width: 75,
+    fontSize: 14,
   },
   memberContainer: {
     justifyContent: 'space-between',

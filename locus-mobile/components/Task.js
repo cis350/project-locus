@@ -1,104 +1,92 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable object-curly-newline */
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableHighlight, Alert, TextInput, Modal,
+  View, Text, StyleSheet, TouchableHighlight, Alert, TextInput,
 } from 'react-native';
-import { getAllTasksForProject, createTask } from '../modules/api';
+import { Picker } from '@react-native-picker/picker';
+import { deleteTask, reassignTask, getSpecificTask, updateTaskStatus } from '../modules/api';
 
-export default function Task({ project, setSelectedTask, user, club }) {
-  const [modalVisible, setModalVisible] = useState(false);
+export default function Task({ project, task, setSelectedTask, user, club }) {
+  const [status, setStatus] = useState(task.status);
+  const [assignee, setAssignee] = useState(task.assignedTo);
+  const [currTask, setCurrTask] = useState(task);
   const [jawn, rerender] = useState(false);
-  const [tasks, setTasks] = useState(project.tasks);
-  const [newTaskName, setNewTaskName] = useState('');
-  const [newTaskAssignee, setNewTaskAssignee] = useState('');
 
   useEffect(() => {
-    async function getTasks() {
-      setTasks((await getAllTasksForProject(club.clubName, project.projectName, user.email))
-        .jsonContent);
+    async function setTask() {
+      setCurrTask(
+        (await getSpecificTask(club.clubName, project.projectName, user.email, task._id))
+          .jsonContent.result,
+      );
     }
-    getTasks();
+    setTask();
   }, [jawn]);
-  console.log(tasks);
+  console.log(currTask);
 
-  async function handleCreateTask() {
-    const response = await (
-      createTask(
-        club.clubName,
-        project.projectName,
-        newTaskName,
-        user.email,
-        newTaskAssignee,
-        'incomplete',
-      ));
-    setNewTaskName('');
-    setNewTaskAssignee('');
-    setModalVisible(false);
-    if (response.status === 200) Alert.alert('Task Successfully Created');
-    else Alert.alert('Task Creation Failed');
+  async function handleUpdateStatus(newStatus) {
+    Alert.alert('Status Updated');
+    await updateTaskStatus(club.clubName, project.projectName, user.email, newStatus, task._id);
+    setStatus(newStatus);
     rerender(!jawn);
   }
 
-  const displayTasks = [];
-  for (let i = 0; i < tasks.length; i += 1) {
-    console.log(tasks[i]);
-    displayTasks.push(
-      <View style={styles.task} key={`task${i}`}>
-        <Text style={styles.taskTitle}>sdaoifjaosdfjoasdjfosjdfoiasjdfoaiojsfd</Text>
-        <TouchableHighlight style={styles.removeButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
-          <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>Assign</Text>
-        </TouchableHighlight>
-        <TouchableHighlight style={styles.removeButton} onPress={() => Alert.alert('pressed')} underlayColor="#b00017">
-          <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>Remove</Text>
-        </TouchableHighlight>
-      </View>,
-    );
+  // async function reassignTask(clubName, projectName, requestedEmail, targetEmail, taskId) {
+
+  async function handleReassignTask() {
+    Alert.alert('Reassign Task');
+    await reassignTask(club.clubName, project.projectName, user.email, assignee, task._id);
+    rerender(!jawn);
   }
+
+  async function handleDeleteTask() {
+    await deleteTask(club.clubName, project.projectName, user.email, task._id);
+    setSelectedTask(undefined);
+  }
+
+  const statusPicker = (
+    <Picker
+      selectedValue={status}
+      style={{ height: 200, width: 300 }}
+      onValueChange={(itemValue) => handleUpdateStatus(itemValue)}
+    >
+      <Picker.Item label="Incomplete" value="incomplete" />
+      <Picker.Item label="Need Help" value="need help" />
+      <Picker.Item label="Done" value="done" />
+    </Picker>
+  );
+
+  const assigneeChanger = (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="grey"
+        onChangeText={setAssignee}
+        value={assignee}
+      />
+      <TouchableHighlight style={styles.button} onPress={() => handleReassignTask()}>
+        <Text>Reassign</Text>
+      </TouchableHighlight>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <View style={styles.centeredView}>
-        <Modal
-          animationType="slide"
-          transparent={false}
-          visible={modalVisible}
-        >
-          <View style={styles.centeredView}>
-            <Text style={{ fontSize: 40, marginBottom: 30 }}>Create Task</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Task Name"
-              placeholderTextColor="grey"
-              onChangeText={setNewTaskName}
-              value={newTaskName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Assignee Email"
-              placeholderTextColor="grey"
-              onChangeText={setNewTaskAssignee}
-              value={newTaskAssignee}
-            />
-            <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleCreateTask()}>
-              <Text style={{ fontSize: 20 }}>Create</Text>
-            </TouchableHighlight>
-            <TouchableHighlight style={styles.cancelButton} underlayColor="#33E86F" onPress={() => setModalVisible(false)}>
-              <Text style={{ fontSize: 20 }}>Cancel</Text>
-            </TouchableHighlight>
-          </View>
-        </Modal>
-      </View>
-      <Text style={styles.projectTitle}>Tasks</Text>
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.memberContainer}>
-          {displayTasks}
-        </View>
-      </ScrollView>
-      <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
-      </TouchableHighlight>
-      <TouchableHighlight style={styles.backButton} onPress={() => setManagingTask(false)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Back</Text>
+      <Text style={styles.taskTitle}>Task Name: {currTask.taskName}</Text>
+      <Text style={styles.taskTitle}>Assigned To: {currTask.assignedTo}</Text>
+      <Text style={styles.taskTitle}>Status: {currTask.status}</Text>
+      {(currTask.assignedTo === user.email || user.email === project.leaderEmail)
+        ? statusPicker : <View />}
+      {(user.email === project.leaderEmail) ? assigneeChanger : <View />}
+      {(user.email === project.leaderEmail)
+        ? (
+          <TouchableHighlight style={styles.button} onPress={() => handleDeleteTask()}>
+            <Text>Delete</Text>
+          </TouchableHighlight>
+        ) : <View />}
+      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
+        <Text>Return</Text>
       </TouchableHighlight>
     </View>
   );
@@ -110,39 +98,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 25,
   },
-  projectTitle: {
-    fontSize: 40,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  scrollContainer: {
-    width: 350,
-    height: 400,
-    backgroundColor: '#B5E48C',
-    borderRadius: 10,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
   addMemberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  addMember: {
-    backgroundColor: 'green',
-    width: 40,
-    height: 40,
-    marginLeft: 20,
-    borderRadius: 50,
-    alignContent: 'center',
-    justifyContent: 'center',
-  },
   taskTitle: {
-    width: 100,
-    fontSize: 10,
+    width: 200,
+    fontSize: 20,
   },
   memberContainer: {
     justifyContent: 'space-between',

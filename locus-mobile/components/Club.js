@@ -24,7 +24,7 @@ export default function Club({ route }) {
       setClubProjects((await getClubProjects(currentClub.clubName)).jsonContent);
     }
     setProjects();
-  }, [isFocused]);
+  }, [isFocused, selectedProject]);
 
   async function showProfile(memberEmail) {
     const member = (await getUser(memberEmail)).result;
@@ -33,8 +33,10 @@ export default function Club({ route }) {
 
   async function handleRemoveMember(memberEmail) {
     const response = await removeMember(currentClub.clubName, user.email, memberEmail);
-    Alert.alert(response.jsonContent);
-    setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+    if (response.status === 200) {
+      Alert.alert('Removal Success');
+      setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+    } else Alert.alert('Removal Failure');
   }
 
   async function handlePromoteMember(memberEmail) {

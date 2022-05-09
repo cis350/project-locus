@@ -62,7 +62,7 @@ export default function Clubs({ route, navigation }) {
     setUserClubs((await getUserClubs(user.email)).jsonContent);
     setJoinClubName('');
     setJoinClubPassword('');
-    if (response.status !== 200) Alert.alert('Join Club Failed');
+    if (response.status !== 201) Alert.alert('Join Club Failed');
     setJoinClubModalVisible(false);
   }
 

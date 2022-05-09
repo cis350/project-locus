@@ -3,8 +3,8 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import Chat from './Chat';
 import { getUserClubs } from '../modules/api';
+import Chat from './Chat';
 
 export default function AllChats({ route }) {
   // use state to switch between different chats

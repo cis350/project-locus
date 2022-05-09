@@ -1,9 +1,10 @@
+/* eslint-disable max-len */
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput, Image,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { getClubChat, sendMessage } from '../modules/api';
+import { getClubChat, sendMessage, updateNotifications } from '../modules/api';
 
 // get messages from currentChat once backend is available
 export default function Chat({ currentChat, backToAllChat, user }) {
@@ -44,11 +45,18 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     return true;
   };
 
+  const getTime = ((dateMilli) => {
+    const date = new Date(dateMilli);
+    const hour = date.getHours();
+    let minute = date.getMinutes();
+    if (minute < 10) minute = `0${minute}`;
+    return `${hour}:${minute}`;
+  });
   const getDate = ((dateMilli) => {
     const date = new Date(dateMilli);
     const year = date.getFullYear();
-    const month = ((date.getMonth() + 1));
-    const day = (date.getDate());
+    const month = ((date.getMonth() + 1).toString()).slice(-2);
+    const day = (date.getDate().toString()).slice(-2);
     return `${month}-${day}-${year}`;
   });
 
@@ -57,7 +65,10 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     if (message === '' && content === '') return;
     if (/\S/.test(message)) {
       // TODO: pass date as milliseconds, update content to image content
-      await sendMessage(currentChat, user.email, message, content, (new Date()).getTime());
+      const response = await (sendMessage(currentChat, user.email, message, content, (new Date()).getTime()));
+      console.log(currentChat);
+      console.log(user.email);
+      if (response.status === 201) await updateNotifications(currentChat, user.email);
     }
     setChatMessages((await getClubChat(currentChat)).jsonContent);
     setMessage('');
@@ -78,6 +89,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
           </View>
           <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
           <Text style={{ fontSize: 10 }}>{getDate(chatMessages[i].timeStamp)}</Text>
+          <Text style={{ fontSize: 10 }}>{getTime(chatMessages[i].timeStamp)}</Text>
         </View>,
       );
     } else { // align left if you are not the sender
@@ -89,7 +101,8 @@ export default function Chat({ currentChat, backToAllChat, user }) {
             <Text style={{ fontSize: 15 }}>{chatMessages[i].message}</Text>
           </View>
           <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
-          <Text style={{ fontSize: 10 }}>{chatMessages[i].timeStamp}</Text>
+          <Text style={{ fontSize: 10 }}>{getDate(chatMessages[i].timeStamp)}</Text>
+          <Text style={{ fontSize: 10 }}>{getTime(chatMessages[i].timeStamp)}</Text>
         </View>,
       );
     }
