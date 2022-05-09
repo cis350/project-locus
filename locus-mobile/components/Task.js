@@ -22,6 +22,7 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
     }
     setTask();
   }, [jawn]);
+  console.log(currTask);
 
   async function handleUpdateStatus(newStatus) {
     Alert.alert('Status Updated');

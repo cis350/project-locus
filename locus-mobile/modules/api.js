@@ -237,28 +237,17 @@ async function reassignTask(clubName, projectName, requestedEmail, targetEmail, 
 
 async function getSpecificTask(clubName, projectName, requestedEmail, taskId) {
   try {
-    console.log('here');
-    console.log(clubName);
-    console.log(projectName);
-    console.log(requestedEmail);
-    console.log(taskId);
     const result = await axios.post(`${domain}/task/project/${taskId}`, {
       clubName, requestedEmail, projectName,
     });
-    console.log(result.data);
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
-    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
 
 async function deleteTask(clubName, projectName, requestedEmail, taskId) {
   try {
-    console.log(clubName);
-    console.log(projectName);
-    console.log(requestedEmail);
-    console.log(taskId);
     const result = await axios({
       method: 'DELETE',
       url: `${domain}/deleteTask/${taskId}`,
@@ -268,7 +257,6 @@ async function deleteTask(clubName, projectName, requestedEmail, taskId) {
         requestedEmail,
       },
     });
-    console.log(result.data);
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };

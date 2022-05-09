@@ -14,6 +14,8 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
   const [newTaskAssignee, setNewTaskAssignee] = useState('');
   const [selectedTask, setSelectedTask] = useState(undefined);
 
+  console.log(`task selected${selectedTask}`);
+  console.log(selectedTask);
   useEffect(() => {
     async function getTasks() {
       setTasks((await getAllTasksForProject(club.clubName, project.projectName, user.email))
