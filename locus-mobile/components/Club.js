@@ -36,7 +36,7 @@ export default function Club({ route }) {
     if (response.status === 200) {
       Alert.alert('Removal Success');
       setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
-    } else Alert.alert('Removal Success');
+    } else Alert.alert('Removal Failure');
   }
 
   async function handlePromoteMember(memberEmail) {
