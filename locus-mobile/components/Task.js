@@ -75,11 +75,15 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
       <Text style={styles.taskTitle}>Task Name: {currTask.taskName}</Text>
       <Text style={styles.taskTitle}>Assigned To: {currTask.assignedTo}</Text>
       <Text style={styles.taskTitle}>Status: {currTask.status}</Text>
-      {statusPicker}
-      {assigneeChanger}
-      <TouchableHighlight style={styles.button} onPress={() => handleDeleteTask()}>
-        <Text>Delete</Text>
-      </TouchableHighlight>
+      {(currTask.assignedTo === user.email || user.email === project.leaderEmail)
+        ? statusPicker : <View />}
+      {(user.email === project.leaderEmail) ? assigneeChanger : <View />}
+      {(user.email === project.leaderEmail)
+        ? (
+          <TouchableHighlight style={styles.button} onPress={() => handleDeleteTask()}>
+            <Text>Delete</Text>
+          </TouchableHighlight>
+        ) : <View />}
       <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
         <Text>Return</Text>
       </TouchableHighlight>
