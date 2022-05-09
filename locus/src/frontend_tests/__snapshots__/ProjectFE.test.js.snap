@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`project snapshot test 1`] = `
+<div
+  className="container"
+  style={
+    Object {
+      "padding": "20px",
+      "position": "relative",
+    }
+  }
+>
+  <h4
+    className="text-center"
+  >
+     
+    has no projects.
+  </h4>
+  <h3
+    className="text-center"
+  >
+    You do not have any projects assigned for
+     
+    !
+  </h3>
+</div>
+`;

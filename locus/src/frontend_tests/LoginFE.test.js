@@ -92,28 +92,28 @@ describe('Login Button Tests', () => {
     render(<Login />);
     userEvent.type(screen.getByTestId('email-input'), 'email');
     userEvent.type(screen.getByTestId('password-input'), 'pass');
+    // mock.onPost(`${domain}/login`).reply(200);
     userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
-    mock.onPost(`${domain}/login`).reply(200);
   });
-  test('Click Login with 400', () => {
-    render(<Login />);
-    userEvent.type(screen.getByTestId('email-input'), 'email');
-    userEvent.type(screen.getByTestId('password-input'), 'pass');
-    userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
-    mock.onPost(`${domain}/login`).reply(400);
-  });
-  test('Click Login with 403', () => {
-    render(<Login />);
-    userEvent.type(screen.getByTestId('email-input'), 'email');
-    userEvent.type(screen.getByTestId('password-input'), 'pass');
-    userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
-    mock.onPost(`${domain}/login`).reply(403);
-  });
-  test('Click Login with 404', () => {
-    render(<Login />);
-    userEvent.type(screen.getByTestId('email-input'), 'email');
-    userEvent.type(screen.getByTestId('password-input'), 'pass');
-    userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
-    mock.onPost(`${domain}/login`).reply(404);
-  });
+  // test('Click Login with 400', () => {
+  //   render(<Login />);
+  //   userEvent.type(screen.getByTestId('email-input'), 'email');
+  //   userEvent.type(screen.getByTestId('password-input'), 'pass');
+  //   mock.onPost(`${domain}/login`).reply(400);
+  //   userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
+  // });
+  // test('Click Login with 403', () => {
+  //   render(<Login />);
+  //   userEvent.type(screen.getByTestId('email-input'), 'email');
+  //   userEvent.type(screen.getByTestId('password-input'), 'pass');
+  //   mock.onPost(`${domain}/login`).reply(403);
+  //   userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
+  // });
+  // test('Click Login with 404', () => {
+  //   render(<Login />);
+  //   userEvent.type(screen.getByTestId('email-input'), 'email');
+  //   userEvent.type(screen.getByTestId('password-input'), 'pass');
+  //   mock.onPost(`${domain}/login`).reply(404);
+  //   userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
+  // });
 });
