@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`club snapshot test 1`] = `
+<div
+  className="container"
+  style={
+    Object {
+      "padding": "20px",
+      "position": "relative",
+    }
+  }
+>
+  <h1
+    className="text-center"
+  />
+  <div>
+    TASKS
+  </div>
+</div>
+`;
+
+exports[`manage project snapshot test 1`] = `
+<div
+  className="container"
+  style={
+    Object {
+      "padding": "20px",
+      "position": "relative",
+    }
+  }
+>
+  <h1
+    className="text-center"
+  />
+  <div>
+    TASKS
+  </div>
+</div>
+`;

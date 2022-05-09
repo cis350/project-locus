@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`club snapshot test 1`] = `
+<div
+  className="container"
+>
+  <button
+    className="btn btn-success btn btn-primary"
+    disabled={false}
+    onClick={[Function]}
+    type="button"
+  >
+    View All Clubs
+  </button>
+  <br />
+  <h1>
+    Welcome to 
+    !
+  </h1>
+  <div
+    className="row"
+  >
+    <div
+      className="col-4"
+    >
+      <h2>
+        Members
+      </h2>
+      <div
+        className="container section-container"
+      />
+    </div>
+    <div
+      className="col-4"
+    >
+      <h2>
+        Tasks Assigned
+      </h2>
+      <div
+        className="container section-container"
+      />
+    </div>
+    <div
+      className="col-4"
+    >
+      <h2>
+        Projects
+      </h2>
+      <div
+        className="container section-container"
+      />
+    </div>
+  </div>
+</div>
+`;

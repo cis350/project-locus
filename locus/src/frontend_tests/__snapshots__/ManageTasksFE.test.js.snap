@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`manage tasks snapshot test 1`] = `
+<div
+  className="container"
+  style={
+    Object {
+      "padding": "20px",
+      "position": "relative",
+    }
+  }
+>
+  <div
+    className="club-item"
+  >
+    <button
+      className="club-button btn btn-primary"
+      disabled={false}
+      onClick={[Function]}
+      type="button"
+    >
+      <div
+        className="row"
+      >
+        <div
+          className="d-flex justify-content-center col"
+        >
+          Create new task
+        </div>
+      </div>
+    </button>
+  </div>
+</div>
+`;

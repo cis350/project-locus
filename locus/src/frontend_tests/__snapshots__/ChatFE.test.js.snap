@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`analytics snapshot test 1`] = `
+<div>
+  <div
+    className="container"
+  >
+    <div
+      className="container"
+    >
+      <div>
+        <div
+          className="vstack gap-20"
+        >
+          <div
+            className="row"
+          >
+            <h1
+              className="chat-header"
+            >
+              Your Chats  
+            </h1>
+          </div>
+          <div
+            className="chat-table"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -103,9 +103,9 @@ const Login = function LoginComponent({ setIsLoggedIn, setUserEmail, setUniqueId
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="email" onChange={(e) => updateEmail(e)} />
+              <Form.Control data-testid="email-input" style={{ height: '25px' }} type="email" onChange={(e) => updateEmail(e)} />
               <Form.Label>Password</Form.Label>
-              <Form.Control style={{ height: '25px' }} type="password" onChange={(e) => updatePassword(e)} />
+              <Form.Control data-testid="password-input" style={{ height: '25px' }} type="password" onChange={(e) => updatePassword(e)} />
             </Form.Group>
           </Form>
         </Card.Body>

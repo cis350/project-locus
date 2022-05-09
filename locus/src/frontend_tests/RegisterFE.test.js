@@ -134,12 +134,12 @@ describe('Registration Alerts', () => {
   });
   // test('email already exists alert', () => {
   //   render(<Register setJustRegistered={() => null} />);
-  //   mock.onGet('http://localhost:3306/register').reply(400, {});
+  //   mock.onGet('http://localhost:3306/register').reply(400, { error: 'Email already exists' });
   //   userEvent.type(screen.getByTestId('firstname-input'), 'Jake');
   //   userEvent.type(screen.getByTestId('lastname-input'), 'Doh');
   //   userEvent.type(screen.getByTestId('email-input'), 'test@gmail.com');
-  //   userEvent.type(screen.getByTestId('password-input'), 'abc');
-  //   userEvent.type(screen.getByTestId('verpassword-input'), 'cba');
+  //   userEvent.type(screen.getByTestId('password-input'), 'Abcde!');
+  //   userEvent.type(screen.getByTestId('verpassword-input'), 'Abcde!');
   //   userEvent.click(screen.getByRole('button', { name: /Register/i }));
   //   const alertElement = screen.getByText(/Email already exists./i);
   //   expect(alertElement).toBeInTheDocument();

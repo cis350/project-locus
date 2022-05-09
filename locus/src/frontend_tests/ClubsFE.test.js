@@ -5,9 +5,9 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
 import renderer from 'react-test-renderer';
-import Club from '../components/Club';
+import userEvent from '@testing-library/user-event';
+import Clubs from '../components/Clubs';
 
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
@@ -28,9 +28,8 @@ afterEach(() => {
   mock.reset();
 });
 
-const dummyClub = { members: [], projects: [] };
 test('club snapshot test', () => {
-  const component = renderer.create(<Club club={dummyClub} />);
+  const component = renderer.create(<Clubs />);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
 });
