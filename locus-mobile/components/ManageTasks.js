@@ -45,6 +45,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
     displayTasks.push(
       <View style={styles.task} key={`task${i}`}>
         <Text style={styles.taskTitle}>{tasks[i].taskName}</Text>
+        <Text style={styles.status}>{tasks[i].status}</Text>
         <TouchableHighlight style={styles.viewButton} onPress={() => setSelectedTask(tasks[i])} underlayColor="#b00017">
           <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>View</Text>
         </TouchableHighlight>
@@ -102,9 +103,13 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
           {displayTasks}
         </View>
       </ScrollView>
-      <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#b00017">
-        <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
-      </TouchableHighlight>
+      {(user.email === project.leaderEmail)
+        ? (
+          <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#b00017">
+            <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
+          </TouchableHighlight>
+        )
+        : <View />}
       <TouchableHighlight style={styles.backButton} onPress={() => setManagingTask(false)} underlayColor="#b00017">
         <Text style={{ textAlign: 'center', fontSize: 20 }}>Return</Text>
       </TouchableHighlight>
@@ -149,8 +154,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   taskTitle: {
-    width: 200,
-    fontSize: 15,
+    width: 100,
+    fontSize: 14,
+  },
+  status: {
+    width: 75,
+    fontSize: 14,
   },
   memberContainer: {
     justifyContent: 'space-between',

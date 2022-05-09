@@ -54,6 +54,17 @@ export default function ManageProject({ project, changeProject, user, club }) {
     );
   }
 
+  if (user.email !== project.leaderEmail) {
+    console.log('here');
+    return (
+      <ManageTasks
+        project={currProject}
+        setManagingTask={changeProject}
+        user={user}
+        club={club}
+      />
+    );
+  }
   if (managingTask) {
     return (
       <ManageTasks
