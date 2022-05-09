@@ -397,10 +397,8 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
     if (!project) {
       return false;
     }
-    console.log('project=', project);
     // modify all the task assignedTo's
     const tasksArray = project.tasks;
-    console.log('taskarray=', tasksArray);
     for (let i = 0; i < tasksArray.length; i += 1) {
       const task = tasksArray[i];
       if (task.assignedTo === oldAssignee) {
@@ -421,29 +419,37 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
 const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
   if (!db || !clubName || !oldAssignee) return false;
   try {
-    var projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` });
+    const projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` });
     const bulkUpdateOps = [];
-
+    console.log(projectCursor);
     projectCursor.forEach((doc) => {
       const tasksArray = doc.tasks;
+      let wasUpdated = false;
       for (let i = 0; i < tasksArray.length; i += 1) {
         const task = tasksArray[i];
         if (task.assignedTo === oldAssignee) {
           task.assignedTo = doc.leaderEmail;
+          wasUpdated = true;
         }
       }
-      const currProjectName = doc.projectName;
-      bulkUpdateOps.push({
-        updateOne: {
-          filter: { clubName: `${clubName}`, projectName: `${currProjectName}` },
-          update: { $set: { tasks: tasksArray } },
-        },
-      });
+      if (wasUpdated) {
+        const currProjectName = doc.projectName;
+        bulkUpdateOps.push({
+          updateOne: {
+            filter: { clubName: `${clubName}`, projectName: `${currProjectName}` },
+            update: { $set: { tasks: tasksArray } },
+          },
+        });
+      }
     });
 
-    const dbres = await db.collection('Projects').bulkWrite(bulkUpdateOps);
-    if (!dbres.acknowledged) {
-      return false;
+    console.log('Bulk Ops length');
+    console.log(bulkUpdateOps.length);
+    if (bulkUpdateOps.length > 0) {
+      const dbres = await db.collection('Projects').bulkWrite(bulkUpdateOps);
+      if (!dbres.acknowledged) {
+        return false;
+      }
     }
     return true;
   } catch (err) {
@@ -692,7 +698,7 @@ const getOngoingTasksForProject = async (
   try {
     if (!db || !clubName || !projectName || !requestedEmail) return null;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
+    if (!project) {
       return null;
     }
     if (project.members.includes(requestedEmail)) {
@@ -758,15 +764,13 @@ const getTask = async (
   try {
     if (!db || !clubName || !projectName || !requestedEmail) return null;
     const project = await db.collection('Projects').findOne({ clubName: `${clubName}`, projectName: `${projectName}` });
-    if (!project.acknowledged) {
+    if (!project) {
       return null;
     }
-    if (project.members.includes(requestedEmail)) {
-      const { tasks } = project;
-      for (let i = 0; i < tasks.length; i += 1) {
-        if (tasks[i]._id === taskID) {
-          return tasks[i];
-        }
+    const { tasks } = project;
+    for (let i = 0; i < tasks.length; i += 1) {
+      if (tasks[i]._id === taskID) {
+        return tasks[i];
       }
     }
     return null;
