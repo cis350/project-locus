@@ -502,6 +502,20 @@ describe('Projects endpoint tests', () => {
         .toMatchObject(project));
   });
 
+  test('/projects:clubName 200', async () => {
+    await request(webapp).put(`/project/${testClub.clubName}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'TestProjectA',
+        leaderEmail: testUser2.userEmail,
+        requestedEmail: testUser.userEmail,
+      }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`Created TestProjectA for ${testClub.clubName}`));
+    await request(webapp).get(`/projects/${testClub.clubName}`)
+      .send().expect(200);
+  });
+
   test('/deleteProject/:projectName 400', async () => {
     await request(webapp).delete('/deleteProject/nonexistant')
       .send({ clubName: testClub.clubName, requestedEmail: testUser.userEmail }).expect(400)
