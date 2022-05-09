@@ -31,6 +31,15 @@ async function getUserId(email) {
   }
 }
 
+async function updateNotifications(userEmail, club) {
+  try {
+    const result = await axios.put(`${domain}/notifications/${club}`, { requestedEmail: userEmail });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 /*
  * Club fetches
  */
@@ -289,4 +298,5 @@ module.exports = {
   reassignTask,
   getSpecificTask,
   deleteTask,
+  updateNotifications,
 };

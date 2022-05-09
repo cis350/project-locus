@@ -1,9 +1,10 @@
+/* eslint-disable max-len */
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput, Image,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { getClubChat, sendMessage } from '../modules/api';
+import { getClubChat, sendMessage, updateNotifications } from '../modules/api';
 
 // get messages from currentChat once backend is available
 export default function Chat({ currentChat, backToAllChat, user }) {
@@ -64,7 +65,10 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     if (message === '' && content === '') return;
     if (/\S/.test(message)) {
       // TODO: pass date as milliseconds, update content to image content
-      await sendMessage(currentChat, user.email, message, content, (new Date()).getTime());
+      const response = await (sendMessage(currentChat, user.email, message, content, (new Date()).getTime()));
+      console.log(currentChat);
+      console.log(user.email);
+      if (response.status === 201) await updateNotifications(currentChat, user.email);
     }
     setChatMessages((await getClubChat(currentChat)).jsonContent);
     setMessage('');
