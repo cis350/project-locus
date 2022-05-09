@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const axios = require('axios');
 
 const domain = 'https://locus-backend-350.herokuapp.com';
@@ -94,8 +95,6 @@ async function removeMember(clubName, requestedEmail, targetEmail) {
     });
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
-    console.log(err.response.status);
-    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
@@ -146,9 +145,9 @@ async function getClubProjects(clubName) {
   }
 }
 
-async function createClubProject(clubName, projectName, leaderEmail) {
+async function createClubProject(clubName, projectName, leaderEmail, requestedEmail) {
   try {
-    const result = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail });
+    const result = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail, requestedEmail });
     return { status: result.status, jsonContent: result.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
@@ -164,13 +163,13 @@ async function assignUserToProject(clubName, projectName, requestedEmail, assign
   }
 }
 
-async function removeUserFromProject(clubName, projectName, requestedEmail, assigneeEmail) {
+async function removeUserFromProject(clubName, projectName, requestedEmail, assigneeEmail, leaderEmail) {
   try {
     const result = await axios({
       method: 'DELETE',
       url: `${domain}/removeUserFromProject/${projectName}`,
       data: {
-        clubName, requestedEmail, assigneeEmail,
+        clubName, requestedEmail, assigneeEmail, leaderEmail,
       },
     });
     return { status: result.status, jsonContent: result.data };

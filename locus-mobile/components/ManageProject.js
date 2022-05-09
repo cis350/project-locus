@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable object-curly-newline */
 import React, { useState, useEffect } from 'react';
 import {
@@ -22,9 +23,10 @@ export default function ManageProject({ project, changeProject, user, club }) {
     setProject();
   }, [jawn]);
 
+  // removeUserFromProject(clubName, projectName, requestedEmail, assigneeEmail, leaderEmail) {
   async function handleRemoveMember(emailToRemove) {
     const response = (
-      await removeUserFromProject(club.clubName, project.projectName, user.email, emailToRemove));
+      await removeUserFromProject(club.clubName, project.projectName, user.email, emailToRemove, project.leaderEmail));
     if (response.status !== 200) Alert.alert('Invalid Request');
     rerender(!jawn);
   }
@@ -32,13 +34,15 @@ export default function ManageProject({ project, changeProject, user, club }) {
   async function addMember() {
     const response = (
       await assignUserToProject(club.clubName, project.projectName, user.email, memberEmail));
-    if (response.status !== 200) Alert.alert('Invalid Request');
+    if (response.status !== 201) Alert.alert('Invalid Request');
+    if (response.status === 201) Alert.alert('Member Added');
     rerender(!jawn);
     setMemberEmail('');
   }
 
   async function handleDeleteProject() {
     await deleteProject(club.clubName, project.projectName, user.email);
+    Alert.alert('Project Deleted');
     changeProject(undefined);
   }
 
@@ -91,7 +95,7 @@ export default function ManageProject({ project, changeProject, user, club }) {
             onChangeText={setMemberEmail}
             value={memberEmail}
           />
-          <TouchableHighlight style={styles.addMember} underlayColor="#b00017" onPress={() => addMember()}>
+          <TouchableHighlight style={styles.addMember} underlayColor="#33E86F" onPress={() => addMember()}>
             <Ionicons
               style={{ color: 'white', textAlign: 'center' }}
               name="add-outline"
@@ -99,10 +103,10 @@ export default function ManageProject({ project, changeProject, user, club }) {
             />
           </TouchableHighlight>
         </View>
-        <TouchableHighlight style={styles.button} onPress={() => setManagingTask(true)} underlayColor="#b00017">
+        <TouchableHighlight style={styles.button} onPress={() => setManagingTask(true)} underlayColor="#33E86F">
           <Text style={{ textAlign: 'center', fontSize: 20 }}>Manage Tasks</Text>
         </TouchableHighlight>
-        <TouchableHighlight style={styles.backButton} onPress={() => changeProject(undefined)} underlayColor="#b00017">
+        <TouchableHighlight style={styles.backButton} onPress={() => changeProject(undefined)} underlayColor="#33E86F">
           <Text style={{ textAlign: 'center', fontSize: 20 }}>Return</Text>
         </TouchableHighlight>
         <TouchableHighlight style={styles.deleteButton} onPress={() => handleDeleteProject()} underlayColor="#b00017">
