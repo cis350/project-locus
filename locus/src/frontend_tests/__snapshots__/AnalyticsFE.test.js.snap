@@ -52,62 +52,7 @@ exports[`analytics snapshot test 1`] = `
                   "height": "310px",
                 }
               }
-            >
-              <li
-                style={
-                  Object {
-                    "listStyleType": "none",
-                    "width": "15rem",
-                  }
-                }
-              >
-                <div
-                  className="row"
-                >
-                  <div
-                    className="col-6"
-                  >
-                    Task 1
-                  </div>
-                </div>
-              </li>
-              <li
-                style={
-                  Object {
-                    "listStyleType": "none",
-                    "width": "15rem",
-                  }
-                }
-              >
-                <div
-                  className="row"
-                >
-                  <div
-                    className="col-6"
-                  >
-                    Task 2
-                  </div>
-                </div>
-              </li>
-              <li
-                style={
-                  Object {
-                    "listStyleType": "none",
-                    "width": "15rem",
-                  }
-                }
-              >
-                <div
-                  className="row"
-                >
-                  <div
-                    className="col-6"
-                  >
-                    Task 3
-                  </div>
-                </div>
-              </li>
-            </ul>
+            />
           </div>
         </div>
       </div>
@@ -135,7 +80,7 @@ exports[`analytics snapshot test 1`] = `
           <h5
             className="text-center"
           >
-            Task Tracker
+            Incompleted Tasks
           </h5>
           <div
             style={
@@ -151,62 +96,7 @@ exports[`analytics snapshot test 1`] = `
                   "height": "310px",
                 }
               }
-            >
-              <li
-                style={
-                  Object {
-                    "listStyleType": "none",
-                    "width": "15rem",
-                  }
-                }
-              >
-                <div
-                  className="row"
-                >
-                  <div
-                    className="col-6"
-                  >
-                    Dustin 0
-                  </div>
-                </div>
-              </li>
-              <li
-                style={
-                  Object {
-                    "listStyleType": "none",
-                    "width": "15rem",
-                  }
-                }
-              >
-                <div
-                  className="row"
-                >
-                  <div
-                    className="col-6"
-                  >
-                    Soham 1
-                  </div>
-                </div>
-              </li>
-              <li
-                style={
-                  Object {
-                    "listStyleType": "none",
-                    "width": "15rem",
-                  }
-                }
-              >
-                <div
-                  className="row"
-                >
-                  <div
-                    className="col-6"
-                  >
-                    James 2
-                  </div>
-                </div>
-              </li>
-            </ul>
+            />
           </div>
         </div>
       </div>

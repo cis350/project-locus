@@ -28,7 +28,7 @@ afterEach(() => {
   mock.reset();
 });
 
-test('club snapshot test', () => {
+test('clubs snapshot test', () => {
   const component = renderer.create(<Clubs />);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();

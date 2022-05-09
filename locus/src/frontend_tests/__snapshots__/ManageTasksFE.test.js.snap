@@ -12,23 +12,6 @@ exports[`manage tasks snapshot test 1`] = `
 >
   <div
     className="club-item"
-  >
-    <button
-      className="club-button btn btn-primary"
-      disabled={false}
-      onClick={[Function]}
-      type="button"
-    >
-      <div
-        className="row"
-      >
-        <div
-          className="d-flex justify-content-center col"
-        >
-          Create new task
-        </div>
-      </div>
-    </button>
-  </div>
+  />
 </div>
 `;
