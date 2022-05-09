@@ -682,4 +682,26 @@ describe('Tasks endpoint tests', () => {
       .then((response) => expect(JSON.parse(response.text).message)
         .toBe(`Updated ${taskId} to need help`));
   });
+
+  test('deleteTask/:taskId 400', async () => {
+    await request(webapp).delete('/deleteTask/54252').expect(400)
+      .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
+  });
+
+  test('deleteTask/:taskId 200', async () => {
+    const project = await db.collection('Projects').findOne({ clubName: `${testClub.clubName}`, projectName: 'TestProject' });
+    const taskId = project.tasks[0]._id.toString();
+    await request(webapp).delete(`/deleteTask/${taskId}`)
+      .send({
+        clubName: testClub.clubName,
+        projectName: 'TestProject',
+        requestedEmail: testUser2.userEmail,
+      }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message).toBe(`Removed ${taskId} from TestProject`));
+  });
+});
+
+test('/projectAnalytics/:projectName 400', async () => {
+  await request(webapp).post('/projectAnalytics/nonexistant').expect(400)
+    .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
 });
