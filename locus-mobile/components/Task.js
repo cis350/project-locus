@@ -39,8 +39,7 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
   }
 
   async function handleDeleteTask() {
-    const response = await deleteTask(club.clubName, project.projectName, user.email, task._id);
-    console.log(response);
+    await deleteTask(club.clubName, project.projectName, user.email, task._id);
     setSelectedTask(undefined);
   }
 

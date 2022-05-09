@@ -59,14 +59,6 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     return `${month}-${day}-${year}`;
   });
 
-  // const getDate = ((dateMilli) => {
-  //   const date = new Date(dateMilli);
-  //   const year = date.getFullYear();
-  //   const month = ((date.getMonth() + 1));
-  //   const day = (date.getDate());
-  //   return `${month}-${day}-${year}`;
-  // });
-
   // function that will send the message the user types, update for backend later
   async function handleSendMessage() {
     if (message === '' && content === '') return;
