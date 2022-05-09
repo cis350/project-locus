@@ -399,15 +399,18 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
     }
     // modify all the task assignedTo's
     const tasksArray = project.tasks;
+    let wasUpdated = false;
     for (let i = 0; i < tasksArray.length; i += 1) {
       const task = tasksArray[i];
       if (task.assignedTo === oldAssignee) {
         task.assignedTo = project.leaderEmail;
+        wasUpdated = true;
       }
     }
-
-    const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks: tasksArray } });
-    if (!result) return false;
+    if (wasUpdated) {
+      const result = await db.collection('Projects').updateOne({ clubName: `${clubName}`, projectName: `${projectName}` }, { $set: { tasks: tasksArray } });
+      if (!result) return false;
+    }
     return true;
   } catch (err) {
     console.error(err);
@@ -419,37 +422,27 @@ const reassignAllTasksForProject = async (db, clubName, projectName, oldAssignee
 const reassignAllTasksForClub = async (db, clubName, oldAssignee) => {
   if (!db || !clubName || !oldAssignee) return false;
   try {
-    const projectCursor = await db.collection('Projects').find({ clubName: `${clubName}` });
-    const bulkUpdateOps = [];
-    console.log(projectCursor);
-    projectCursor.forEach((doc) => {
-      const tasksArray = doc.tasks;
+    const projects = await db.collection('Projects').find({ clubName: `${clubName}` }).toArray();
+
+    const projectsToUpdate = [];
+    projects.forEach((currProject) => {
+      const tasksArray = currProject.tasks;
       let wasUpdated = false;
       for (let i = 0; i < tasksArray.length; i += 1) {
         const task = tasksArray[i];
         if (task.assignedTo === oldAssignee) {
-          task.assignedTo = doc.leaderEmail;
+          task.assignedTo = currProject.leaderEmail;
           wasUpdated = true;
         }
       }
       if (wasUpdated) {
-        const currProjectName = doc.projectName;
-        bulkUpdateOps.push({
-          updateOne: {
-            filter: { clubName: `${clubName}`, projectName: `${currProjectName}` },
-            update: { $set: { tasks: tasksArray } },
-          },
-        });
+        projectsToUpdate.push(currProject.projectName);
       }
     });
 
-    console.log('Bulk Ops length');
-    console.log(bulkUpdateOps.length);
-    if (bulkUpdateOps.length > 0) {
-      const dbres = await db.collection('Projects').bulkWrite(bulkUpdateOps);
-      if (!dbres.acknowledged) {
-        return false;
-      }
+    for (let i = 0; i < projectsToUpdate.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await reassignAllTasksForProject(db, clubName, projectsToUpdate[i], oldAssignee);
     }
     return true;
   } catch (err) {
