@@ -3,30 +3,26 @@
 */
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
+
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
-import Clubs from '../components/Clubs';
+import Home from '../components/Home';
 
-const axios = require('axios');
-const MockAdapter = require('axios-mock-adapter');
-
-// mock useNavigate: https://github.com/remix-run/react-router/issues/7811
 const mockedNavigator = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedNavigator,
 }));
 
-let mock;
-beforeAll(() => {
-  mock = new MockAdapter(axios);
-});
-afterEach(() => {
-  mock.reset();
+test('member profile test', () => {
+  render(<Home userEmail="test@gmail.com" />);
+  const textElement = screen.getByText('Loading...');
+  expect(textElement).toBeInTheDocument();
 });
 
-test('clubs snapshot test', () => {
-  const component = renderer.create(<Clubs />);
+test('Snapshot Test', () => {
+  const component = renderer.create(<Home />);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
 });

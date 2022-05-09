@@ -305,7 +305,7 @@ async function getAllClubTasks(clubName) {
   }
 }
 
-module.exports = {
+export {
   register,
   login,
   getUserId,

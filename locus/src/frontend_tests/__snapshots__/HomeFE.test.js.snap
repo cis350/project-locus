@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot Test 1`] = `
+<div>
+  <div>
+    Loading...
+  </div>
+  <div
+    className="d-flex justify-content-center align-content-center "
+  >
+    <button
+      className="btn btn-danger"
+      onClick={[Function]}
+      style={
+        Object {
+          "textAlign": "center",
+        }
+      }
+      type="button"
+    >
+      Logout
+    </button>
+  </div>
+</div>
+`;
