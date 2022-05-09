@@ -1,6 +1,7 @@
 const axios = require('axios');
 
-const domain = 'http://localhost:3306';
+const domain = 'https://locus-backend-350.herokuapp.com';
+// const localDomain = http://localhost:3306;
 
 /*
  * Login and Registraition fetches
