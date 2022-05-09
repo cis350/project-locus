@@ -273,16 +273,16 @@ describe('Club endpoint tests', () => {
       .then((response) => expect(JSON.parse(response.text).error).toBe('Invalid request'));
   });
 
-  // test('/removeMember/:clubname 200', async () => {
-  //   await request(webapp).delete(`/removeMember/${testClub.clubName}`)
-  //     .send({
-  //       requestedEmail: testUser.userEmail,
-  //       targetEmail: testUser2.userEmail,
-  //       clubname: testClub.clubName,
-  //     }).expect(200)
-  //     .then((response) => expect(JSON.parse(response.text).message)
-  //       .toBe(`${testUser2.userEmail} removed from ${testClub.clubName}`));
-  // });
+  test('/removeMember/:clubname 200', async () => {
+    await request(webapp).delete(`/removeMember/${testClub.clubName}`)
+      .send({
+        requestedEmail: testUser.userEmail,
+        targetEmail: testUser2.userEmail,
+        clubname: testClub.clubName,
+      }).expect(200)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`${testUser2.userEmail} removed from ${testClub.clubName}`));
+  });
 
   test('/promotemember/:clubname 403', async () => {
     await request(webapp).put(`/promotemember/${testClub.clubName}`)
@@ -295,9 +295,13 @@ describe('Club endpoint tests', () => {
   });
 
   test('/promotemember/:clubname 403 no privilege', async () => {
-    // await request(webapp).post('/register').send(testUser2).expect(201)
-    //   .then((response) => expect(JSON.parse(response.text).message)
-    //     .toBe(`${testUser2.userFirstName} ${testUser2.userLastName} added`));
+    await request(webapp).post(`/joinclub/${testClub.clubName}`).send({
+      userEmail: testUser2.userEmail,
+      password: testClub.password,
+      clubname: testClub.clubName,
+    }).expect(201)
+      .then((response) => expect(JSON.parse(response.text).message)
+        .toBe(`added ${testUser2.userEmail} to ${testClub.clubName}`));
     await request(webapp).put(`/promotemember/${testClub.clubName}`)
       .send({
         requestedEmail: testUser2.userEmail,
@@ -475,8 +479,9 @@ describe('Projects endpoint tests', () => {
     await request(webapp).delete('/removeUserFromProject/TestProject')
       .send({
         clubName: testClub.clubName,
-        requestedEmail: testUser.userEmail,
+        requestedEmail: testUser2.userEmail,
         assigneeEmail: testUser3.userEmail,
+        leaderEmail: testUser2.userEmail,
       }).expect(200)
       .then((response) => expect(JSON.parse(response.text).message)
         .toBe(`${testUser3.userEmail} removed from TestProject`));
@@ -507,7 +512,7 @@ describe('Projects endpoint tests', () => {
     await request(webapp).post('/assignUsertoProject/TestProject')
       .send({
         clubName: testClub.clubName,
-        requestedEmail: testUser.userEmail,
+        requestedEmail: testUser2.userEmail,
         assigneeEmail: testUser3.userEmail,
       }).expect(201)
       .then((response) => expect(JSON.parse(response.text).message)
