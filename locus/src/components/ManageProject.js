@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-underscore-dangle */
@@ -264,7 +265,9 @@ const ManageProject = function ManageProjectComponent({
 
   const updateStatusForTask = (() => {
     updateStatusForCurrTask(currTaskId, club, project, email, updatedStatus).then((res) => {
-      setRerender(!rerender);
+      if (res.status === 200) {
+        setRerender(!rerender);
+      }
     });
   });
 
@@ -298,7 +301,7 @@ const ManageProject = function ManageProjectComponent({
         <Button className="btn btn-secondary mt-2" onClick={() => closeTaskModal()}>
           Close
         </Button>
-        <Button className="btn btn-primary mt-2" onClick={() => { updateStatus(); updatedStatus !== '' ? updateStatusForTask() : alert('please select an option'); closeTaskModal() }}>
+        <Button className="btn btn-primary mt-2" onClick={() => { updateStatus(); updatedStatus !== '' ? updateStatusForTask() : alert('please select an option'); closeTaskModal(); }}>
           Update
         </Button>
       </Modal.Footer>

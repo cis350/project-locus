@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable no-underscore-dangle */
@@ -15,7 +16,12 @@ import {
   deleteTask,
 } from '../modules/api';
 
-const ManageTasks = function ManageTasksComponent({ project, club, email, role }) {
+const ManageTasks = function ManageTasksComponent({
+  project,
+  club,
+  email,
+  role,
+}) {
   const [modalClickCreate, setModalClickCreate] = useState(false);
   const [modalClickTask, setModalClickTask] = useState(false);
   const [taskName, setTaskName] = useState('');
@@ -106,14 +112,17 @@ const ManageTasks = function ManageTasksComponent({ project, club, email, role }
 
   const updateStatusForTask = (() => {
     updateStatusForCurrTask(currTaskId, club, project, email, updatedStatus).then((res) => {
-      setTaskAdded(!taskAdded);
+      if (res.status === 200) {
+        setTaskAdded(!taskAdded);
+      }
     });
   });
 
   const deleteCurrTask = (() => {
     deleteTask(currTaskId, club, project, email).then((res) => {
-      console.log(res);
-      setTaskAdded(!taskAdded);
+      if (res.status === 200) {
+        setTaskAdded(!taskAdded);
+      }
     });
   });
   const taskModal = (() => (
