@@ -675,10 +675,7 @@ const getAllTasksForProject = async (
     if (!project) {
       return null;
     }
-    if (project.members.includes(requestedEmail)) {
-      return project.tasks;
-    }
-    return null;
+    return project.tasks;
   } catch (err) {
     console.error(err);
     throw new Error('unable to get tasks');
