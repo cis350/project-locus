@@ -12,7 +12,8 @@ afterEach(() => {
   mock.reset();
 });
 
-const domain = 'http://localhost:3306';
+const domain = 'https://locus-backend-350.herokuapp.com';
+// const domain = 'http://localhost:3306';
 
 test('registerUser return value', async () => {
   mock.onPost(`${domain}/register`).reply(201, { message: 'Jeffrey Yang added' });
