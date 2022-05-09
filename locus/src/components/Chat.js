@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Button, Form, Container, Row, Col, Stack, Alert,

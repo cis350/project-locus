@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -26,7 +27,6 @@ const Project = function ProjectComponent({
   useEffect(() => {
     getAllProjects(club).then((res) => {
       if (res.status === 200) {
-        console.log(res.jsonContent.result);
         setAllProjects(res.jsonContent.result);
       }
     });
@@ -92,7 +92,6 @@ const Project = function ProjectComponent({
             <Button className="club-button" onClick={() => goToManageProject(data.projectName.replace(/\s+/g, ''), data.projectName)}>
               <Row>
                 <Col className="d-flex justify-content-center">
-                  {console.log(data)}
                   {data.projectName}
                 </Col>
               </Row>

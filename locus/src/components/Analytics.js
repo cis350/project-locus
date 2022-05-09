@@ -1,3 +1,4 @@
+/* eslint-disable arrow-body-style */
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +35,6 @@ const Analytics = function AnalyticsComponent({
       if (data.status === 'done') return true;
       return false;
     }).map((data) => {
-      console.log(data);
       return (
         <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
           <div className="row">
@@ -53,7 +53,6 @@ const Analytics = function AnalyticsComponent({
       return true;
     }).map((data) => {
       if (data.status === 'incomplete') {
-        console.log(data);
         return (
           <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
             <div className="row">
@@ -64,8 +63,6 @@ const Analytics = function AnalyticsComponent({
           </li>
         );
       }
-      // needs help
-      console.log(data);
       return (
         <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
           <div className="row">
