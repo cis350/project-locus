@@ -568,6 +568,7 @@ webapp.put('/updateTaskStatus/:taskId', async (req, res) => {
   }
 });
 
+// delete tasks with given id, club, and projectName
 webapp.delete('/deleteTask/:taskId', async (req, res) => {
   const { clubName, projectName, requestedEmail } = req.body;
   const { taskId } = req.params;
