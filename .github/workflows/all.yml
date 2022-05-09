@@ -1,4 +1,4 @@
-name: Node.js Web and Backend CI
+name: Locus Web and Backend CI
 
 on:
   push:

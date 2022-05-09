@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Button, Form, Container, Row, Col, Stack, Card,
@@ -35,7 +36,6 @@ function Clubs({ userEmail }) {
     setUserClubs((await getUserClubs(userEmail)).jsonContent);
     setNewClubName('');
     setNewClubPassword('');
-    console.log(response);
     if (response.status !== 200) alert('Create Club Failed');
   }
 
@@ -77,7 +77,7 @@ function Clubs({ userEmail }) {
   }
 
   // intermediate loading screen while states are being fetched
-  if (!user.current) return <div>Loading...</div>;
+  if (!user.current) return <div className="d-flex justify-content-center">Loading...</div>;
 
   // if a club is selected return the view page for that club
   if (selectedClub) {
@@ -101,7 +101,7 @@ function Clubs({ userEmail }) {
               ?
             </h1>
           </Row>
-          <div className="club-table">
+          <div className="club-table" style={{ marginBottom: 30 }}>
             {displayClubs}
           </div>
           <div className="row justify-content-center">
@@ -109,7 +109,6 @@ function Clubs({ userEmail }) {
             <div className="col-4">
               <h3 style={{ textAlign: 'center' }}>Create Club</h3>
               <Card style={{
-                width: '23rem',
                 margin: 'auto',
                 marginTop: '20px',
                 borderRadius: '10px',
@@ -145,7 +144,6 @@ function Clubs({ userEmail }) {
             <div className="col-4">
               <h3 style={{ textAlign: 'center' }}>Join Club</h3>
               <Card style={{
-                width: '23rem',
                 margin: 'auto',
                 marginTop: '20px',
                 borderRadius: '10px',

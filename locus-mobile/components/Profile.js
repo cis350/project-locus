@@ -7,7 +7,7 @@ import {
 export default function Profile({ user }) {
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 40 }}>My Profile</Text>
+      <Text style={{ fontSize: 40 }}>Profile</Text>
       <View style={styles.profileContainer}>
         <Image source={require('../assets/default-profile.jpg')} style={styles.img} />
         <Text>{`${user.firstName} ${user.lastName}`}</Text>

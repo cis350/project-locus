@@ -6,24 +6,23 @@
   border-radius: 10px;
   margin-left: 0px;
 }
-.project-button {
+.project-title {
   font-family: Arial;
   background-color: #6A9B72;
-  font-Size: 24px;
-  width: 90%;
+  width: 95%;
   border-Color: #B1DFAD;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
+  border-radius: 10px;
+  text-align: 'center';
 }
 .member-button {
   color: white;
   font-size:14px;
   margin-top: 10px;
   background-color: #6a9b72;
-  max-width: 200px;
-  width: 100%;
   margin-left: 0px;
 }
 

@@ -66,9 +66,9 @@ async function getProject(clubName, projectName) {
   }
 }
 
-async function createProject(clubName, projectName, leaderEmail) {
+async function createProject(clubName, projectName, leaderEmail, requestedEmail) {
   try {
-    const response = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail });
+    const response = await axios.put(`${domain}/project/${clubName}`, { projectName, leaderEmail, requestedEmail });
     return { status: response.status, jsonContent: response.data };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
@@ -195,10 +195,108 @@ async function promoteMember(clubName, requesterEmail, targetEmail) {
   }
 }
 
+/*
+ * Notifications fetches
+ */
+
+async function getUserNotifications(userEmail) {
+  try {
+    const result = await axios.get(`${domain}/notifications/${userEmail}`);
+    return { status: result.status, jsonContent: result.data.notifications };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function updateNotifications(userEmail, club) {
+  try {
+    const result = await axios.put(`${domain}/notifications/${club}`, { requestedEmail: userEmail });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+/*
+ * Tasks fetches
+ */
+
+async function createTask(projectName, clubName, taskName, requestedEmail, targetEmail, status) {
+  try {
+    const result = await axios.post(`${domain}/createTask/${projectName}`, {
+      clubName,
+      taskName,
+      requestedEmail,
+      targetEmail,
+      status,
+    });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getTasksForProject(projectName, clubName, requestedEmail) {
+  try {
+    const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function updateStatusForCurrTask(taskId, clubName, projectName, requestedEmail, newStatus) {
+  try {
+    const result = await axios.put(`${domain}/updateTaskStatus/${taskId}`, {
+      clubName,
+      projectName,
+      requestedEmail,
+      newStatus,
+    });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function resetPassword(useremail, password) {
+  try {
+    const result = await axios.put(`${domain}/resetPassword/${useremail}`, { password });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function deleteTask(taskId, clubName, projectName, requestedEmail) {
+  try {
+    const result = await axios({
+      method: 'DELETE',
+      url: `${domain}/deleteTask/${taskId}`,
+      data: {
+        clubName,
+        projectName,
+        requestedEmail,
+      },
+    });
+    return { status: result.status, jsonContent: result.data.message };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
+async function getAllTasks(projectName, clubName, requestedEmail) {
+  try {
+    const result = await axios.post(`${domain}/tasks/${projectName}`, { clubName, requestedEmail });
+    return { status: result.status, jsonContent: result.data.result };
+  } catch (err) {
+    return { status: err.response.status, jsonContent: err.response.data };
+  }
+}
+
 async function getAllClubTasks(clubName) {
   try {
     const result = await axios.get(`${domain}/AllOngoingTasks/${clubName}`);
-    console.log(result.data.result);
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
     return { status: err.response.status, jsonContent: err.response.data };
@@ -224,4 +322,12 @@ module.exports = {
   addUserToProject,
   removeMemberFromProject,
   getAllClubTasks,
+  createTask,
+  getTasksForProject,
+  updateStatusForCurrTask,
+  resetPassword,
+  deleteTask,
+  getAllTasks,
+  getUserNotifications,
+  updateNotifications,
 };

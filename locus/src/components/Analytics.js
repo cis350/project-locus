@@ -1,45 +1,80 @@
+/* eslint-disable arrow-body-style */
+/* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
-  Form,
 } from 'react-bootstrap';
+import { getAllTasks } from '../modules/api';
 
-const Analytics = function AnalyticsComponent({ userId }) {
-  const tasksCompletedData = {
-    completedTasks: ['Task 1', 'Task 2', 'Task 3'],
-    taskCompletedByPerson: [{ personName: 'Dustin', taskCompleted: 0 }, { personName: 'Soham', taskCompleted: 1 }, { personName: 'James', taskCompleted: 2 }],
-  };
+const Analytics = function AnalyticsComponent({
+  userId,
+  currProjectWithoutSpace,
+  project,
+  club,
+  email,
+}) {
+  const [allTasks, setAllTasks] = useState([]);
+  useEffect(() => {
+    getAllTasks(project, club, email).then((res) => {
+      if (res.status === 200) {
+        setAllTasks(res.jsonContent);
+      }
+    });
+  }, []);
 
   const navigate = useNavigate();
 
   const returnToProject = (() => {
-    navigate(`/projects/manage-projects/${userId}`);
+    navigate(`/projects/manage-projects/${currProjectWithoutSpace}/${userId}`);
   });
 
   const tasksCompleted = (() => (
-    tasksCompletedData.completedTasks.map((data) => (
-      <li style={{ listStyleType: 'none', width: '15rem' }} key={data}>
-        <div className="row">
-          <div className="col-6">
-            {data}
+    allTasks.filter((data) => {
+      if (data.status === 'done') return true;
+      return false;
+    }).map((data) => {
+      return (
+        <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
+          <div className="row">
+            <div className="col-6">
+              {data.taskName}
+            </div>
           </div>
-        </div>
-      </li>
-    ))
+        </li>
+      );
+    })
   ));
 
-  const usersAndTheirCompletedTasks = (() => (
-    tasksCompletedData.taskCompletedByPerson.map((data) => (
-      <li style={{ listStyleType: 'none', width: '15rem' }} key={data}>
-        <div className="row">
-          <div className="col-6">
-            {`${data.personName} ${data.taskCompleted}`}
+  const tasksIncompleted = (() => (
+    allTasks.filter((data) => {
+      if (data.status === 'done') return false;
+      return true;
+    }).map((data) => {
+      if (data.status === 'incomplete') {
+        return (
+          <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
+            <div className="row">
+              <div className="col-6">
+                {data.taskName}
+              </div>
+            </div>
+          </li>
+        );
+      }
+      return (
+        <li style={{ listStyleType: 'none', width: '50rem' }} key={data._id}>
+          <div className="row">
+            <div className="col-6">
+              {data.taskName}
+              {' '}
+              (need help)
+            </div>
           </div>
-        </div>
-      </li>
-    ))
+        </li>
+      );
+    })
   ));
 
   return (
@@ -80,10 +115,10 @@ const Analytics = function AnalyticsComponent({ userId }) {
           >
             <Card.Body>
               {/* referenced https://react-bootstrap.github.io/forms/overview/ */}
-              <h5 className="text-center">Task Tracker</h5>
+              <h5 className="text-center">Incompleted Tasks</h5>
               <div style={{ overflow: 'hidden', overflowY: 'scroll' }}>
                 <ul style={{ height: '310px' }}>
-                  {usersAndTheirCompletedTasks()}
+                  {tasksIncompleted()}
                 </ul>
               </div>
             </Card.Body>
