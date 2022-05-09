@@ -33,8 +33,10 @@ export default function Club({ route }) {
 
   async function handleRemoveMember(memberEmail) {
     const response = await removeMember(currentClub.clubName, user.email, memberEmail);
-    Alert.alert(response.jsonContent);
-    setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+    if (response.status === 200) {
+      Alert.alert('Removal Success');
+      setClub((await getSpecificClub(currentClub.clubName)).jsonContent);
+    } else Alert.alert('Removal Success');
   }
 
   async function handlePromoteMember(memberEmail) {

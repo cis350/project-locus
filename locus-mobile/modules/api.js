@@ -85,6 +85,8 @@ async function removeMember(clubName, requestedEmail, targetEmail) {
     });
     return { status: result.status, jsonContent: result.data.result };
   } catch (err) {
+    console.log(err.response.status);
+    console.log(err.response.data);
     return { status: err.response.status, jsonContent: err.response.data };
   }
 }
