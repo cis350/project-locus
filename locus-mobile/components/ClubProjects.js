@@ -32,9 +32,11 @@ export default function ClubProjects({ clubName, user, changeClub }) {
     setProjects();
   }, [isFocused, jawn, selectedProject]);
 
+  // async function createClubProject(clubName, projectName, leaderEmail, requestedEmail) {
   async function handleCreateProject() {
-    const response = await createClubProject(clubName, projectName, user.email);
-    if (response.status !== 200) Alert.alert('Project Creation Failed');
+    const response = await createClubProject(clubName, projectName, user.email, user.email);
+    if (response.status !== 201) Alert.alert('Project Creation Failed');
+    else Alert.alert('Project Creation Success');
     setProjectName('');
     setModalVisible(false);
     rerender(!jawn);

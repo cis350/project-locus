@@ -22,10 +22,8 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
     }
     setTask();
   }, [jawn]);
-  console.log(currTask);
 
   async function handleUpdateStatus(newStatus) {
-    Alert.alert('Status Updated');
     await updateTaskStatus(club.clubName, project.projectName, user.email, newStatus, task._id);
     setStatus(newStatus);
     rerender(!jawn);
@@ -34,20 +32,20 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
   // async function reassignTask(clubName, projectName, requestedEmail, targetEmail, taskId) {
 
   async function handleReassignTask() {
-    Alert.alert('Reassign Task');
     await reassignTask(club.clubName, project.projectName, user.email, assignee, task._id);
     rerender(!jawn);
   }
 
   async function handleDeleteTask() {
     await deleteTask(club.clubName, project.projectName, user.email, task._id);
+    Alert.alert('Task Deleted');
     setSelectedTask(undefined);
   }
 
   const statusPicker = (
     <Picker
       selectedValue={status}
-      style={{ height: 200, width: 300 }}
+      style={{ height: 150, width: 300, marginBottom: 40 }}
       onValueChange={(itemValue) => handleUpdateStatus(itemValue)}
     >
       <Picker.Item label="Incomplete" value="incomplete" />
@@ -57,7 +55,7 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
   );
 
   const assigneeChanger = (
-    <View style={styles.container}>
+    <View style={styles.reassignContainer}>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -65,29 +63,33 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
         onChangeText={setAssignee}
         value={assignee}
       />
-      <TouchableHighlight style={styles.button} onPress={() => handleReassignTask()}>
-        <Text>Reassign</Text>
+      <TouchableHighlight style={styles.reassignButton} onPress={() => handleReassignTask()} underlayColor="#33E86F">
+        <Text style={{ fontSize: 20 }}>Reassign</Text>
       </TouchableHighlight>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.taskTitle}>Task Name: {currTask.taskName}</Text>
-      <Text style={styles.taskTitle}>Assigned To: {currTask.assignedTo}</Text>
-      <Text style={styles.taskTitle}>Status: {currTask.status}</Text>
-      {(currTask.assignedTo === user.email || user.email === project.leaderEmail)
-        ? statusPicker : <View />}
-      {(user.email === project.leaderEmail) ? assigneeChanger : <View />}
+      <View style={styles.taskCard}>
+        <View style={styles.taskContainer}>
+          <Text style={styles.taskTitle}>{currTask.taskName}</Text>
+          <Text style={styles.taskTitle}>Assigned: {currTask.assignedTo}</Text>
+          <Text style={styles.taskTitle}>Status: {currTask.status}</Text>
+        </View>
+        {(currTask.assignedTo === user.email || user.email === project.leaderEmail)
+          ? statusPicker : <View />}
+        {(user.email === project.leaderEmail) ? assigneeChanger : <View />}
+      </View>
+      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)} underlayColor="#33E86F">
+        <Text style={{ fontSize: 20 }}>Return</Text>
+      </TouchableHighlight>
       {(user.email === project.leaderEmail)
         ? (
-          <TouchableHighlight style={styles.button} onPress={() => handleDeleteTask()}>
-            <Text>Delete</Text>
+          <TouchableHighlight style={styles.removeButton} onPress={() => handleDeleteTask()} underlayColor="red">
+            <Text style={{ fontSize: 20 }}>Delete</Text>
           </TouchableHighlight>
         ) : <View />}
-      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
-        <Text>Return</Text>
-      </TouchableHighlight>
     </View>
   );
 }
@@ -98,22 +100,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 25,
   },
-  addMemberContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   taskTitle: {
-    width: 200,
-    fontSize: 20,
-  },
-  memberContainer: {
-    justifyContent: 'space-between',
-    backgroundColor: '#B5E48C',
     width: 350,
-    paddingVertical: 30,
-    paddingHorizontal: 20,
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  taskCard: {
+    backgroundColor: '#B5E48C',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 10,
-    marginVertical: 30,
+    padding: 5,
+  },
+  taskContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   task: {
     flexDirection: 'row',
@@ -124,10 +127,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 5,
   },
+  reassignContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   input: {
     backgroundColor: 'white',
     borderColor: 'gray',
-    width: 250,
+    width: 200,
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
@@ -138,6 +145,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     width: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+    paddingHorizontal: 5,
+  },
+  reassignButton: {
+    backgroundColor: '#52B69A',
+    borderRadius: 10,
+    paddingVertical: 7,
+    width: 120,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
@@ -156,10 +173,12 @@ const styles = StyleSheet.create({
   removeButton: {
     backgroundColor: 'red',
     borderRadius: 10,
-    width: 100,
+    paddingVertical: 10,
+    width: 150,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 5,
+    margin: 10,
+    paddingHorizontal: 5,
   },
   cancelButton: {
     backgroundColor: 'red',

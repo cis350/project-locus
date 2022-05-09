@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput, Image,
+  View, Text, StyleSheet, ScrollView, TouchableHighlight, TextInput, Image, Alert,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { getClubChat, sendMessage, updateNotifications } from '../modules/api';
@@ -66,13 +66,12 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     if (/\S/.test(message)) {
       // TODO: pass date as milliseconds, update content to image content
       const response = await (sendMessage(currentChat, user.email, message, content, (new Date()).getTime()));
-      console.log(currentChat);
-      console.log(user.email);
       if (response.status === 201) await updateNotifications(currentChat, user.email);
-    }
-    setChatMessages((await getClubChat(currentChat)).jsonContent);
-    setMessage('');
-    setContent('');
+      else Alert.alert('Message send failed');
+      setChatMessages((await getClubChat(currentChat)).jsonContent);
+      setMessage('');
+      setContent('');
+    } else Alert.alert('Message Needs a Body');
   }
 
   // setup messages view for specific chat
@@ -141,7 +140,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
             onSubmitEditing={() => handleSendMessage()}
             value={content}
           />
-          <TouchableHighlight style={styles.button} underlayColor="#33E86F" onPress={() => handleSendMessage()}>
+          <TouchableHighlight style={styles.sendButton} underlayColor="#33E86F" onPress={() => handleSendMessage()}>
             <Text style={{ fontSize: 28, color: 'white' }}>Send Message</Text>
           </TouchableHighlight>
         </View>
@@ -172,6 +171,16 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#6A9B72',
+    borderRadius: 10,
+    paddingVertical: 10,
+    width: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 10,
+  },
+  sendButton: {
+    backgroundColor: '#52B69A',
     borderRadius: 10,
     paddingVertical: 10,
     width: 250,

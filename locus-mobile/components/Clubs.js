@@ -50,6 +50,7 @@ export default function Clubs({ route, navigation }) {
   async function handleCreateClub() {
     const masterId = await getUserId(user.email);
     const response = await createClub(newClubName, masterId, newClubPassword);
+    if (response.status === 200) Alert.alert('Club Created!');
     if (response.status !== 200) Alert.alert('Creation Failed');
     setUserClubs((await getUserClubs(user.email)).jsonContent);
     setNewClubName('');
@@ -62,6 +63,7 @@ export default function Clubs({ route, navigation }) {
     setUserClubs((await getUserClubs(user.email)).jsonContent);
     setJoinClubName('');
     setJoinClubPassword('');
+    if (response.status === 201) Alert.alert('Club Joined!');
     if (response.status !== 201) Alert.alert('Join Club Failed');
     setJoinClubModalVisible(false);
   }

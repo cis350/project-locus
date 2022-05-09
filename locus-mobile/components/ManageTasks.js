@@ -14,8 +14,6 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
   const [newTaskAssignee, setNewTaskAssignee] = useState('');
   const [selectedTask, setSelectedTask] = useState(undefined);
 
-  console.log(`task selected${selectedTask}`);
-  console.log(selectedTask);
   useEffect(() => {
     async function getTasks() {
       setTasks((await getAllTasksForProject(club.clubName, project.projectName, user.email))
@@ -37,7 +35,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
     setNewTaskName('');
     setNewTaskAssignee('');
     setModalVisible(false);
-    if (response.status === 200) Alert.alert('Task Successfully Created');
+    if (response.status === 201) Alert.alert('Task Successfully Created');
     else Alert.alert('Task Creation Failed');
     rerender(!jawn);
   }
@@ -48,7 +46,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
       <View style={styles.task} key={`task${i}`}>
         <Text style={styles.taskTitle}>{tasks[i].taskName}</Text>
         <Text style={styles.status}>{tasks[i].status}</Text>
-        <TouchableHighlight style={styles.viewButton} onPress={() => setSelectedTask(tasks[i])} underlayColor="#b00017">
+        <TouchableHighlight style={styles.viewButton} onPress={() => setSelectedTask(tasks[i])} underlayColor="#33E86F">
           <Text style={{ textAlign: 'center', fontSize: 15, color: 'white' }}>View</Text>
         </TouchableHighlight>
       </View>,
@@ -107,12 +105,12 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
       </ScrollView>
       {(user.email === project.leaderEmail)
         ? (
-          <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#b00017">
+          <TouchableHighlight style={styles.button} onPress={() => setModalVisible(true)} underlayColor="#33E86F">
             <Text style={{ textAlign: 'center', fontSize: 20 }}>Create Tasks</Text>
           </TouchableHighlight>
         )
         : <View />}
-      <TouchableHighlight style={styles.backButton} onPress={() => setManagingTask(false)} underlayColor="#b00017">
+      <TouchableHighlight style={styles.backButton} onPress={() => setManagingTask(false)} underlayColor="#33E86F">
         <Text style={{ textAlign: 'center', fontSize: 20 }}>Return</Text>
       </TouchableHighlight>
     </View>
