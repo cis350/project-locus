@@ -2,12 +2,10 @@
 /* eslint-disable object-curly-newline */
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableHighlight, Alert, TextInput, Modal,
+  View, Text, StyleSheet, TouchableHighlight, Alert, TextInput,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { deleteTask, reassignTask, getSpecificTask, updateTaskStatus } from '../modules/api';
-
-const statuses = ['incomplete', 'need help', 'done'];
 
 export default function Task({ project, task, setSelectedTask, user, club }) {
   const [status, setStatus] = useState(task.status);
@@ -31,17 +29,25 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
     setStatus(newStatus);
     rerender(!jawn);
   }
+
+  // async function reassignTask(clubName, projectName, requestedEmail, targetEmail, taskId) {
+
   async function handleReassignTask() {
-    Alert.alert('Task Reassigned');
+    Alert.alert('Reassign Task');
+    await reassignTask(club.clubName, project.projectName, user.email, assignee, task._id);
+    rerender(!jawn);
   }
+
   async function handleDeleteTask() {
-    await deleteTask(club.clubName, project.projectName, user.email, task.id);
+    const response = await deleteTask(club.clubName, project.projectName, user.email, task._id);
+    console.log(response);
+    setSelectedTask(undefined);
   }
 
   const statusPicker = (
     <Picker
       selectedValue={status}
-      style={{ height: 300, width: 150 }}
+      style={{ height: 200, width: 300 }}
       onValueChange={(itemValue) => handleUpdateStatus(itemValue)}
     >
       <Picker.Item label="Incomplete" value="incomplete" />
@@ -50,17 +56,30 @@ export default function Task({ project, task, setSelectedTask, user, club }) {
     </Picker>
   );
 
+  const assigneeChanger = (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="grey"
+        onChangeText={setAssignee}
+        value={assignee}
+      />
+      <TouchableHighlight style={styles.button} onPress={() => handleReassignTask()}>
+        <Text>Reassign</Text>
+      </TouchableHighlight>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.taskTitle}>{currTask.taskName}</Text>
-      <Text style={styles.taskTitle}>{currTask.assignedTo}</Text>
-      <Text style={styles.taskTitle}>{currTask.status}</Text>
+      <Text style={styles.taskTitle}>Task Name: {currTask.taskName}</Text>
+      <Text style={styles.taskTitle}>Assigned To: {currTask.assignedTo}</Text>
+      <Text style={styles.taskTitle}>Status: {currTask.status}</Text>
       {statusPicker}
-      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
+      {assigneeChanger}
+      <TouchableHighlight style={styles.button} onPress={() => handleDeleteTask()}>
         <Text>Delete</Text>
-      </TouchableHighlight>
-      <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
-        <Text>Update Status</Text>
       </TouchableHighlight>
       <TouchableHighlight style={styles.button} onPress={() => setSelectedTask(undefined)}>
         <Text>Return</Text>

@@ -20,7 +20,7 @@ export default function ManageTasks({ project, setManagingTask, user, club }) {
         .jsonContent);
     }
     getTasks();
-  }, [jawn]);
+  }, [jawn, selectedTask]);
 
   async function handleCreateTask() {
     const response = await (

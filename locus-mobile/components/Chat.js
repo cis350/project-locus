@@ -44,6 +44,13 @@ export default function Chat({ currentChat, backToAllChat, user }) {
     return true;
   };
 
+  const getTime = ((dateMilli) => {
+    const date = new Date(dateMilli);
+    const hour = date.getHours();
+    let minute = date.getMinutes();
+    if (minute < 10) minute = `0${minute}`;
+    return `${hour}:${minute}`;
+  });
   const getDate = ((dateMilli) => {
     const date = new Date(dateMilli);
     const year = date.getFullYear();
@@ -86,6 +93,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
           </View>
           <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
           <Text style={{ fontSize: 10 }}>{getDate(chatMessages[i].timeStamp)}</Text>
+          <Text style={{ fontSize: 10 }}>{getTime(chatMessages[i].timeStamp)}</Text>
         </View>,
       );
     } else { // align left if you are not the sender
@@ -98,6 +106,7 @@ export default function Chat({ currentChat, backToAllChat, user }) {
           </View>
           <Text style={{ fontSize: 10 }}>{chatMessages[i].fullName}</Text>
           <Text style={{ fontSize: 10 }}>{getDate(chatMessages[i].timeStamp)}</Text>
+          <Text style={{ fontSize: 10 }}>{getTime(chatMessages[i].timeStamp)}</Text>
         </View>,
       );
     }
