@@ -9,12 +9,12 @@ import '@testing-library/jest-dom/extend-expect';
 import Clubs from '../components/Clubs';
 
 const dummyClubs = {
-  'club1': {
-    master: 'James'
+  club1: {
+    master: 'James',
   },
-  'club2': {
-    master: 'Dustin'
-  }
+  club2: {
+    master: 'Dustin',
+  },
 };
 
 test('Clubs Displays Which Club Needs Work?', () => {

@@ -10,6 +10,7 @@ import Login from '../components/Login';
 
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
+
 const domain = 'http://localhost:3306';
 
 // mock useNavigate: https://github.com/remix-run/react-router/issues/7811
