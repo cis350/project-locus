@@ -8,12 +8,24 @@ import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import Login from '../components/Login';
 
+const axios = require('axios');
+const MockAdapter = require('axios-mock-adapter');
+const domain = 'http://localhost:3306';
+
 // mock useNavigate: https://github.com/remix-run/react-router/issues/7811
 const mockedNavigator = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedNavigator,
 }));
+
+let mock;
+beforeAll(() => {
+  mock = new MockAdapter(axios);
+});
+afterEach(() => {
+  mock.reset();
+});
 
 describe('Initial Login page displays', () => {
   test('Displays Log-in text', () => {
@@ -73,4 +85,35 @@ describe('Alert message tests', () => {
   //   const alertElement = screen.getByText('Email or/and password invalid.');
   //   expect(alertElement).toBeInTheDocument();
   // });
+});
+
+describe('Login Button Tests', () => {
+  test('Click Login with 200', () => {
+    render(<Login />);
+    userEvent.type(screen.getByTestId('email-input'), 'email');
+    userEvent.type(screen.getByTestId('password-input'), 'pass');
+    userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
+    mock.onPost(`${domain}/login`).reply(200);
+  });
+  test('Click Login with 400', () => {
+    render(<Login />);
+    userEvent.type(screen.getByTestId('email-input'), 'email');
+    userEvent.type(screen.getByTestId('password-input'), 'pass');
+    userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
+    mock.onPost(`${domain}/login`).reply(400);
+  });
+  test('Click Login with 403', () => {
+    render(<Login />);
+    userEvent.type(screen.getByTestId('email-input'), 'email');
+    userEvent.type(screen.getByTestId('password-input'), 'pass');
+    userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
+    mock.onPost(`${domain}/login`).reply(403);
+  });
+  test('Click Login with 404', () => {
+    render(<Login />);
+    userEvent.type(screen.getByTestId('email-input'), 'email');
+    userEvent.type(screen.getByTestId('password-input'), 'pass');
+    userEvent.click(screen.getByRole('button', { name: /Log-in/i }));
+    mock.onPost(`${domain}/login`).reply(404);
+  });
 });
